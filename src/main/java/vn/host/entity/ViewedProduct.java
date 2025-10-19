@@ -18,12 +18,12 @@ public class ViewedProduct {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
-    @JoinColumn(name = "UserId")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("productId")
-    @JoinColumn(name = "ProductId")
+    @JoinColumn(name = "product_id")
     private Product product;
 
     @CreationTimestamp
