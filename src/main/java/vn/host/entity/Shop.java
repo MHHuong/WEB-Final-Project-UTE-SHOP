@@ -1,5 +1,7 @@
 package vn.host.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -37,6 +39,7 @@ public class Shop {
     private Instant createdAt;
 
     @OneToMany(mappedBy = "shop")
+    @JsonIgnore
     private Set<Product> products = new HashSet<>();
 
     @OneToMany(mappedBy = "shop")

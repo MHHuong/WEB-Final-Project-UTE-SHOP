@@ -1,0 +1,87 @@
+package vn.host.controller.api;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import vn.host.entity.CartItem;
+import vn.host.model.request.CartRequest;
+import vn.host.model.response.CartResponse;
+import vn.host.model.response.ResponseModel;
+import vn.host.service.CartItemService;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/carts")
+public class CartController {
+
+    @Autowired
+    CartItemService cartItemService;
+
+    @GetMapping("{id}")
+    public ResponseEntity<?> findCartItemByUser(@PathVariable Long id) {
+        try {
+            List<CartResponse> userCart = cartItemService.findUserCartItems(id);
+            return new ResponseEntity<> (
+                    new ResponseModel(
+                            "true",
+                            "Get user cart successfully",
+                            userCart
+                    ), HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<> (
+                    new ResponseModel(
+                            "false",
+                            "Error: " + e.getMessage(),
+                            null
+                    ), HttpStatus.BAD_REQUEST
+            );
+        }
+    }
+
+    @PostMapping()
+    public ResponseEntity<?> saveCartItem(@RequestBody CartRequest cartRequest) {
+        try {
+            cartItemService.saveCart(cartRequest);
+            return new ResponseEntity<> (
+                    new ResponseModel(
+                            "true",
+                            "Add product to cart successfully",
+                            null
+                    ), HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<> (
+                    new ResponseModel(
+                            "false",
+                            "Error: " + e.getMessage(),
+                            null
+                    ), HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<?> updateCartItemQuantity(@PathVariable Long id, @RequestParam Integer quantity) {
+        try {
+            cartItemService.updateCartItemQuantity(id, quantity);
+            return new ResponseEntity<> (
+                    new ResponseModel(
+                            "true",
+                            "Update product quantity in cart successfully",
+                            null
+                    ), HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<> (
+                    new ResponseModel(
+                            "false",
+                            "Error: " + e.getMessage(),
+                            null
+                    ), HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+}

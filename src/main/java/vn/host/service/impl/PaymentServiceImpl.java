@@ -5,7 +5,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.host.config.PaymentConfig;
-import vn.host.model.PaymentRequest;
+import vn.host.entity.Payment;
+import vn.host.model.request.PaymentRequest;
 import vn.host.repository.PaymentRepository;
 import vn.host.service.PaymentService;
 
@@ -81,5 +82,10 @@ public class PaymentServiceImpl implements PaymentService {
         String vnp_SecureHash = PaymentConfig.hmacSHA512(PaymentConfig.secretKey, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         return PaymentConfig.vnp_PayUrl + "?" + queryUrl;
+    }
+
+    @Override
+    public <S extends Payment> S save(S entity) {
+        return paymentRepository.save(entity);
     }
 }

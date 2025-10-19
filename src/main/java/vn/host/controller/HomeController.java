@@ -11,4 +11,9 @@ public class HomeController {
     public String home() {
         return "user/order/home";
     }
+
+    @GetMapping("/ws")
+    public String WS() {
+        return "user/test-ws";
+    }
 }

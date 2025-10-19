@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WebSocket Per-User Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, button { padding: 8px; margin: 4px 0; }
+    .row { margin-bottom: 8px; }
+    #log { border: 1px solid #ccc; padding: 10px; height: 240px; overflow: auto; background: #fafafa; }
+    .ok { color: green; }
+    .err { color: #b30000; }
+  </style>
+</head>
+<body>
+  <h2>Test WebSocket per-user orders (/user/queue/orders)</h2>
+
+  <div class="row">
+    <label>User ID for Principal (for testing):</label>
+    <input id="userId" type="text" placeholder="e.g. 1" />
+  </div>
+  <div class="row">
+    <button id="connectBtn">Connect</button>
+    <button id="disconnectBtn" disabled>Disconnect</button>
+  </div>
+
+  <div class="row">
+    <label>Send test message to userId (server REST):</label>
+    <input id="sendUserId" type="text" placeholder="userId" />
+    <input id="sendMessage" type="text" placeholder="message" />
+    <button id="sendBtn">POST /api/test/ws/send</button>
+  </div>
+
+  <div class="row">
+    <label>Trigger order status update (server REST):</label>
+    <input id="orderId" type="number" placeholder="orderId" />
+    <input id="status" type="text" placeholder="status e.g. SHIPPED" />
+    <button id="updateBtn">POST /api/test/ws/order-status</button>
+  </div>
+
+  <h3>Log</h3>
+  <div id="log"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <script>
+    let stompClient = null;
+
+    function log(msg, cls) {
+      const el = document.createElement('div');
+      if (cls) el.className = cls;
+      el.textContent = msg;
+      document.getElementById('log').appendChild(el);
+      document.getElementById('log').scrollTop = document.getElementById('log').scrollHeight;
+    }
+
+    function connect() {
+      const userId = document.getElementById('userId').value.trim();
+      if (!userId) { alert('Enter userId first'); return; }
+      const sock = new SockJS('/ws?userId=' + encodeURIComponent(userId));
+      stompClient = Stomp.over(sock);
+      stompClient.connect({}, function(frame) {
+        log('Connected: ' + frame, 'ok');
+        document.getElementById('connectBtn').disabled = true;
+        document.getElementById('disconnectBtn').disabled = false;
+        // Subscribe to per-user queue
+        stompClient.subscribe('/user/queue/orders', function(message) {
+          try {
+            const body = JSON.parse(message.body);
+            log('Received: ' + JSON.stringify(body), 'ok');
+          } catch (e) {
+            log('Received (raw): ' + message.body, 'ok');
+          }
+        });
+      }, function(error) {
+        log('STOMP error: ' + error, 'err');
+      });
+    }
+
+    function disconnect() {
+      if (stompClient) {
+        stompClient.disconnect(() => {
+          log('Disconnected', 'ok');
+        });
+        stompClient = null;
+      }
+      document.getElementById('connectBtn').disabled = false;
+      document.getElementById('disconnectBtn').disabled = true;
+    }
+
+    async function sendTest() {
+      const userId = document.getElementById('sendUserId').value.trim();
+      const message = document.getElementById('sendMessage').value.trim() || 'TEST';
+      if (!userId) { alert('Enter userId to send to'); return; }
+      const url = '/api/status/ws/send?userId=' + encodeURIComponent(userId) + '&message=' + encodeURIComponent(message);
+      const res = await fetch(url, { method: 'POST' });
+      log('POST ' + url + ' -> ' + res.status, res.ok ? 'ok' : 'err');
+    }
+
+    async function updateOrder() {
+      const orderId = document.getElementById('orderId').value.trim();
+      const status = document.getElementById('status').value.trim();
+      if (!orderId || !status) { alert('Enter orderId and status'); return; }
+      const url = '/api/status/ws/order-status?orderId=' + encodeURIComponent(orderId) + '&status=' + encodeURIComponent(status);
+      const res = await fetch(url, { method: 'POST' });
+      log('POST ' + url + ' -> ' + res.status, res.ok ? 'ok' : 'err');
+    }
+
+    document.getElementById('connectBtn').addEventListener('click', connect);
+    document.getElementById('disconnectBtn').addEventListener('click', disconnect);
+    document.getElementById('sendBtn').addEventListener('click', sendTest);
+    document.getElementById('updateBtn').addEventListener('click', updateOrder);
+  </script>
+</body>
+</html>
+

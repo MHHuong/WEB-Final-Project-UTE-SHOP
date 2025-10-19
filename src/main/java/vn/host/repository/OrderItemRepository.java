@@ -1,0 +1,27 @@
+package vn.host.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+import vn.host.entity.OrderItem;
+import vn.host.model.response.OrderItemResponse;
+
+import java.util.List;
+
+@Repository
+//Long ProductId;
+//int quantity;
+//BigDecimal unitPrice
+public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
+    @Query("""
+            SELECT new vn.host.model.response.OrderItemResponse(
+                oi.product.name,
+                oi.quantity,
+                oi.unitPrice
+            )
+            FROM OrderItem oi
+            WHERE oi.order.orderId = :orderId
+                AND oi.order.user.userId = :userId
+            """)
+    public List<OrderItemResponse> findOrderByOrderIdAndUserId(Long orderId, Long userId);
+}
