@@ -1,4 +1,4 @@
-package vn.host.controller;
+package vn.host.controller.admin;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
