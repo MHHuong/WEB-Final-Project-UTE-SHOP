@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-	
-<!-- Mirrored from freshcart.codescandy.com/dashboard/create-customers.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 14 Nov 2024 06:09:18 GMT -->
+   
+<!-- Mirrored from freshcart.codescandy.com/dashboard/add-category.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 14 Nov 2024 06:10:02 GMT -->
 <head>
-		<!-- Required meta tags -->
+      <!-- Required meta tags -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta content="Codescandy" name="author">
-		<title>Create Customers Dashboard eCommerce HTML Template - FreshCart</title>
-
-		<link rel="stylesheet" th:href="@{/assets/libs/dropzone/dist/dropzone.css}" />
-		<!-- Favicon icon-->
+      <title>Add Category Dashboard eCommerce HTML Template - FreshCart</title>
+      <link th:href="@{/assets/libs/dropzone/dist/min/dropzone.min.css}" rel="stylesheet" />
+      <!-- Favicon icon-->
 <link rel="shortcut icon" type="image/x-icon" th:href="@{/assets/images/favicon/favicon.ico}">
 
 
@@ -47,10 +46,12 @@
    })(window, document, "clarity", "script", "kuc8w5o9nt");
 </script>
 
-	</head>
+   </head>
 
-	<body>
-		<!-- navbar -->
+   <body>
+      <!-- main wrapper -->
+
+      <!-- navbar -->
 <nav class="navbar navbar-expand-lg navbar-glass">
 	<div class="container-fluid">
 		<div class="d-flex justify-content-between align-items-center w-100">
@@ -200,20 +201,21 @@
 	</div>
 </nav>
 
-		<div class="main-wrapper">
-			<!-- navbar vertical -->
-			<!-- navbar -->
+
+      <div class="main-wrapper">
+         <!-- navbar vertical -->
+         <!-- navbar -->
 <nav class="navbar-vertical-nav d-none d-xl-block">
 	<div class="navbar-vertical">
 		<div class="px-4 py-5">
-			<a href="../index.html" class="navbar-brand">
+			<a href="../../index.html" class="navbar-brand">
 				<img th:src="@{/assets/images/logo/freshcart-logo.svg}" alt="" />
 			</a>
 		</div>
 		<div class="navbar-vertical-content flex-grow-1" data-simplebar="">
 			<ul class="navbar-nav flex-column" id="sideNavbar">
 				<li class="nav-item">
-					<a class="nav-link " href="../shop/index.html">
+					<a class="nav-link " href="../../shop/index.html">
 						<div class="d-flex align-items-center">
 							<span class="nav-link-icon"><i class="bi bi-house"></i></span>
 							<span class="nav-link-text">Dashboard</span>
@@ -224,7 +226,7 @@
 					<span class="nav-label">Store Managements</span>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link " href="../shop/product/products.html">
+					<a class="nav-link " href="../../shop/product/products.html">
 						<div class="d-flex align-items-center">
 							<span class="nav-link-icon"><i class="bi bi-cart"></i></span>
 							<span class="nav-link-text">Products</span>
@@ -232,7 +234,7 @@
 					</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link " href="categories.html">
+					<a class="nav-link  active " href="categories.html">
 						<div class="d-flex align-items-center">
 							<span class="nav-link-icon"><i class="bi bi-list-task"></i></span>
 							<span class="nav-link-text">Categories</span>
@@ -256,18 +258,18 @@
 					<div id="navCategoriesOrders" class="collapse " data-bs-parent="#sideNavbar">
 						<ul class="nav flex-column">
 							<li class="nav-item">
-								<a class="nav-link " href="../shop/order/order-list.html">List</a>
+								<a class="nav-link " href="../../shop/order/order-list.html">List</a>
 							</li>
 							<!-- Nav item -->
 							<li class="nav-item">
-								<a class="nav-link " href="../shop/order/order-single.html">Single</a>
+								<a class="nav-link " href="../../shop/order/order-single.html">Single</a>
 							</li>
 						</ul>
 					</div>
 				</li>
 
 				<li class="nav-item">
-					<a class="nav-link " href="vendor-grid.html">
+					<a class="nav-link " href="../vendors/vendor-grid.html">
 						<div class="d-flex align-items-center">
 							<span class="nav-link-icon"><i class="bi bi-shop"></i></span>
 							<span class="nav-link-text">Sellers / Vendors</span>
@@ -276,7 +278,7 @@
 				</li>
 				<li class="nav-item">
 					<a
-						class="nav-link "
+						class="nav-link  collapsed "
 						href="#"
 						data-bs-toggle="collapse"
 						data-bs-target="#navCustomer"
@@ -289,25 +291,25 @@
 							<span class="badge bg-light-success text-dark-success ms-2">New</span>
 						</div>
 					</a>
-					<div id="navCustomer" class="collapse  show " data-bs-parent="#sideNavbar">
+					<div id="navCustomer" class="collapse " data-bs-parent="#sideNavbar">
 						<ul class="nav flex-column">
 							<li class="nav-item">
-								<a class="nav-link " href="customers.html">Customers</a>
+								<a class="nav-link " href="../customers/customers.html">Customers</a>
 							</li>
 							<!-- Nav item -->
 							<li class="nav-item">
-								<a class="nav-link  active " href="create-customers.html">Create Customers</a>
+								<a class="nav-link " href="../customers/create-customers.html">Create Customers</a>
 							</li>
 							<!-- Nav item -->
 							<li class="nav-item">
-								<a class="nav-link " href="customers-edits.html">Edit Customers</a>
+								<a class="nav-link " href="../customers/customers-edits.html">Edit Customers</a>
 							</li>
 						</ul>
 					</div>
 				</li>
 
 				<li class="nav-item">
-					<a class="nav-link " href="../shop/review/reviews.html">
+					<a class="nav-link " href="../../shop/review/reviews.html">
 						<div class="d-flex align-items-center">
 							<span class="nav-link-icon"><i class="bi bi-star"></i></span>
 							<span class="nav-link-text">Reviews</span>
@@ -495,7 +497,7 @@
 <nav class="navbar-vertical-nav offcanvas offcanvas-start navbar-offcanvac" tabindex="-1" id="offcanvasExample">
 	<div class="navbar-vertical">
 		<div class="px-4 py-5 d-flex justify-content-between align-items-center">
-			<a href="../index.html" class="navbar-brand">
+			<a href="../../index.html" class="navbar-brand">
 				<img th:src="@{/assets/images/logo/freshcart-logo.svg}" alt="" />
 			</a>
 			<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -503,7 +505,7 @@
 		<div class="navbar-vertical-content flex-grow-1" data-simplebar="">
 			<ul class="navbar-nav flex-column">
 				<li class="nav-item">
-					<a class="nav-link " href="../shop/index.html">
+					<a class="nav-link " href="../../shop/index.html">
 						<div class="d-flex align-items-center">
 							<span class="nav-link-icon"><i class="bi bi-house"></i></span>
 							<span>Dashboard</span>
@@ -514,7 +516,7 @@
 					<span class="nav-label">Store Managements</span>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link " href="../shop/product/products.html">
+					<a class="nav-link " href="../../shop/product/products.html">
 						<div class="d-flex align-items-center">
 							<span class="nav-link-icon"><i class="bi bi-cart"></i></span>
 							<span class="nav-link-text">Products</span>
@@ -522,7 +524,7 @@
 					</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link " href="categories.html">
+					<a class="nav-link  active " href="categories.html">
 						<div class="d-flex align-items-center">
 							<span class="nav-link-icon"><i class="bi bi-list-task"></i></span>
 							<span class="nav-link-text">Categories</span>
@@ -539,17 +541,17 @@
 					<div id="navOrders" class="collapse " data-bs-parent="#sideNavbar">
 						<ul class="nav flex-column">
 							<li class="nav-item">
-								<a class="nav-link " href="../shop/order/order-list.html">List</a>
+								<a class="nav-link " href="../../shop/order/order-list.html">List</a>
 							</li>
 							<!-- Nav item -->
 							<li class="nav-item">
-								<a class="nav-link " href="../shop/order/order-single.html">Single</a>
+								<a class="nav-link " href="../../shop/order/order-single.html">Single</a>
 							</li>
 						</ul>
 					</div>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link " href="vendor-grid.html">
+					<a class="nav-link " href="../vendors/vendor-grid.html">
 						<div class="d-flex align-items-center">
 							<span class="nav-link-icon"><i class="bi bi-shop"></i></span>
 							<span class="nav-link-text">Sellers / Vendors</span>
@@ -557,7 +559,7 @@
 					</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link " href="customers.html">
+					<a class="nav-link " href="../customers/customers.html">
 						<div class="d-flex align-items-center">
 							<span class="nav-link-icon"><i class="bi bi-people"></i></span>
 							<span class="nav-link-text">Customers</span>
@@ -565,7 +567,7 @@
 					</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link " href="../shop/review/reviews.html">
+					<a class="nav-link " href="../../shop/review/reviews.html">
 						<div class="d-flex align-items-center">
 							<span class="nav-link-icon"><i class="bi bi-star"></i></span>
 							<span class="nav-link-text">Reviews</span>
@@ -717,97 +719,134 @@
 	</div>
 </nav>
 
-			<main class="main-content-wrapper">
-				<div class="container">
-					<div class="row mb-8">
-						<div class="col-md-12">
-							<div>
-								<h2>Create Customer</h2>
-								<!-- breacrumb -->
-								<nav aria-label="breadcrumb">
-									<ol class="breadcrumb mb-0">
-										<li class="breadcrumb-item"><a href="#" class="text-inherit">Dashboard</a></li>
-										<li class="breadcrumb-item active" aria-current="page">Create</li>
-									</ol>
-								</nav>
-							</div>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-12">
-							<div class="card shadow border-0">
-								<div class="card-body d-flex flex-column gap-8 p-7">
-									<div class="d-flex flex-column flex-md-row align-items-center mb-4 file-input-wrapper gap-2">
-										<div>
-											<img class="image avatar avatar-lg rounded-3" th:src="@{/assets/images/docs/placeholder-img.jpg}" alt="Image" />
-										</div>
+         <!-- main -->
+         <main class="main-content-wrapper">
+            <!-- container -->
+            <div class="container">
+               <!-- row -->
+               <div class="row mb-8">
+                  <div class="col-md-12">
+                     <div class="d-md-flex justify-content-between align-items-center">
+                        <!-- page header -->
+                        <div>
+                           <h2>Add New Category</h2>
+                           <!-- breacrumb -->
+                           <nav aria-label="breadcrumb">
+                              <ol class="breadcrumb mb-0">
+                                 <li class="breadcrumb-item"><a href="#" class="text-inherit">Dashboard</a></li>
+                                 <li class="breadcrumb-item"><a href="#" class="text-inherit">Categories</a></li>
+                                 <li class="breadcrumb-item active" aria-current="page">Add New Category</li>
+                              </ol>
+                           </nav>
+                        </div>
+                        <div>
+                           <a href="categories.html" class="btn btn-light">Back to Categories</a>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-lg-12 col-12">
+                     <!-- card -->
+                     <div class="card mb-6 shadow border-0">
+                        <!-- card body -->
+                        <div class="card-body p-6">
+                           <h4 class="mb-5 h5">Category Image</h4>
+                           <div class="mb-4 d-flex">
+                              <div class="position-relative">
+                                 <img class="image icon-shape icon-xxxl bg-light rounded-4" th:src="@{/assets/images/icons/bakery.svg}" alt="Image" />
 
-										<div class="file-upload btn btn-light ms-md-4">
-											<input type="file" class="file-input opacity-0" />
-											Upload Photo
-										</div>
+                                 <div class="file-upload position-absolute end-0 top-0 mt-n2 me-n1">
+                                    <input type="file" class="file-input" />
+                                    <span class="icon-shape icon-sm rounded-circle bg-white">
+                                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-pencil-fill text-muted" viewBox="0 0 16 16">
+                                          <path
+                                             d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z" />
+                                       </svg>
+                                    </span>
+                                 </div>
+                              </div>
+                           </div>
+                           <h4 class="mb-4 h5 mt-5">Category Information</h4>
 
-										<span class="ms-2">JPG, GIF or PNG. 1MB Max.</span>
-									</div>
-									<div class="d-flex flex-column gap-4">
-										<h3 class="mb-0 h6">Customer Information</h3>
-										<form class="row g-3 needs-validation" novalidate>
-											<div class="col-lg-6 col-12">
-												<div>
-													<!-- input -->
-													<label for="creatCustomerName" class="form-label">
-														Name
-														<span class="text-danger">*</span>
-													</label>
-													<input type="text" class="form-control" id="creatCustomerName" placeholder="Customer Name" required />
-													<div class="invalid-feedback">Please enter customer name</div>
-												</div>
-											</div>
-											<div class="col-lg-6 col-12">
-												<div>
-													<!-- input -->
-													<label for="creatCustomerEmail" class="form-label">
-														Email
-														<span class="text-danger">*</span>
-													</label>
-													<input type="email" class="form-control" id="creatCustomerEmail" placeholder="Email Address" required />
-													<div class="invalid-feedback">Please enter email</div>
-												</div>
-											</div>
-											<div class="col-lg-6 col-12">
-												<div>
-													<!-- input -->
-													<label for="creatCustomerPhone" class="form-label">Phone</label>
-													<input type="text" class="form-control" id="creatCustomerPhone" placeholder="Number" required />
-													<div class="invalid-feedback">Please enter phone</div>
-												</div>
-											</div>
+                           <div class="row">
+                              <!-- input -->
+                              <div class="mb-3 col-lg-6">
+                                 <label class="form-label">Category Name</label>
+                                 <input type="text" class="form-control" placeholder="Category Name" required />
+                              </div>
+                              <!-- input -->
+                              <div class="mb-3 col-lg-6">
+                                 <label class="form-label">Slug</label>
+                                 <input type="text" class="form-control" placeholder="Slug" required />
+                              </div>
+                              <!-- input -->
+                              <div class="mb-3 col-lg-6">
+                                 <label class="form-label">Parent Category</label>
+                                 <select class="form-select">
+                                    <option selected>Category Name</option>
+                                    <option value="Dairy, Bread & Eggs">Dairy, Bread & Eggs</option>
+                                    <option value="Snacks & Munchies">Snacks & Munchies</option>
+                                    <option value="Fruits & Vegetables">Fruits & Vegetables</option>
+                                 </select>
+                              </div>
+                              <div class="mb-3 col-lg-6">
+                                 <label class="form-label">Date</label>
+                                 <input type="text" class="form-control flatpickr" placeholder="Select Date" />
+                              </div>
 
-											<div class="col-lg-6 col-12">
-												<label class="form-label" for="creatCustomerDate">Birthday</label>
-												<input type="text" class="form-control flatpickr" id="creatCustomerDate" placeholder="dd/mm/yyyy" required />
-												<div class="invalid-feedback">Please enter date</div>
-											</div>
-											<div>
-												<div class="col-12 mt-3">
-													<div class="d-flex flex-column flex-md-row gap-2">
-														<button class="btn btn-primary" type="submit">Create New Customer</button>
-														<button class="btn btn-secondary" type="submit">Cancel</button>
-													</div>
-												</div>
-											</div>
-										</form>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</main>
-		</div>
-		<script th:src="@{/assets/libs/flatpickr/dist/flatpickr.min.js}"></script>
-		<script th:src="@{/assets/libs/dropzone/dist/min/dropzone.min.js}"></script>
-		<!-- Libs JS -->
+                              <div></div>
+                              <!-- input -->
+                              <div class="mb-3 col-lg-12">
+                                 <label class="form-label">Descriptions</label>
+
+                                 <div class="py-8" id="editor"></div>
+                              </div>
+
+                              <!-- input -->
+                              <div class="mb-3 col-lg-12">
+                                 <label class="form-label" id="productSKU">Status</label>
+                                 <br />
+                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" checked />
+                                    <label class="form-check-label" for="inlineRadio1">Active</label>
+                                 </div>
+                                 <!-- input -->
+                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2" />
+                                    <label class="form-check-label" for="inlineRadio2">Disabled</label>
+                                 </div>
+                                 <!-- input -->
+                              </div>
+                              <div class="mb-3 col-lg-12 mt-5">
+                                 <h4 class="mb-4 h5">Meta Data</h4>
+                                 <!-- input -->
+                                 <div class="mb-3">
+                                    <label class="form-label">Meta Title</label>
+                                    <input type="text" class="form-control" placeholder="Title" />
+                                 </div>
+
+                                 <!-- input -->
+                                 <div class="mb-3">
+                                    <label class="form-label">Meta Description</label>
+                                    <textarea class="form-control" rows="3" placeholder="Meta Description"></textarea>
+                                 </div>
+                              </div>
+                              <div class="col-lg-12">
+                                 <a href="#" class="btn btn-primary">Create Product</a>
+                                 <a href="#" class="btn btn-secondary ms-2">Save</a>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </main>
+      </div>
+
+      <script th:src="@{/assets/libs/flatpickr/dist/flatpickr.min.js}"></script>
+      <!-- Libs JS -->
 <!-- <script th:src="@{/assets/libs/jquery/dist/jquery.min.js}"></script> -->
 <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
 <script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
@@ -815,8 +854,10 @@
 <!-- Theme JS -->
 <script th:src="@{/assets/js/theme.min.js}"></script>
 
-		<script th:src="@{/assets/js/vendors/validation.js}"></script>
-	</body>
+      <script th:src="@{/assets/libs/quill/dist/quill.min.js}"></script>
+      <script th:src="@{/assets/js/vendors/editor.js}"></script>
+      <script th:src="@{/assets/libs/dropzone/dist/min/dropzone.min.js}"></script>
+   </body>
 
-<!-- Mirrored from freshcart.codescandy.com/dashboard/create-customers.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 14 Nov 2024 06:09:18 GMT -->
+<!-- Mirrored from freshcart.codescandy.com/dashboard/add-category.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 14 Nov 2024 06:10:02 GMT -->
 </html>
