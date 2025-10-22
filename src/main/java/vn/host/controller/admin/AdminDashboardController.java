@@ -19,7 +19,11 @@ public class AdminDashboardController {
         return "admin/dashboard/index"; // templates/admin/dashboard/index.html
     }
 
-    // thêm route này
+    @GetMapping("/products")
+    public String productsPage() {
+        return "admin/products/products";
+    }
+
     @GetMapping("/customers")
     public String customersPage() {
         return "admin/customers/customers"; // templates/admin/customers/customers.html
