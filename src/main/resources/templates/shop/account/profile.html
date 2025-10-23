@@ -34,15 +34,32 @@
                     <div class="card-body p-6 text-center">
                         <img th:src="@{/assets/images/avatar/avatar-1.jpg}" class="rounded-circle mb-4" alt="avatar"
                              width="96" height="96"/>
-                        <h5 class="mb-1" th:text="${user?.fullName} ?: 'Shop Owner'">Shop Owner</h5>
+                        <h5 class="mb-1" th:text="${shop?.shopName} ?: 'Shop Owner'">Shop Owner</h5>
                         <p class="mb-3 text-muted small" th:text="${user?.email} ?: 'owner@example.com'">
                             owner@example.com</p>
+                        <ul class="avatar-actions list-unstyled my-3">
+                            <!-- Upload -->
+                            <li>
+                                <form id="avatarUploadForm" class="m-0" enctype="multipart/form-data">
+                                    <!-- file input ẩn, click vào link sẽ mở hộp chọn ảnh -->
+                                    <input id="avatarFile" type="file" name="file" accept="image/*" class="d-none"/>
+                                    <a href="#" class="text-primary d-inline-flex align-items-center gap-2"
+                                       onclick="document.getElementById('avatarFile').click(); return false;">
+                                        <i class="bi bi-image" aria-hidden="true"></i>
+                                        <span>Tải hình ảnh</span>
+                                    </a>
+                                </form>
+                            </li>
 
-                        <div class="d-grid gap-2">
-                            <a th:href="@{/shop/account/security}" class="btn btn-outline-secondary">Security</a>
-                            <a th:href="@{/shop/account/preferences}" class="btn btn-outline-secondary">Preferences</a>
-                        </div>
-
+                            <!-- Delete -->
+                            <li class="mt-2">
+                                <a href="#" class="text-primary d-inline-flex align-items-center gap-2"
+                                   onclick="return deleteAvatar(event);">
+                                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                                    <span>Xóa hình ảnh</span>
+                                </a>
+                            </li>
+                        </ul>
                         <hr class="my-4"/>
 
                         <div class="text-start small">
@@ -65,9 +82,9 @@
                         <form th:action="@{/shop/account/profile}" method="post">
                             <div class="row">
                                 <div class="mb-3 col-md-6">
-                                    <label class="form-label">Full name</label>
-                                    <input class="form-control" name="fullName" th:value="${user?.fullName}"
-                                           placeholder="Your name" required/>
+                                    <label class="form-label">Shop name</label>
+                                    <input class="form-control" name="shopName" th:value="${shop?.shopName}"
+                                           placeholder="Shop name" required/>
                                 </div>
                                 <div class="mb-3 col-md-6">
                                     <label class="form-label">Email</label>
@@ -79,15 +96,16 @@
                                     <input class="form-control" name="phone" th:value="${user?.phone}"
                                            placeholder="+84..."/>
                                 </div>
-                                <div class="mb-3 col-md-6">
-                                    <label class="form-label">Role</label>
-                                    <input class="form-control" name="role" th:value="${user?.role} ?: 'ADMIN'"
-                                           readonly/>
-                                </div>
                                 <div class="mb-3 col-12">
                                     <label class="form-label">Address</label>
                                     <input class="form-control" name="address" th:value="${shop?.address}"
                                            placeholder="Shop address"/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" id="shopDescription" rows="4"
+                                              placeholder="Mô tả ngắn về shop, dịch vụ, chính sách..."></textarea>
                                 </div>
                             </div>
                             <div class="d-flex gap-3">
