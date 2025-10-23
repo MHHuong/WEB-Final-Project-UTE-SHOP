@@ -51,10 +51,9 @@ public class Product {
     private Instant createdAt;
 
     @OneToMany(mappedBy = "product")
-    @JsonIgnore
+    @JsonIgnoreProperties("product")
     private Set<ProductMedia> media = new HashSet<>();
 
     @OneToMany(mappedBy = "product")
-    @JsonIgnore
     private Set<Review> reviews = new HashSet<>();
 }
