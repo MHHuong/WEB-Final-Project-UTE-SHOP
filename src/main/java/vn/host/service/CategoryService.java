@@ -1,12 +1,15 @@
 package vn.host.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import vn.host.entity.Category;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface CategoryService {
-    void save(Category category);
-    void delete(long id);
-    List<Category> findAll();
-    Category findById(long id);
+    Page<Category> findAll(Pageable pageable);
+    Optional<Category> findById(Long id);
+    Page<Category> searchByName(String keyword, Pageable pageable);
+    Category save(Category category);
+    void delete(Long id);
 }

@@ -1,5 +1,7 @@
 package vn.host.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -46,9 +48,11 @@ public class User {
     private Instant createdAt;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private Set<Address> addresses = new HashSet<>();
 
     @OneToMany(mappedBy = "owner")
+    @JsonIgnore
     private Set<Shop> shops = new HashSet<>();
 
     @OneToOne(mappedBy = "user")
