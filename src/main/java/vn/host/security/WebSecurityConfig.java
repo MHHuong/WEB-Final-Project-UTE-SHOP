@@ -10,26 +10,37 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(reg -> reg
+                // DEV only: tắt CSRF để form/POST không bị chặn
+                .csrf(AbstractHttpConfigurer::disable)
+
+                // Cho phép TẤT CẢ endpoint (bao gồm static resources)
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/", "/index", "/index.html",
-                                "/assets/**",
-                                "/css/**", "/js/**", "/images/**", "/webjars/**", "/lib/**",
+                                "/", "/**",
                                 "/error", "/error/**",
                                 "/favicon.ico",
-                                "/dashboard/**",
-                                "/docs/**",
-                                "/pages/**"
+                                // static
+                                "/css/**", "/js/**", "/images/**", "/webjars/**", "/lib/**",
+                                // nếu có các module trang riêng
+                                "/dashboard/**", "/docs/**", "/pages/**"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
+
+                // Tắt cơ chế đăng nhập mặc định
                 .formLogin(AbstractHttpConfigurer::disable)
-                .logout(out -> out.permitAll());
+                .httpBasic(AbstractHttpConfigurer::disable)
+
+                // Cho phép gọi logout mà không cần auth
+                .logout(logout -> logout.permitAll())
+
+                // Nếu có dùng H2-console hoặc cần nhúng frame, có thể mở frameOptions
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
+
         return http.build();
     }
 }
-
