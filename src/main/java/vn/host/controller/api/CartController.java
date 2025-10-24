@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.host.entity.CartItem;
 import vn.host.model.request.CartRequest;
 import vn.host.model.response.CartResponse;
+import vn.host.model.response.PageResponse;
 import vn.host.model.response.ResponseModel;
 import vn.host.service.CartItemService;
 
@@ -23,6 +24,31 @@ public class CartController {
     public ResponseEntity<?> findCartItemByUser(@PathVariable Long id) {
         try {
             List<CartResponse> userCart = cartItemService.findUserCartItems(id);
+            return new ResponseEntity<> (
+                    new ResponseModel(
+                            "true",
+                            "Get user cart successfully",
+                            userCart
+                    ), HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<> (
+                    new ResponseModel(
+                            "false",
+                            "Error: " + e.getMessage(),
+                            null
+                    ), HttpStatus.BAD_REQUEST
+            );
+        }
+    }
+
+    @GetMapping("{id}/paginated")
+    public ResponseEntity<?> findCartItemByUserPaginated(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        try {
+            PageResponse<CartResponse> userCart = cartItemService.findUserCartItemsPaginated(id, page, size);
             return new ResponseEntity<> (
                     new ResponseModel(
                             "true",
@@ -76,6 +102,28 @@ public class CartController {
             );
         } catch (Exception e) {
             return new ResponseEntity<> (
+                    new ResponseModel(
+                            "false",
+                            "Error: " + e.getMessage(),
+                            null
+                    ), HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    @DeleteMapping("{cartItemId}")
+    public ResponseEntity<?> deleteCartItem(@PathVariable Long cartItemId) {
+        try {
+            cartItemService.deleteById(cartItemId);
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "true",
+                            "Delete product from cart successfully",
+                            null
+                    ), HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
                     new ResponseModel(
                             "false",
                             "Error: " + e.getMessage(),

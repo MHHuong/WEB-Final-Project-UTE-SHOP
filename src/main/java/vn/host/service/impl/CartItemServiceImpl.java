@@ -9,6 +9,7 @@ import vn.host.entity.Product;
 import vn.host.entity.User;
 import vn.host.model.request.CartRequest;
 import vn.host.model.response.CartResponse;
+import vn.host.model.response.PageResponse;
 import vn.host.repository.CartItemRespository;
 import vn.host.repository.ProductRespository;
 import vn.host.repository.UserRepository;
@@ -35,13 +36,46 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
+    public PageResponse<CartResponse> findUserCartItemsPaginated(Long userId, int page, int size) {
+        // Get all cart items for the user
+        List<CartResponse> allItems = cartItemRepository.findCartItemsByUserId(userId);
+
+        // Calculate pagination
+        int totalElements = allItems.size();
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        // Ensure page is within bounds
+        if (page < 1) page = 1;
+        if (page > totalPages && totalPages > 0) page = totalPages;
+
+        // Calculate start and end indices
+        int startIndex = (page - 1) * size;
+        int endIndex = Math.min(startIndex + size, totalElements);
+
+        // Get the sublist for current page
+        List<CartResponse> pageContent = allItems.subList(startIndex, endIndex);
+
+        // Create and return PageResponse
+        PageResponse<CartResponse> pageResponse = new PageResponse<>();
+        pageResponse.setContent(pageContent);
+        pageResponse.setCurrentPage(page);
+        pageResponse.setTotalPages(totalPages);
+        pageResponse.setTotalElements(totalElements);
+        pageResponse.setPageSize(size);
+        pageResponse.setHasNext(page < totalPages);
+        pageResponse.setHasPrevious(page > 1);
+
+        return pageResponse;
+    }
+
+    @Override
     public void deleteById(Long id) {
         cartItemRepository.deleteById(id);
     }
 
     @Override
     @Transactional
-    public  void saveCart(CartRequest entity) {
+    public void saveCart(CartRequest entity) {
         User user = userRepository.findById(entity.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -54,20 +88,14 @@ public class CartItemServiceImpl implements CartItemService {
         if (cartItem.isPresent()) {
             int quantity = cartItem.get().getQuantity() + entity.getQuantity();
             cartItem.get().setQuantity((int) quantity);
-        }
-        else {
+        } else {
             cart = CartItem.builder()
-            .product(product)
-            .user(user)
-            .quantity(entity.getQuantity())
-            .build();
+                    .product(product)
+                    .user(user)
+                    .quantity(entity.getQuantity())
+                    .build();
         }
         cartItemRepository.save(cartItem.orElse(cart));
-    }
-
-    @Override
-    public void deleteByProductIdAndUserId(List<Long> productId, Long userId) {
-        cartItemRepository.deleteByUser_UserIdAndProduct_ProductIdIn(userId, productId);
     }
 
     @Transactional
@@ -83,9 +111,14 @@ public class CartItemServiceImpl implements CartItemService {
     public void updateCartItemQuantity(Long cartId, Integer quantity) {
         Optional<CartItem> optionalCartItem = cartItemRepository.findById(cartId);
         if (optionalCartItem.isPresent()) {
-            CartItem cartItem = optionalCartItem.get();
-            cartItem.setQuantity(quantity);
-            cartItemRepository.save(cartItem);
+            Product product = optionalCartItem.get().getProduct();
+            if (quantity < product.getStock()) {
+                CartItem cartItem = optionalCartItem.get();
+                cartItem.setQuantity(quantity);
+                cartItemRepository.save(cartItem);
+            } else {
+                throw new RuntimeException("Insufficient stock for product: " + product.getName());
+            }
         } else {
             throw new RuntimeException("Cart item not found with id: " + cartId);
         }

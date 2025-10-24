@@ -16,6 +16,7 @@ public interface CartItemRespository extends JpaRepository<CartItem, Long> {
 
     @Query("""
     SELECT new vn.host.model.response.CartResponse(
+        c.cartId,
         u.userId,
         c.quantity,
         new vn.host.model.response.ProductModel(
@@ -33,11 +34,11 @@ public interface CartItemRespository extends JpaRepository<CartItem, Long> {
     JOIN p.shop s
     JOIN p.media m
     WHERE u.userId = :userId AND m.type = "IMAGE"
-    GROUP BY u.userId, c.quantity, p.productId, s.shopId, s.shopName, p.name, p.price
+    GROUP BY u.userId, c.quantity, p.productId, s.shopId, s.shopName, p.name, p.price, c.cartId
 """)
     List<CartResponse> findCartItemsByUserId(Long userId);
 
-    public Optional<CartItem> findCartItemByProduct_ProductIdAndUser_UserId(Long productId, Long userId);
+    Optional<CartItem> findCartItemByProduct_ProductIdAndUser_UserId(Long productId, Long userId);
 
     void deleteByUser_UserIdAndProduct_ProductIdIn(Long userId, List<Long> productIds);
 }

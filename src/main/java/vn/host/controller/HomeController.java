@@ -16,4 +16,14 @@ public class HomeController {
     public String WS() {
         return "user/test-ws";
     }
+
+    @GetMapping("/shop-cart")
+    public String shopCart() {
+        return "user/order/shop-cart";
+    }
+
+    @GetMapping("/checkout")
+    public String checkout() {
+        return "user/order/checkout";
+    }
 }
