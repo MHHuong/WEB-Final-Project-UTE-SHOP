@@ -46,7 +46,7 @@
                                     <a href="#" class="text-primary d-inline-flex align-items-center gap-2"
                                        onclick="document.getElementById('avatarFile').click(); return false;">
                                         <i class="bi bi-image" aria-hidden="true"></i>
-                                        <span>Tải hình ảnh</span>
+                                        <span>Upload logo</span>
                                     </a>
                                 </form>
                             </li>
@@ -56,7 +56,7 @@
                                 <a href="#" class="text-primary d-inline-flex align-items-center gap-2"
                                    onclick="return deleteAvatar(event);">
                                     <i class="bi bi-x-lg" aria-hidden="true"></i>
-                                    <span>Xóa hình ảnh</span>
+                                    <span>Delete logo</span>
                                 </a>
                             </li>
                         </ul>
@@ -96,16 +96,39 @@
                                     <input class="form-control" name="phone" th:value="${user?.phone}"
                                            placeholder="+84..."/>
                                 </div>
-                                <div class="mb-3 col-12">
-                                    <label class="form-label">Address</label>
-                                    <input class="form-control" name="address" th:value="${shop?.address}"
-                                           placeholder="Shop address"/>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Province</label>
+                                        <select id="provinceSelect" class="form-select">
+                                            <option value="">-- Choose Province --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">District</label>
+                                        <select id="districtSelect" class="form-select" disabled>
+                                            <option value="">-- Choose District --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Ward</label>
+                                        <select id="wardSelect" class="form-select" disabled>
+                                            <option value="">-- Choose Ward --</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Particular Address</label>
+                                        <input id="detailAddress" type="text" class="form-control" placeholder="VD: Số 1 Võ Văn Ngân">
+                                    </div>
+
+                                    <!-- Input address thực tế gửi về BE (nếu form đã có sẵn input name="address" thì dùng chính nó, không cần hidden) -->
+                                    <input id="address" name="address" type="hidden" />
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Description</label>
                                     <textarea class="form-control" id="shopDescription" rows="4"
-                                              placeholder="Mô tả ngắn về shop, dịch vụ, chính sách..."></textarea>
+                                              placeholder="Short description..."></textarea>
                                 </div>
                             </div>
                             <div class="d-flex gap-3">
@@ -140,8 +163,9 @@
                 </div>
             </div>
         </div>
-
     </div>
+    <script th:inline="javascript" th:src="@{/assets/js/location/choose-location.js}">
+    </script>
 </main>
 </body>
 </html>
