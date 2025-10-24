@@ -30,11 +30,20 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void register(RegisterReq req) {
-        users.findByEmail(req.email()).ifPresent(u -> { throw new RuntimeException("Email đã tồn tại"); });
+        if (!otp.verify(req.getEmail(), req.getOtp())) {
+            throw new RuntimeException("OTP không hợp lệ hoặc đã hết hạn");
+        }
+        users.findByEmail(req.getEmail()).ifPresent(u -> {
+            throw new RuntimeException("Email đã tồn tại");
+        });
+        if (req.getPassword() == null || !req.getPassword().equals(req.getConfirmPassword())) {
+            throw new RuntimeException("Mật khẩu không khớp");
+        }
         User u = new User();
-        u.setEmail(req.email());
-        u.setPasswordHash(pe.encode(req.password()));
-        u.setFullName(req.fullName());
+        u.setEmail(req.getEmail());
+        u.setPasswordHash(pe.encode(req.getPassword()));
+        u.setFullName(req.getFullName());
+        u.setPhone(req.getPhone());
         u.setRole(UserRole.USER);
         users.save(u);
     }
@@ -46,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
         Map<String, Object> claims = Map.of(
                 "role", u.getRole().name(),
                 "name", u.getFullName(),
-                "userId", u.getUserId() // <-- Thêm userId vào claims
+                "userId", u.getUserId()
         );
         String token = jwt.generate(u.getEmail(), claims);
         return new AuthRes(token, u.getEmail(), u.getFullName(), u.getRole().name(), u.getUserId());
@@ -69,4 +78,13 @@ public class AuthServiceImpl implements AuthService {
         u.setPasswordHash(pe.encode(req.newPassword()));
         users.save(u);
     }
+    @Override
+    public void requestRegistrationOtp(EmailOnlyReq req) {
+        users.findByEmail(req.email()).ifPresent(u -> {
+            throw new RuntimeException("Email này đã được đăng ký");
+        });
+        String code = otp.issue(req.email());
+        mail.sendOtp(req.email(), code);
+    }
+
 }
