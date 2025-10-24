@@ -32,6 +32,10 @@ public class WebSecurityConfig {
                                 "/login",
                                 "/register"
                         ).permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/locations/**").permitAll()
+                        .requestMatchers("/assets/**", "/login", "/register", "/shop/account/shop-register").permitAll()
+                        .requestMatchers("/api/shops/**").authenticated()
                         .anyRequest().permitAll()
                 )
 

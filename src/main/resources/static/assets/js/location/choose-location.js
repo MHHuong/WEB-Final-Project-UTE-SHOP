@@ -1,14 +1,14 @@
 window.addEventListener('DOMContentLoaded', () => {
     (async function initVNAddress() {
         try {
-            const $province= document.getElementById('provinceSelect');
-            const $district= document.getElementById('districtSelect');
+            const $province = document.getElementById('provinceSelect');
+            const $district = document.getElementById('districtSelect');
             const $ward = document.getElementById('wardSelect');
-            const $detail= document.getElementById('detailAddress');
+            const $detail = document.getElementById('detailAddress');
             const $address = document.getElementById('address');
 
             if (!$province || !$district || !$ward) {
-                console.error('[Address] Missing element(s)', { $province, $district, $ward });
+                console.error('[Address] Missing element(s)', {$province, $district, $ward});
                 return;
             }
 
@@ -23,14 +23,15 @@ window.addEventListener('DOMContentLoaded', () => {
                 opt.textContent = p.name;
                 $province.appendChild(opt);
             });
+            document.dispatchEvent(new CustomEvent('vn:provincesLoaded'));
 
             $province.addEventListener('change', async () => {
                 try {
                     const code = $province.value;
                     $district.innerHTML = '<option value="">-- Choose District --</option>';
-                    $ward.innerHTML     = '<option value="">-- Choose Ward --</option>';
+                    $ward.innerHTML = '<option value="">-- Choose Ward --</option>';
                     $district.disabled = true;
-                    $ward.disabled     = true;
+                    $ward.disabled = true;
                     if (!code) return;
 
                     const resDist = await fetch('/UTE_SHOP/api/locations/districts?provinceCode=' + code);
@@ -44,6 +45,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         $district.appendChild(opt);
                     });
                     $district.disabled = false;
+                    document.dispatchEvent(new CustomEvent('vn:districtsLoaded', {detail: {provinceCode: code}}));
                 } catch (e) {
                     console.error(e);
                 }
@@ -67,6 +69,7 @@ window.addEventListener('DOMContentLoaded', () => {
                         $ward.appendChild(opt);
                     });
                     $ward.disabled = false;
+                    document.dispatchEvent(new CustomEvent('vn:wardsLoaded', {detail: {districtCode: code}}));
                 } catch (e) {
                     console.error(e);
                 }

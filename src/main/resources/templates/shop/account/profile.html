@@ -32,10 +32,12 @@
             <div class="col-lg-4 col-12">
                 <div class="card card-lg mb-6">
                     <div class="card-body p-6 text-center">
-                        <img th:src="@{/assets/images/avatar/avatar-1.jpg}" class="rounded-circle mb-4" alt="avatar"
-                             width="96" height="96"/>
-                        <h5 class="mb-1" th:text="${shop?.shopName} ?: 'Shop Owner'">Shop Owner</h5>
-                        <p class="mb-3 text-muted small" th:text="${user?.email} ?: 'owner@example.com'">
+                        <img id="shopLogoPreview"
+                             src=""
+                             data-fallback="/assets/images/avatar/avatar-1.jpg"
+                             class="rounded-circle mb-4" alt="avatar" width="96" height="96"/>
+                        <h5 class="mb-1" id="cardShopName">Shop Owner</h5>
+                        <p class="mb-3 text-muted small" id="cardUserEmail">
                             owner@example.com</p>
                         <ul class="avatar-actions list-unstyled my-3">
                             <!-- Upload -->
@@ -63,12 +65,12 @@
                         <hr class="my-4"/>
 
                         <div class="text-start small">
-                            <p class="mb-2"><i class="bi bi-shop me-2"></i><span th:text="${shop?.name} ?: 'UTE Shop'">UTE Shop</span>
+                            <p class="mb-2"><i class="bi bi-shop me-2"></i><span id="cardShopShortName">UTE Shop</span>
                             </p>
                             <p class="mb-2"><i class="bi bi-geo-alt me-2"></i><span
-                                    th:text="${shop?.address} ?: 'Ho Chi Minh City'">Ho Chi Minh City</span></p>
+                                    id="cardShopAddress">Ho Chi Minh City</span></p>
                             <p class="mb-0"><i class="bi bi-telephone me-2"></i><span
-                                    th:text="${shop?.phone} ?: '+84 90 000 0000'">+84 90 000 0000</span></p>
+                                    id="cardUserPhone">+84 90 000 0000</span></p>
                         </div>
                     </div>
                 </div>
@@ -83,17 +85,17 @@
                             <div class="row">
                                 <div class="mb-3 col-md-6">
                                     <label class="form-label">Shop name</label>
-                                    <input class="form-control" name="shopName" th:value="${shop?.shopName}"
+                                    <input class="form-control" name="shopName" id="shopName"
                                            placeholder="Shop name" required/>
                                 </div>
                                 <div class="mb-3 col-md-6">
                                     <label class="form-label">Email</label>
-                                    <input class="form-control" type="email" name="email" th:value="${user?.email}"
+                                    <input class="form-control" type="email" name="email" id="userEmail"
                                            placeholder="you@example.com" required/>
                                 </div>
                                 <div class="mb-3 col-md-6">
                                     <label class="form-label">Phone</label>
-                                    <input class="form-control" name="phone" th:value="${user?.phone}"
+                                    <input class="form-control" name="phone" id="userPhone"
                                            placeholder="+84..."/>
                                 </div>
                                 <div class="row g-3">
@@ -118,11 +120,12 @@
 
                                     <div class="col-12">
                                         <label class="form-label">Particular Address</label>
-                                        <input id="detailAddress" type="text" class="form-control" placeholder="VD: Số 1 Võ Văn Ngân">
+                                        <input id="detailAddress" type="text" class="form-control"
+                                               placeholder="VD: Số 1 Võ Văn Ngân">
                                     </div>
 
                                     <!-- Input address thực tế gửi về BE (nếu form đã có sẵn input name="address" thì dùng chính nó, không cần hidden) -->
-                                    <input id="address" name="address" type="hidden" />
+                                    <input id="address" name="address" type="hidden"/>
                                 </div>
 
                                 <div class="mb-3">
@@ -132,9 +135,10 @@
                                 </div>
                             </div>
                             <div class="d-flex gap-3">
-                                <button class="btn btn-primary" type="submit">Save changes</button>
-                                <a th:href="@{/shop/account/profile}" class="btn btn-secondary">Reset</a>
+                                <button id="saveBtn" class="btn btn-primary" type="button">Save changes</button>
+                                <button id="resetBtn" class="btn btn-secondary" type="button">Reset</button>
                             </div>
+                            <p id="profileStatus" class="small text-muted mt-2"></p>
                         </form>
 
                         <hr class="my-5"/>
@@ -158,13 +162,14 @@
                                 <button class="btn btn-outline-primary">Update password</button>
                             </div>
                         </form>
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <script th:inline="javascript" th:src="@{/assets/js/location/choose-location.js}"></script>
+    <script th:inline="javascript" th:src="@{/assets/js/vendors/profile/shop-information.js}"></script>
+    <script th:inline="javascript" th:src="@{/assets/js/location/render-location.js}"></script>
 </main>
 </body>
 </html>

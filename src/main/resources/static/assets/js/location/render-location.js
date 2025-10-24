@@ -1,5 +1,15 @@
 const existingAddress = (document.getElementById('address')?.value || '').trim();
-// Format: "địa chỉ cụ thể, Xã/Phường, Quận/Huyện, Tỉnh/Thành phố"
+
+function once(eventName) {
+    return new Promise(resolve => {
+        const h = (e) => {
+            document.removeEventListener(eventName, h);
+            resolve(e);
+        };
+        document.addEventListener(eventName, h);
+    });
+}
+
 async function prefillFromExisting(full) {
     if (!full) return;
     const parts = full.split(',').map(s => s.trim());
@@ -13,26 +23,30 @@ async function prefillFromExisting(full) {
 
     $detail.value = detail;
 
-    // Chọn province theo tên
     [...$province.options].forEach(opt => {
         if (opt.text === provinceName) opt.selected = true;
     });
 
-    // Kích hoạt load district theo province
+    if (!$province || $province.options.length <= 1) {
+        await once('vn:provincesLoaded');
+    }
+    [...$province.options].forEach(opt => {
+        if (opt.text === provinceName) opt.selected = true;
+    });
     $province.dispatchEvent(new Event('change'));
-    // Chờ districts load xong rồi chọn
     const wait = ms => new Promise(r => setTimeout(r, ms));
-    await wait(150); // tuỳ UI bạn; hoặc refactor sang promise/await fetch đúng nghĩa
+    await once('vn:districtsLoaded');
 
     [...$district.options].forEach(opt => {
         if (opt.text === districtName) opt.selected = true;
     });
 
     $district.dispatchEvent(new Event('change'));
-    await wait(150);
+    await once('vn:wardsLoaded');
 
     [...$ward.options].forEach(opt => {
         if (opt.text === wardName) opt.selected = true;
     });
 }
+
 prefillFromExisting(existingAddress);
