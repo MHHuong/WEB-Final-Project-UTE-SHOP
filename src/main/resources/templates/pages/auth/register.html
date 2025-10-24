@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng ký UTE-SHOP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <style>
+        /* Căn giữa form, tương tự login.html */
+        body, html { height: 100%; }
+        body { background-color: #f8f9fa; }
+        .form-container {
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0; /* Thêm padding cho form dài */
+        }
+        .register-card {
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container form-container">
+    <div class="card register-card">
+        <div class="card-body p-4 p-md-5">
+            <h3 class="card-title text-center mb-4">Tạo tài khoản mới</h3>
+
+            <div id="alertPlaceholder"></div>
+
+            <form id="registerForm">
+                <!-- THÊM TRƯỜNG FULL_NAME -->
+                <div class="mb-3">
+                    <label for="fullName" class="form-label">Họ và tên</label>
+                    <input type="text" class="form-control" id="fullName" required>
+                </div>
+
+                <!-- THÊM TRƯỜNG PHONE -->
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Số điện thoại</label>
+                    <input type="tel" class="form-control" id="phone" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" placeholder="example@gmail.com" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Mật khẩu</label>
+                    <input type="password" class="form-control" id="password" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                    <input type="password" class="form-control" id="confirmPassword" required>
+                </div>
+
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-primary btn-lg">Đăng ký</button>
+                </div>
+
+                <div class="text-center">
+                    Đã có tài khoản? <a th:href="@{/login}">Đăng nhập ngay</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+<script th:inline="javascript">
+    // Lấy context path (ví dụ: /UTE_SHOP) từ Thymeleaf
+    const contextPath = /*[[@{/}]]*/ '/';
+    const registerApiUrl = contextPath + 'api/auth/register'; // Đường dẫn API
+    const loginUrl = contextPath + 'login'; // Đường dẫn trang đăng nhập
+
+    const registerForm = document.getElementById('registerForm');
+    const alertPlaceholder = document.getElementById('alertPlaceholder');
+
+    /**
+     * Hiển thị thông báo (sao chép từ login.html)
+     */
+    const showAlert = (message, type = 'danger') => {
+        alertPlaceholder.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+    };
+
+    // Lắng nghe sự kiện submit form
+    registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        alertPlaceholder.innerHTML = ''; // Xóa lỗi cũ
+
+        // Lấy dữ liệu từ tất cả các trường
+        const fullName = document.getElementById('fullName').value;
+        const phone = document.getElementById('phone').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (password !== confirmPassword) {
+            showAlert('Mật khẩu và xác nhận mật khẩu không khớp!');
+            return;
+        }
+
+        // Tạo đối tượng body giống với RegisterReq DTO của bạn
+        // CẬP NHẬT: Thêm fullName và phone
+        const registerRequest = {
+            fullName: fullName,
+            phone: phone,
+            email: email,
+            password: password,
+            confirmPassword: confirmPassword
+            // TODO: Đảm bảo file RegisterReq.java của bạn cũng có các trường này
+        };
+
+        try {
+            const response = await fetch(registerApiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(registerRequest)
+            });
+
+            if (response.ok) {
+                showAlert('Đăng ký thành công! Đang chuyển đến trang đăng nhập...', 'success');
+                setTimeout(() => {
+                    window.location.href = loginUrl;
+                }, 2000);
+
+            } else {
+                // Xử lý lỗi từ server (ví dụ: email đã tồn tại)
+                const errorData = await response.json();
+                showAlert(errorData.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
+        }
+    });
+</script>
+</body>
+</html>
