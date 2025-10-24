@@ -14,6 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -21,9 +22,7 @@ public class WebSecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(reg -> reg
                         .requestMatchers(
-                                "/", "/index", "/index.html",
-                                "/assets/**",
-                                "/css/**", "/js/**", "/images/**", "/webjars/**", "/lib/**",
+                                "/", "/**",
                                 "/error", "/error/**",
                                 "/favicon.ico",
                                 "/dashboard/**",
@@ -33,10 +32,19 @@ public class WebSecurityConfig {
                                 "/login",
                                 "/register"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
+
+                // Tắt cơ chế đăng nhập mặc định
                 .formLogin(AbstractHttpConfigurer::disable)
-                .logout(out -> out.permitAll());
+                .httpBasic(AbstractHttpConfigurer::disable)
+
+                // Cho phép gọi logout mà không cần auth
+                .logout(logout -> logout.permitAll())
+
+                // Nếu có dùng H2-console hoặc cần nhúng frame, có thể mở frameOptions
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
+
         return http.build();
     }
 

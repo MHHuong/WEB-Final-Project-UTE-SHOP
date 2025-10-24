@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{shop/common/main}">
+<body>
+<main layout:fragment="content">
+    <div class="container">
+
+        <div class="row mb-8">
+            <div class="col-md-12">
+                <div class="d-md-flex justify-content-between align-items-center">
+                    <div>
+                        <h2>Promotions</h2>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a th:href="@{/shop}" class="text-inherit">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">Promotions</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#promoModal">
+                            <i class="bi bi-plus-circle me-2"></i>Create Promotion
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter & search -->
+        <div class="card card-lg mb-6">
+            <div class="px-6 py-6">
+                <div class="row justify-content-between">
+                    <div class="col-lg-4 col-md-6 col-12 mb-2 mb-lg-0">
+                        <form class="d-flex" role="search" th:action="@{/shop/promotion/promotions}" method="get">
+                            <input class="form-control" type="search" name="q" th:value="${param.q}"
+                                   placeholder="Search promotions" aria-label="Search"/>
+                        </form>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-12">
+                        <select class="form-select" name="status" th:onchange="|window.location='?status='+this.value|">
+                            <option value="" th:selected="${param.status == null}">All Status</option>
+                            <option th:value="ACTIVE" th:selected="${param.status == 'ACTIVE'}">Active</option>
+                            <option th:value="SCHEDULED" th:selected="${param.status == 'SCHEDULED'}">Scheduled</option>
+                            <option th:value="EXPIRED" th:selected="${param.status == 'EXPIRED'}">Expired</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card card-lg">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-centered table-hover text-nowrap table-borderless mb-0">
+                        <thead class="bg-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Discount</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="p : ${promotions}">
+                            <td th:text="${p.name}">Summer Sale</td>
+                            <td th:text="${p.type}">PERCENT</td>
+                            <td>
+                                <span th:if="${p.type=='PERCENT'}" th:text="${p.value + '%'}">20%</span>
+                                <span th:if="${p.type=='AMOUNT'}" th:text="${'$' + p.value}">$10</span>
+                            </td>
+                            <td th:text="${#temporals.format(p.startAt, 'dd MMM yyyy HH:mm')}">01 Jun 2025 00:00</td>
+                            <td th:text="${#temporals.format(p.endAt, 'dd MMM yyyy HH:mm')}">30 Jun 2025 23:59</td>
+                            <td>
+                <span th:classappend="${p.status=='ACTIVE'} ? 'badge bg-light-primary text-dark-primary' :
+                                       ${p.status=='SCHEDULED'} ? 'badge bg-light-warning text-dark-warning' :
+                                       'badge bg-light-danger text-dark-danger'"
+                      th:text="${p.status}">ACTIVE</span>
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <a href="#" class="text-reset" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="feather-icon icon-more-vertical fs-5"></i>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" th:href="@{'/shop/promotion/' + ${p.id}}"><i
+                                                class="bi bi-pencil-square me-3"></i>Edit</a></li>
+                                        <li><a class="dropdown-item" th:href="@{'/shop/promotion/delete/' + ${p.id}}"><i
+                                                class="bi bi-trash me-3"></i>Delete</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Empty state -->
+                        <tr th:if="${#lists.isEmpty(promotions)}">
+                            <td colspan="7" class="text-center py-6 text-muted">No promotions found</td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div class="modal fade" id="promoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <form class="modal-content" th:action="@{/shop/promotion}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Promotion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Name</label>
+                            <input class="form-control" name="name" placeholder="Flash Sale 9.9" required/>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" name="type" required>
+                                <option value="PERCENT">Percent</option>
+                                <option value="AMOUNT">Amount</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Value</label>
+                            <input class="form-control" type="number" step="0.01" name="value"
+                                   placeholder="e.g. 10 or 50000" required/>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Start at</label>
+                            <input class="form-control" type="datetime-local" name="startAt" required/>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">End at</label>
+                            <input class="form-control" type="datetime-local" name="endAt" required/>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Apply To</label>
+                            <select class="form-select" name="applyScope">
+                                <option value="ALL_PRODUCTS">All products</option>
+                                <option value="CATEGORY">Category</option>
+                                <option value="PRODUCTS">Selected products</option>
+                            </select>
+                            <small class="text-muted">Scope can be extended to categories/products via IDs on edit
+                                page.</small>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check mt-2">
+                                <input class="form-check-input" type="checkbox" id="stackable" name="stackable"/>
+                                <label class="form-check-label" for="stackable">Allow stacking with coupons</label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

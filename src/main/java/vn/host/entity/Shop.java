@@ -10,8 +10,11 @@ import java.util.Set;
 
 @Getter
 @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
-@Entity @Table(name = "shops")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "shops")
 public class Shop {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +32,9 @@ public class Shop {
 
     @Column(length = 255)
     private String logo;
+
+    @Column(length = 255)
+    private String address;
 
     @Column(columnDefinition = "tinyint default 1")
     private Integer status = 1;
