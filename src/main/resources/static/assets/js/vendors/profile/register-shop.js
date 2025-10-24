@@ -1,5 +1,5 @@
 (function () {
-    const BASE = '/UTE_SHOP'; // chỉnh nếu app chạy context khác
+    const BASE = '/UTE_SHOP';
     const token = localStorage.getItem('authToken');
 
     if (!token) {
@@ -15,16 +15,14 @@
         statusEl.className = 'small ' + (ok ? 'text-muted' : 'text-danger');
     };
 
-    // Nếu đã có shop -> đưa về profile
     fetch(BASE + '/api/auth/me', {headers: {'Authorization': 'Bearer ' + token}})
         .then(r => r.ok ? r.json() : Promise.reject())
         .then(me => {
             if (me && me.shop) window.location.href = BASE + '/shop/account/profile';
         })
-        .catch(() => { /* bỏ qua */
+        .catch(() => {
         });
 
-    // ======= Nạp tỉnh/huyện/xã (đúng path: /api/locations/...) =======
     const provinceEl = document.getElementById('provinceSelect');
     const districtEl = document.getElementById('districtSelect');
     const wardEl = document.getElementById('wardSelect');
