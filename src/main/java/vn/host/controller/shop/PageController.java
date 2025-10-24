@@ -44,4 +44,9 @@ public class PageController {
     public String promotions() {
         return "shop/promotion/promotions";
     }
+
+    @GetMapping("/shop/register")
+    public String registerPage() {
+        return "shop/account/shop-register";
+    }
 }

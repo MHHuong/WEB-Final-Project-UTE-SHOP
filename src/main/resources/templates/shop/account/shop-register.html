@@ -1,0 +1,99 @@
+<!-- src/main/resources/templates/pages/shop-register.html -->
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Register Shop</title>
+
+    <!-- CSS có sẵn trong project -->
+    <link th:href="@{/assets/libs/bootstrap-icons/font/bootstrap-icons.min.css}" rel="stylesheet"/>
+    <link th:href="@{/assets/css/theme.min.css}" rel="stylesheet"/>
+
+    <!-- Nếu dự án bạn có favicon/logo -->
+    <link th:href="@{/assets/images/favicon/favicon.ico}" rel="icon"/>
+</head>
+<body class="bg-light">
+
+<main class="py-6">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-12 col-lg-10">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="mb-1">Register Shop</h2>
+                    </div>
+                    <div>
+                        <a th:href="@{/shop/account/profile}" class="btn btn-light">Back to Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card form đăng ký (không upload ảnh) -->
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10">
+                <div class="card">
+                    <div class="card-body p-4 p-lg-5">
+                        <form id="shopRegisterForm" class="row g-4">
+                            <!-- Cột trái -->
+                            <div class="col-12 col-lg-7">
+                                <div class="mb-3">
+                                    <label for="shopName" class="form-label">Shop Name <span class="text-danger">*</span></label>
+                                    <input type="text" id="shopName" class="form-control" required placeholder="Shop Name...">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="shopDescription" class="form-label">Description</label>
+                                    <textarea id="shopDescription" class="form-control" rows="6" placeholder="Short description..."></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="detailAddress" class="form-label">Address</label>
+                                    <input type="text" id="detailAddress" class="form-control" placeholder="Số nhà, đường…">
+                                </div>
+                            </div>
+
+                            <!-- Cột phải -->
+                            <div class="col-12 col-lg-5">
+                                <div class="mb-3">
+                                    <label for="provinceSelect" class="form-label">Province</label>
+                                    <select id="provinceSelect" class="form-select">
+                                        <option value="">-- Choose Province --</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="districtSelect" class="form-label">District</label>
+                                    <select id="districtSelect" class="form-select" disabled>
+                                        <option value="">-- Choose District --</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="wardSelect" class="form-label">Ward</label>
+                                    <select id="wardSelect" class="form-select" disabled>
+                                        <option value="">-- Choose Ward --</option>
+                                    </select>
+                                </div>
+
+                                <div class="d-grid">
+                                    <button id="registerBtn" type="submit" class="btn btn-primary">Register</button>
+                                </div>
+                                <div class="small text-muted mt-2" id="registerStatus"></div>
+                            </div>
+                        </form>
+                    </div> <!-- /card-body -->
+                </div> <!-- /card -->
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- JS có sẵn trong project -->
+<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/assets/js/theme.min.js}"></script>
+<script th:inline="javascript" th:src="@{/assets/js/location/choose-location.js}"></script>
+<script th:src="@{/assets/js/vendors/profile/register-shop.js}">
+</script>
+
+</body>
+</html>
