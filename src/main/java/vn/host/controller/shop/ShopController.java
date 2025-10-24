@@ -5,30 +5,28 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import vn.host.dto.shop.RegisterReq;
 import vn.host.dto.shop.ShopRes;
 import vn.host.dto.shop.UpdateReq;
 import vn.host.entity.Shop;
 import vn.host.entity.User;
-import vn.host.repository.ShopRepository;
 import vn.host.repository.UserRepository;
-import vn.host.service.impl.ShopServiceImpl;
-import vn.host.util.BeanRead;
+import vn.host.service.UserService;
+import vn.host.service.ShopService;
 
 @RestController
 @RequestMapping("/api/shops")
 @RequiredArgsConstructor
 public class ShopController {
 
-    private final ShopServiceImpl shopSvc;
-    private final ShopRepository shopRepo;
+    private final ShopService shopSvc;
     private final UserRepository userRepo;
+    private final UserService userService;
 
     private User authedUser(Authentication auth) {
         if (auth == null) throw new SecurityException("Unauthenticated");
         String email = auth.getName();
-        return shopSvc.getUserByEmail(email);
+        return userService.getUserByEmail(email);
     }
 
     @GetMapping("/me")
@@ -66,35 +64,5 @@ public class ShopController {
             userRepo.save(u);
         }
         return ResponseEntity.ok(ShopRes.of(updated));
-    }
-
-    @PostMapping(value = "/me/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadLogo(Authentication auth,
-                                        @RequestParam("file") MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            return ResponseEntity.badRequest().body("Missing file");
-        }
-        User u = authedUser(auth);
-        Shop s = shopSvc.updateMyShop(u.getUserId(), shop -> {
-            try {
-                BeanRead.writeField(shop, "logo", file.getBytes());
-            } catch (Exception e) {
-                throw new RuntimeException("Logo field not found or write failed", e);
-            }
-        });
-        return ResponseEntity.ok(ShopRes.of(s));
-    }
-
-    @DeleteMapping("/me/logo")
-    public ResponseEntity<?> deleteLogo(Authentication auth) {
-        User u = authedUser(auth);
-        Shop s = shopSvc.updateMyShop(u.getUserId(), shop -> {
-            try {
-                BeanRead.writeField(shop, "logo", null);
-            } catch (Exception e) {
-                throw new RuntimeException("Logo field not found or write failed", e);
-            }
-        });
-        return ResponseEntity.ok(ShopRes.of(s));
     }
 }

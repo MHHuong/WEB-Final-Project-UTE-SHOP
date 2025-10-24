@@ -39,10 +39,7 @@ public class ShopServiceImpl implements ShopService {
         return shopRepo.findById(id).orElseThrow(() -> new NoSuchElementException("Shop not found"));
     }
 
-    public User getUserByEmail(String email) {
-        return userRepo.findByEmail(email).orElseThrow(() -> new NoSuchElementException("User not found"));
-    }
-
+    @Override
     public Shop getMyShopOrNull(Long userId) {
         return shopRepo.findFirstByOwner_UserId(userId).orElse(null);
     }
