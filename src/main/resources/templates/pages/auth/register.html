@@ -148,17 +148,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="mb-3 input-group">
-                        <span class="input-group-text"><i class="fa-solid fa-briefcase"></i></span>
-                        <select class="form-select with-icon" id="role" required>
-                            <option value="" disabled selected>Select Account Type...</option>
-                            <option value="USER">User</option>
-                            <option value="SELLER">Seller</option>
-                            <option value="SHIPPER">Shipper</option>
-                        </select>
-                    </div>
-
                     <div class="mb-3 input-group">
                         <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
                         <input type="email" class="form-control with-icon" id="email" placeholder="Email Address" required>
@@ -195,7 +184,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
 <script th:inline="javascript">
@@ -221,15 +210,10 @@
 
         const fullName = document.getElementById('fullName').value;
         const phone = document.getElementById('phone').value;
-        const role = document.getElementById('role').value;
+        const role = "USER";
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
-
-        if (!role) {
-            showAlert('Please select an account type!');
-            return;
-        }
 
         if (password.length < 6) {
             showAlert('Password must be at least 6 characters!');
