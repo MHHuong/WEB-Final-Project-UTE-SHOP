@@ -7,7 +7,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import vn.host.entity.Promotion;
 
+import java.util.List;
+
 @Repository
 public interface PromotionRepository extends JpaRepository<Promotion,Long>, JpaSpecificationExecutor<Promotion> {
-    Page<Promotion> findByShop_ShopId(Long shopId, Pageable pageable);
+    List<Promotion> findByShopIsNull();
 }

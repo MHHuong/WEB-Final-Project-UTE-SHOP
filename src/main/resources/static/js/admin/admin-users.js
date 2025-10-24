@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderUsers(users) {
         tbody.innerHTML = "";
         if (users.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Không có người dùng nào</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No users found</td></tr>`;
             return;
         }
 
@@ -26,18 +26,26 @@ document.addEventListener("DOMContentLoaded", function () {
           <td>${u.fullName || ""}</td>
           <td>${u.phone || ""}</td>
           <td>${u.role}</td>
-          <td>${u.status === 1
-                ? '<span class="badge bg-success">Hoạt động</span>'
-                : '<span class="badge bg-danger">Khóa</span>'}</td>
           <td>
+            ${u.status === 1
+                ? '<span class="badge bg-success">Active</span>'
+                : '<span class="badge bg-danger">Inactive</span>'}
+          </td>
+          <td class="text-center">
               <a href="/admin/customers/customers-edits?id=${u.userId}" 
-                 class="btn btn-sm btn-outline-primary">Sửa</a>
-              <button class="btn btn-sm btn-outline-danger" data-id="${u.userId}" data-action="delete">Xóa</button>
-              <button class="btn ${u.status === 1 ? 'btn-warning' : 'btn-success'}" 
-                      data-id="${u.userId}" data-action="toggle">
-                ${u.status === 1 ? 'Khóa' : 'Mở'}
+                 class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                 <i class="bi bi-pencil-square"></i>
+              </a>
+              <button class="btn btn-sm btn-outline-danger me-1" 
+                      data-id="${u.userId}" data-action="delete" title="Delete">
+                 <i class="bi bi-trash"></i>
               </button>
-            </td>
+              <button class="btn btn-sm ${u.status === 1 ? 'btn-warning' : 'btn-success'}" 
+                      data-id="${u.userId}" data-action="toggle" 
+                      title="${u.status === 1 ? 'Deactivate account' : 'Activate account'}">
+                 <i class="bi ${u.status === 1 ? 'bi-lock-fill' : 'bi-unlock-fill'}"></i>
+              </button>
+          </td>
         </tr>
       `);
         });
@@ -122,19 +130,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // ----- Toggle Status -----
         if (action === "toggle") {
-            const newStatus = btn.textContent.trim() === "Khóa" ? 0 : 1;
+            const icon = btn.querySelector("i");
+            const newStatus = icon.classList.contains("bi-lock-fill") ? 0 : 1;
             fetch(`/api/admin/users/${id}/status?status=${newStatus}`, { method: "PUT" })
                 .then(async res => {
                     const msg = await res.text();
-                    if (!res.ok) alert("❌ " + (msg || "Cập nhật trạng thái thất bại!"));
+                    if (!res.ok) alert("❌ " + (msg || "Failed to update status!"));
                     else {
-                        alert("✅ " + ("Cập nhật trạng thái thành công!"));
+                        alert("✅ Status updated successfully!");
                         loadUsers(currentPage);
                     }
                 })
                 .catch(err => {
                     console.error(err);
-                    alert("❌ Lỗi kết nối server!");
+                    alert("❌ Server connection error!");
                 });
         }
 

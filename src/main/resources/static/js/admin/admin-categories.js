@@ -25,8 +25,17 @@ document.addEventListener("DOMContentLoaded", function () {
           <td>${c.name}</td>
           <td class="text-center">${productCount}</td>
           <td class="text-center">
-            <a href="/admin/categories/edit/${c.categoryId}" class="btn btn-sm btn-outline-primary me-1">Sửa</a>
-            <button class="btn btn-sm btn-outline-danger" data-id="${c.categoryId}" data-action="delete">Xóa</button>
+            <a href="/admin/categories/edit/${c.categoryId}" 
+               class="btn btn-sm btn-outline-primary me-1" 
+               title="Sửa">
+               <i class="bi bi-pencil-square"></i>
+            </a>
+            <button class="btn btn-sm btn-outline-danger" 
+                    data-id="${c.categoryId}" 
+                    data-action="delete" 
+                    title="Xóa">
+               <i class="bi bi-trash"></i>
+            </button>
           </td>
         </tr>
       `);

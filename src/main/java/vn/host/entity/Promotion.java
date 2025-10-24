@@ -1,5 +1,6 @@
 package vn.host.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,5 +32,6 @@ public class Promotion {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ApplyCategoryId")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Category applyCategory;
 }

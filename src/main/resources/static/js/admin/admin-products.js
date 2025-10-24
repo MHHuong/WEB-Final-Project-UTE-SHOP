@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const pageSize = 10;
 
     // ================= RENDER PRODUCT LIST =================
+    // ================= RENDER PRODUCT LIST =================
     function renderProducts(products) {
         tbody.innerHTML = "";
         if (products.length === 0) {
@@ -36,10 +37,16 @@ document.addEventListener("DOMContentLoaded", function () {
           <td class="text-center">${p.stock || 0}</td>
           <td>${formatDate(p.createdAt)}</td>
           <td class="text-center">
-              <button class="btn btn-sm btn-outline-warning me-1" data-id="${p.productId}" data-action="toggle">
-                  ${p.status === 1 ? "Ẩn" : "Hiện"}
+              <button class="btn btn-sm btn-outline-warning me-1" 
+                      data-id="${p.productId}" data-action="toggle" 
+                      title="${p.status === 1 ? 'Hide product' : 'Show product'}">
+                  <i class="bi ${p.status === 1 ? 'bi-eye-slash-fill' : 'bi-eye-fill'}"></i>
               </button>
-              <button class="btn btn-sm btn-outline-danger" data-id="${p.productId}" data-action="delete">Xóa</button>
+              <button class="btn btn-sm btn-outline-danger" 
+                      data-id="${p.productId}" data-action="delete" 
+                      title="Delete product">
+                  <i class="bi bi-trash"></i>
+              </button>
           </td>
         </tr>
       `);
@@ -102,7 +109,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const action = btn.dataset.action;
 
         if (action === "toggle") {
-            const newStatus = btn.textContent.trim() === "Ẩn" ? 0 : 1;
+            const icon = btn.querySelector("i");
+            const newStatus = icon.classList.contains("bi-eye-slash-fill") ? 0 : 1;
+
             fetch(`/api/admin/products/${id}/status?status=${newStatus}`, { method: "PUT" })
                 .then(res => res.text())
                 .then(() => {

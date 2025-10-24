@@ -57,4 +57,22 @@ public class AdminDashboardController {
     public String editCustomerPage() {
         return "admin/customers/customers-edits";
     }
+
+    // Quản lý chiết khấu App
+    @GetMapping("/coupons")
+    public String couponsPage() {
+        return "admin/coupons/admin-coupons";
+        // templates/admin/coupons/admin-coupons.html
+    }
+
+    @GetMapping("/coupons/add")
+    public String addCouponPage() {
+        return "admin/coupons/add-coupons";
+    }
+    // Quản lý khuyến mãi toàn hệ thống
+//    @GetMapping("/promotions")
+//    public String promotionsPage() {
+//        return "admin/promotions/admin-promotions";
+//        // templates/admin/promotions/admin-promotions.html
+//    }
 }

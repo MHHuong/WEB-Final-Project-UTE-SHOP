@@ -33,11 +33,11 @@
 
 			<div class="d-flex align-items-center justify-content-between mb-3">
 				<h3 class="m-0">User Management</h3>
-				<div class="text-muted">Quản lý người dùng hệ thống</div>
+				<div class="text-muted">User Management System</div>
 			</div>
 
 			<a href="/admin/customers/create-customers" class="btn btn-primary mb-3">
-				<i class="bi bi-person-plus"></i> Thêm user
+				<i class="bi bi-person-plus"></i> Add user
 			</a>
 
 			<!-- Toolbar -->
@@ -47,13 +47,13 @@
 						<div class="col-12 col-md-4">
 							<div class="input-group">
 								<span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-								<input id="searchEmail" type="text" class="form-control" placeholder="Tìm theo email...">
-								<button id="btnSearch" class="btn btn-primary">Tìm</button>
+								<input id="searchEmail" type="text" class="form-control" placeholder="Search by email...">
+								<button id="btnSearch" class="btn btn-primary">Search</button>
 							</div>
 						</div>
 						<div class="col-6 col-md-3">
 							<select id="roleFilter" class="form-select">
-								<option value="">— Lọc theo vai trò —</option>
+								<option value="">— Filter by role —</option>
 								<option value="USER">USER</option>
 								<option value="SELLER">SELLER</option>
 								<option value="ADMIN">ADMIN</option>
@@ -62,14 +62,14 @@
 						</div>
 						<div class="col-6 col-md-3">
 							<select id="statusFilter" class="form-select">
-								<option value="">— Lọc theo trạng thái —</option>
+								<option value="">— Filter by status —</option>
 								<option value="1">Active</option>
 								<option value="0">Inactive</option>
 							</select>
 						</div>
 						<div class="col-12 col-md-2 text-md-end">
 							<button id="btnReload" class="btn btn-outline-secondary w-100">
-								<i class="bi bi-arrow-clockwise"></i> Tải lại
+								<i class="bi bi-arrow-clockwise"></i> Reload
 							</button>
 						</div>
 					</div>
@@ -85,7 +85,7 @@
 							<tr>
 								<th style="width:80px">ID</th>
 								<th>Email</th>
-								<th>Họ tên</th>
+								<th>Full name</th>
 								<th>Phone</th>
 								<th style="width:120px">Role</th>
 								<th style="width:110px">Status</th>

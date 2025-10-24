@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="admin/_layout :: head(~{::title})">
+    <title>UTESHOP • App Coupons</title>
+</head>
+<body>
+<div th:replace="admin/_layout :: layout(~{::content})">
+    <div th:fragment="content">
+
+        <style>
+            .page-wrap {max-width: 1200px; margin: 0 auto}
+            .table thead th {font-weight:600;color:#475467;background:#f8fafc}
+        </style>
+
+        <div class="page-wrap">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">App Coupons</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h3 class="m-0">App Coupons</h3>
+                <!-- ✅ CHỈNH LẠI NÚT ADD -->
+                <a href="/admin/coupons/add" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Add Coupon
+                </a>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                                <input id="searchCode" type="text" class="form-control" placeholder="Search coupon code...">
+                                <button id="btnSearch" class="btn btn-primary">Search</button>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-md-end">
+                            <button id="btnReload" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-arrow-clockwise"></i> Reload
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Type</th>
+                                <th>Value</th>
+                                <th>Min Order</th>
+                                <th>Expired At</th>
+                                <th>Shop</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tblCoupons"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+<script th:src="@{/js/admin/admin-coupons.js}"></script>
+</html>
