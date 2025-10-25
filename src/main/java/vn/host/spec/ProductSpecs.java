@@ -22,6 +22,10 @@ public final class ProductSpecs {
         return (root, q, cb) -> cb.equal(root.get("status"), status);
     }
 
+    public static Specification<Product> notDeleted() {
+        return (root, q, cb) -> cb.notEqual(root.get("status"), 3);
+    }
+
     public static Specification<Product> priceGte(BigDecimal min) {
         return (root, q, cb) -> cb.greaterThanOrEqualTo(root.get("price"), min);
     }

@@ -10,15 +10,14 @@
     const tbody = document.getElementById('productsTbody');
     // searchInput PHẢI tồn tại, bạn nói đã có id này rồi
     const searchInput = document.getElementById('searchInput');
-    const statusFilter = document.getElementById('statusFilter'); // có cũng được, không chọn thì bỏ qua
+    const statusFilter = document.getElementById('statusFilter');
 
     // Pagination UI
     const pagerUl = document.querySelector('.pagination.mb-0');
     const showingText = document.querySelector('.border-top span');
 
-    // State
     let page = 0, size = 10, sort = 'createdAt,desc';
-    let inflight; // AbortController để hủy request cũ (tránh race condition)
+    let inflight;
 
     async function load() {
         // hủy request cũ (nếu còn)
@@ -29,7 +28,6 @@
         const q = (searchInput?.value || '').trim();
         if (q) params.set('q', q);
 
-        // KHÔNG bắt buộc chọn status; chỉ đẩy khi có giá trị số 0/1/2
         const stRaw = statusFilter?.value;
         if (stRaw !== undefined && stRaw !== null && stRaw !== '') {
             params.set('status', stRaw);
@@ -106,24 +104,23 @@
 
             const tdAct = document.createElement('td');
             tdAct.innerHTML = `
-        <div class="dropdown">
-          <a href="#" class="text-reset" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="feather-icon icon-more-vertical fs-5"></i>
-          </a>
-          <ul class="dropdown-menu">
-            <li>
-              <a class="dropdown-item" href="${BASE}/shop/product/edit?pid=${it.productId}">
-                <i class="bi bi-pencil-square me-3"></i>Edit
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item text-danger" href="#"
-                 onclick="event.preventDefault(); alert('TODO: Delete ${it.productId}');">
-                <i class="bi bi-trash me-3"></i>Delete
-              </a>
-            </li>
-          </ul>
-        </div>`;
+          <div class="dropdown">
+            <a href="#" class="text-reset" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="feather-icon icon-more-vertical fs-5"></i>
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="${BASE}/shop/product/edit?pid=${it.productId}">
+                  <i class="bi bi-pencil-square me-3"></i>Edit
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item text-danger btn-delete" href="#" data-id="${it.productId}">
+                  <i class="bi bi-trash me-3"></i>Delete
+                </a>
+              </li>
+            </ul>
+          </div>`;
             tr.appendChild(tdAct);
 
             frag.appendChild(tr);
@@ -174,6 +171,7 @@
         if (s === 0) return `<span class="badge bg-light-success text-dark-success">In stock</span>`;
         if (s === 1) return `<span class="badge bg-light-danger text-dark-danger">Out of stock</span>`;
         if (s === 2) return `<span class="badge bg-light-warning text-dark-warning">Hide</span>`;
+        if (s === 3) return `<span class="badge bg-light text-dark">Deleted</span>`;
         return `<span class="badge bg-light text-dark">Unknown</span>`;
     }
 

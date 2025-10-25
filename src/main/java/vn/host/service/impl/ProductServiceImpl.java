@@ -1,6 +1,8 @@
 package vn.host.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +13,6 @@ import org.springframework.util.StringUtils;
 import vn.host.dto.common.PageResult;
 import vn.host.dto.product.ProductListItemVM;
 import vn.host.entity.Product;
-import vn.host.entity.ProductMedia;
 import vn.host.repository.ProductMediaRepository;
 import vn.host.repository.ProductRepository;
 import vn.host.repository.ShopRepository;
@@ -20,7 +21,7 @@ import vn.host.service.ProductService;
 import vn.host.spec.ProductSpecs;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -82,12 +83,21 @@ public class ProductServiceImpl implements ProductService {
 
         Pageable pageable = PageRequest.of(page, size, sortOrDefault(sort));
 
-        Specification<Product> spec = Specification.where(ProductSpecs.belongsToShop(shopId));
-        if (StringUtils.hasText(q)) spec = spec.and(ProductSpecs.nameContains(q));
-        if (categoryId != null) spec = spec.and(ProductSpecs.categoryIs(categoryId));
-        if (status != null) spec = spec.and(ProductSpecs.statusIs(status));
-        if (minPrice != null) spec = spec.and(ProductSpecs.priceGte(minPrice));
-        if (maxPrice != null) spec = spec.and(ProductSpecs.priceLte(maxPrice));
+        List<Specification<Product>> list = new ArrayList<>();
+        list.add(ProductSpecs.belongsToShop(shopId));
+
+        if (status == null) {
+            list.add(ProductSpecs.notDeleted());
+        } else {
+            list.add(ProductSpecs.statusIs(status));
+        }
+
+        if (StringUtils.hasText(q)) list.add(ProductSpecs.nameContains(q));
+        if (categoryId != null) list.add(ProductSpecs.categoryIs(categoryId));
+        if (minPrice != null) list.add(ProductSpecs.priceGte(minPrice));
+        if (maxPrice != null) list.add(ProductSpecs.priceLte(maxPrice));
+
+        Specification<Product> spec = Specification.allOf(list);
 
         Page<Product> pg = repo.findAll(spec, pageable);
 
@@ -121,5 +131,47 @@ public class ProductServiceImpl implements ProductService {
                 .map(vn.host.entity.ProductMedia::getUrl)
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Override
+    @Transactional
+    public void softDeleteOwnerProduct(String userEmail, long productId) {
+        var user = users.findByEmail(userEmail)
+                .orElseThrow(() -> new SecurityException("User not found"));
+        var shop = shops.findFirstByOwner_UserId(user.getUserId())
+                .orElseThrow(() -> new IllegalStateException("Bạn chưa đăng ký shop."));
+
+        Product p = repo.findById(productId)
+                .orElseThrow(() -> new NoSuchElementException("Product not found"));
+
+        if (p.getShop() == null || !p.getShop().getShopId().equals(shop.getShopId())) {
+            throw new SecurityException("Bạn không có quyền thao tác sản phẩm này.");
+        }
+
+        // Soft delete
+        p.setStatus(3);
+        repo.save(p);
+    }
+
+    @Override
+    @Transactional
+    public void restoreOwnerProduct(String userEmail, long productId, int toStatus) {
+        if (toStatus < 0 || toStatus > 2) {
+            throw new IllegalArgumentException("Trạng thái khôi phục phải là 0/1/2");
+        }
+        var user = users.findByEmail(userEmail)
+                .orElseThrow(() -> new SecurityException("User not found"));
+        var shop = shops.findFirstByOwner_UserId(user.getUserId())
+                .orElseThrow(() -> new IllegalStateException("Bạn chưa đăng ký shop."));
+
+        Product p = repo.findById(productId)
+                .orElseThrow(() -> new NoSuchElementException("Product not found"));
+
+        if (p.getShop() == null || !p.getShop().getShopId().equals(shop.getShopId())) {
+            throw new SecurityException("Bạn không có quyền thao tác sản phẩm này.");
+        }
+
+        p.setStatus(toStatus);
+        repo.save(p);
     }
 }

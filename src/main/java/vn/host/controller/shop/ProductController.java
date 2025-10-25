@@ -26,7 +26,6 @@ public class ProductController {
     private final UserRepository users;
     private final ShopRepository shops;
     private final CategoryRepository categories;
-    private final ProductRepository products;
     private final ProductMediaRepository mediaRepo;
     private final ProductService productService;
 
@@ -150,5 +149,23 @@ public class ProductController {
             return original.substring(original.lastIndexOf('.')).toLowerCase();
         }
         return fallback;
+    }
+
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<Void> deleteProduct(Authentication auth, @PathVariable long productId) {
+        if (auth == null || auth.getName() == null) throw new SecurityException("Unauthenticated");
+        productService.softDeleteOwnerProduct(auth.getName(), productId);
+        return ResponseEntity.noContent().build(); // 204
+    }
+
+    @PostMapping("/{productId}/restore")
+    public ResponseEntity<Void> restoreProduct(
+            Authentication auth,
+            @PathVariable long productId,
+            @RequestParam(defaultValue = "0") int toStatus
+    ) {
+        if (auth == null || auth.getName() == null) throw new SecurityException("Unauthenticated");
+        productService.restoreOwnerProduct(auth.getName(), productId, toStatus);
+        return ResponseEntity.noContent().build();
     }
 }

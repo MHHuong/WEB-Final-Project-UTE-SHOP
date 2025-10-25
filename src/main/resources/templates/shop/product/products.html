@@ -50,6 +50,7 @@
                                     <option value="0">In stock</option>
                                     <option value="1">Out of stock</option>
                                     <option value="2">Hide</option>
+                                    <option value="3">Deleted</option>
                                 </select>
                             </div>
                         </div>
@@ -76,8 +77,7 @@
                                     <th></th>
                                 </tr>
                                 </thead>
-                                <tbody id="productsTbody">
-                                </tbody>
+                                <tbody id="productsTbody"></tbody>
                             </table>
                         </div>
                     </div>
@@ -97,7 +97,8 @@
             </div>
         </div>
     </div>
-    <script th:src="@{/assets/js/vendors/product/load-products.js}"></script>
+    <script th:src="@{/assets/js/vendors/product/load-products.js}" defer></script>
+    <script th:src="@{/assets/js/vendors/product/delete-product.js}" defer></script>
 </main>
 </body>
 

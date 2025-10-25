@@ -22,4 +22,8 @@ public interface ProductService {
     List<Product> findByCategoryId(long id);
 
     PageResult<ProductListItemVM> searchOwnerProducts(String userEmail, String q, Long categoryId, Integer status, BigDecimal minPrice, BigDecimal maxPrice, int page, int size, Sort sort);
+
+    void softDeleteOwnerProduct(String userEmail, long productId);
+
+    void restoreOwnerProduct(String userEmail, long productId, int toStatus);
 }
