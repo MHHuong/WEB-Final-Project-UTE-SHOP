@@ -1,5 +1,6 @@
 package vn.host.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,10 +11,15 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig {
+
+    private final AuthenticationSuccessHandler oAuth2LoginSuccessHandler;
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -36,17 +42,17 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
-                .logout(out -> out.permitAll());
+                .logout(out -> out.permitAll())
+                .oauth2Login(oauth -> {
+                    oauth.loginPage("/login");
+                    oauth.authorizationEndpoint(auth -> auth
+                            .baseUri("/oauth2/authorization")
+                    );
+                    oauth.redirectionEndpoint(redir -> redir
+                            .baseUri("/login/oauth2/code/*")
+                    );
+                    oauth.successHandler(oAuth2LoginSuccessHandler);
+                });
         return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
-        return cfg.getAuthenticationManager();
     }
 }

@@ -14,6 +14,7 @@ import vn.host.service.AuthService;
 import vn.host.service.EmailService;
 import vn.host.service.OtpService;
 import vn.host.util.sharedenum.UserRole;
+import org.springframework.beans.factory.ObjectProvider;
 
 import java.util.Map;
 
@@ -23,7 +24,7 @@ import java.util.Map;
 public class AuthServiceImpl implements AuthService {
     private final UserRepository users;
     private final PasswordEncoder pe;
-    private final AuthenticationManager am;
+    private final ObjectProvider<AuthenticationManager> amProvider;
     private final JwtService jwt;
     private final OtpService otp;
     private final EmailService mail;
@@ -50,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthRes login(LoginReq req) {
+        AuthenticationManager am = amProvider.getObject();
         Authentication a = am.authenticate(new UsernamePasswordAuthenticationToken(req.email(), req.password()));
         User u = users.findByEmail(req.email()).orElseThrow();
         Map<String, Object> claims = Map.of(
@@ -69,7 +71,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public boolean verifyOtp(VerifyOtpReq req) { return otp.verify(req.email(), req.otp()); }
+    public boolean verifyOtp(VerifyOtpReq req) {
+        return otp.verify(req.email(), req.otp());
+    }
 
     @Override
     public void resetPassword(ResetPasswordReq req) {
@@ -78,6 +82,7 @@ public class AuthServiceImpl implements AuthService {
         u.setPasswordHash(pe.encode(req.newPassword()));
         users.save(u);
     }
+
     @Override
     public void requestRegistrationOtp(EmailOnlyReq req) {
         users.findByEmail(req.email()).ifPresent(u -> {
@@ -87,4 +92,26 @@ public class AuthServiceImpl implements AuthService {
         mail.sendOtp(req.email(), code);
     }
 
+    @Override
+    public AuthRes processOAuth2User(String email, String name) {
+        User user = users.findByEmail(email)
+                .orElseGet(() -> createOAuth2User(email, name));
+        Map<String, Object> claims = Map.of(
+                "role", user.getRole().name(),
+                "name", user.getFullName(),
+                "userId", user.getUserId()
+        );
+        String token = jwt.generate(user.getEmail(), claims);
+        return new AuthRes(token, user.getEmail(), user.getFullName(), user.getRole().name(), user.getUserId());
+    }
+
+    private User createOAuth2User(String email, String name) {
+        User newUser = new User();
+        newUser.setEmail(email);
+        newUser.setFullName(name);
+        newUser.setRole(UserRole.USER);
+        newUser.setPasswordHash(null);
+        newUser.setPhone(null);
+        return users.save(newUser);
+    }
 }
