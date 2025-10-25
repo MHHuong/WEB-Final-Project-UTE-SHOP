@@ -22,7 +22,7 @@
                                 </li>
                                 <li class="breadcrumb-item"><a th:href="@{/shop/product/products}" class="text-inherit">Products</a>
                                 </li>
-                                <li class="breadcrumb-item active" aria-current="page">Add New Product</li>
+                                <li class="breadcrumb-item active" aria-current="page">Edit Product</li>
                             </ol>
                         </nav>
                     </div>
@@ -33,12 +33,12 @@
                 </div>
             </div>
         </div>
-        <div th:replace="~{shop/product/common/input-form :: productForm('create')}"></div>
+        <div th:replace="~{shop/product/common/input-form :: productForm('edit')}"></div>
     </div>
     <script th:src="@{/assets/js/vendors/editor.js}"></script>
     <script th:src="@{/assets/js/vendors/dropzone.js}"></script>
-    <script th:src="@{/assets/js/vendors/product/input-form.js}" defer></script>
-    <script th:src="@{/assets/js/vendors/product/create-product.js}" defer></script>
+    <script th:src="@{/assets/js/vendors/product/product-form.js}" defer></script>
+    <script th:src="@{/assets/js/vendors/product/edit-product.js}" defer></script>
 </main>
 </body>
 

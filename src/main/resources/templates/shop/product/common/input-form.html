@@ -1,0 +1,95 @@
+<div th:fragment="productForm(mode)">
+    <!-- row -->
+    <div class="row">
+        <div class="col-lg-8 col-12">
+            <!-- card -->
+            <div class="card mb-6 card-lg">
+                <!-- card body -->
+                <div class="card-body p-6">
+                    <h4 class="mb-4 h5">Product Information</h4>
+                    <div class="row">
+                        <!-- input -->
+                        <div class="mb-3 col-lg-6">
+                            <label class="form-label">Title</label>
+                            <input id="productName" type="text" class="form-control" placeholder="Product Name"
+                                   required/>
+                        </div>
+                        <!-- input -->
+                        <div class="mb-3 col-lg-6">
+                            <label class="form-label">Product Category</label>
+                            <select class="form-select" id="categorySelect">
+                                <option value="">Product Category</option>
+                            </select>
+                            <script th:src="@{/assets/js/vendors/category/category-combobox.js}"></script>
+                        </div>
+                        <!-- input -->
+                        <div class="mb-3 col-lg-6">
+                            <label class="form-label">Quantity</label>
+                            <input id="stock" type="number" min="0" class="form-control" placeholder="Quantity"
+                                   required/>
+                        </div>
+                        <div>
+                            <div class="mb-3 col-lg-12 mt-5">
+                                <!-- heading -->
+                                <h4 class="mb-3 h5">Product Media (Images & Videos)</h4>
+                                <!-- input -->
+                                <div class="d-flex gap-3 align-items-center">
+                                    <input id="mediaInput" type="file" accept="image/*,video/*" multiple hidden/>
+                                    <button type="button" class="btn btn-outline-primary" id="btnPick">Upload
+                                        images/videos
+                                    </button>
+                                    <small class="text-muted">Can choose many files. Image: jpg/png/webp…; Video:
+                                        mp4/webm…</small>
+                                </div>
+                                <div id="preview" class="row g-3 mt-3"></div>
+                            </div>
+                        </div>
+                        <!-- input -->
+                        <div class="mb-3 col-lg-12 mt-5">
+                            <h4 class="mb-3 h5">Product Descriptions</h4>
+                            <div class="py-3" id="editor">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" id="shopDescription" rows="4"
+                                          placeholder="Write something about this product..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-12">
+            <!-- card -->
+            <div class="card mb-6 card-lg">
+                <!-- card body -->
+                <div class="card-body p-6">
+                    <div class="mb-3 col-lg-6">
+                        <label class="form-label">Status</label>
+                        <select id="statusSelect" class="form-select">
+                            <option selected>Status</option>
+                            <option value="0">In Stock</option>
+                            <option value="1">Out of Stock</option>
+                            <option value="2">Hide</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- card -->
+            <div class="card mb-6 card-lg">
+                <!-- card body -->
+                <div class="card-body p-6">
+                    <h4 class="mb-4 h5">Product Price</h4>
+                    <!-- input -->
+                    <div class="mb-3">
+                        <label class="form-label">Regular Price</label>
+                        <input id="price" type="text" class="form-control" placeholder="$0.00"/>
+                    </div>
+                </div>
+            </div>
+            <!-- button -->
+            <div class="d-grid">
+                <button id="btnSubmit" class="btn btn-primary"
+                        th:text="${mode} == 'edit' ? 'Save Changes' : 'Create Product'"></button>
+            </div>
+        </div>
+    </div>
+</div>
