@@ -8,40 +8,58 @@
 
     // DOM refs
     const tbody = document.getElementById('productsTbody');
+    // searchInput PHẢI tồn tại, bạn nói đã có id này rồi
     const searchInput = document.getElementById('searchInput');
-    const statusFilter = document.getElementById('statusFilter');
+    const statusFilter = document.getElementById('statusFilter'); // có cũng được, không chọn thì bỏ qua
 
-    // Pagination UI (dùng sẵn khung có sẵn)
+    // Pagination UI
     const pagerUl = document.querySelector('.pagination.mb-0');
-    const showingText = document.querySelector('.border-top span'); // “Showing 1 to ...”
+    const showingText = document.querySelector('.border-top span');
+
     // State
     let page = 0, size = 10, sort = 'createdAt,desc';
+    let inflight; // AbortController để hủy request cũ (tránh race condition)
 
     async function load() {
+        // hủy request cũ (nếu còn)
+        if (inflight) inflight.abort();
+        inflight = new AbortController();
+
         const params = new URLSearchParams();
         const q = (searchInput?.value || '').trim();
         if (q) params.set('q', q);
-        const st = statusFilter?.value;
-        if (st !== '' && st != null) params.set('status', st);
+
+        // KHÔNG bắt buộc chọn status; chỉ đẩy khi có giá trị số 0/1/2
+        const stRaw = statusFilter?.value;
+        if (stRaw !== undefined && stRaw !== null && stRaw !== '') {
+            params.set('status', stRaw);
+        }
 
         params.set('page', page);
         params.set('size', size);
         params.set('sort', sort);
 
-        const res = await fetch(`${BASE}/api/shop/products?` + params.toString(), {
-            headers: {'Authorization': 'Bearer ' + token}
-        });
-        if (!res.ok) {
-            const t = await res.text();
-            console.error(t);
-            tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Load products failed</td></tr>`;
-            return;
+        try {
+            const res = await fetch(`${BASE}/api/shop/products?` + params.toString(), {
+                headers: {'Authorization': 'Bearer ' + token},
+                signal: inflight.signal
+            });
+            if (!res.ok) {
+                const t = await res.text();
+                console.error(t);
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Load products failed</td></tr>`;
+                return;
+            }
+            const data = await res.json();
+            renderRows(data.content || []);
+            renderShowing(data);
+            renderPager(data.page, data.totalPages);
+        } catch (e) {
+            if (e.name !== 'AbortError') {
+                console.error(e);
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Load products failed</td></tr>`;
+            }
         }
-        const data = await res.json(); // {content, page, size, totalElements, totalPages}
-
-        renderRows(data.content || []);
-        renderShowing(data);
-        renderPager(data.page, data.totalPages);
     }
 
     function renderRows(items) {
@@ -53,49 +71,39 @@
         for (const it of items) {
             const tr = document.createElement('tr');
 
-            // Checkbox
             const tdCheck = document.createElement('td');
-            tdCheck.innerHTML = `
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox"/>
-        </div>`;
+            tdCheck.innerHTML = `<div class="form-check"><input class="form-check-input" type="checkbox"/></div>`;
             tr.appendChild(tdCheck);
 
-            // Image (media đầu tiên). Nếu là video -> dùng icon/thumb mặc định
+            // thumbnail an toàn
             const tdImg = document.createElement('td');
-            const thumb = BASE + it.thumbnailUrl || '';
-            const isVideo = thumb.includes('/videos/') || /\.mp4|\.webm|\.mkv|\.mov|\.avi$/i.test(thumb);
-            const thumbSrc = isVideo ? '/UTE_SHOP/assets/images/png/iphone-2.png' : (thumb || '/UTE_SHOP/assets/images/png/iphone-2.png');
-            tdImg.innerHTML = `
-        <a href="#!"><img src="${thumbSrc}" alt="" class="icon-shape icon-md"/></a>`;
+            const thumbUrl = it.thumbnailUrl ? (BASE + it.thumbnailUrl) : '';
+            const isVideo = thumbUrl.includes('/videos/') || /\.(mp4|webm|mkv|mov|avi)$/i.test(thumbUrl);
+            const thumbSrc = isVideo ? `${BASE}/assets/images/png/iphone-2.png`
+                : (thumbUrl || `${BASE}/assets/images/png/iphone-2.png`);
+            tdImg.innerHTML = `<a href="#!"><img src="${thumbSrc}" alt="" class="icon-shape icon-md"/></a>`;
             tr.appendChild(tdImg);
 
-            // Name
             const tdName = document.createElement('td');
             tdName.innerHTML = `<a href="#" class="text-reset">${escapeHtml(it.name)}</a>`;
             tr.appendChild(tdName);
 
-            // Category
             const tdCat = document.createElement('td');
             tdCat.textContent = it.categoryName || '';
             tr.appendChild(tdCat);
 
-            // Status badge
             const tdStatus = document.createElement('td');
             tdStatus.innerHTML = statusBadge(it.status);
             tr.appendChild(tdStatus);
 
-            // Price
             const tdPrice = document.createElement('td');
             tdPrice.textContent = formatMoney(it.price);
             tr.appendChild(tdPrice);
 
-            // CreatedAt
             const tdCreated = document.createElement('td');
             tdCreated.textContent = formatDate(it.createdAt);
             tr.appendChild(tdCreated);
 
-            // Actions
             const tdAct = document.createElement('td');
             tdAct.innerHTML = `
         <div class="dropdown">
@@ -153,9 +161,9 @@
         };
 
         pagerUl.appendChild(mkItem('Previous', Math.max(0, p - 1), p === 0));
-        const windowStart = Math.max(0, p - 2);
-        const windowEnd = Math.min(totalPages - 1, p + 2);
-        for (let i = windowStart; i <= windowEnd; i++) {
+        const start = Math.max(0, p - 2);
+        const end = Math.min(totalPages - 1, p + 2);
+        for (let i = start; i <= end; i++) {
             pagerUl.appendChild(mkItem(String(i + 1), i, false, i === p));
         }
         pagerUl.appendChild(mkItem('Next', Math.min(totalPages - 1, p + 1), p >= totalPages - 1));
@@ -170,18 +178,13 @@
     }
 
     function formatMoney(n) {
-        const num = Number(n || 0);
-        return '$' + num.toFixed(2);
+        return '$' + Number(n || 0).toFixed(2);
     }
 
     function formatDate(iso) {
         if (!iso) return '';
         const d = new Date(iso);
-        // dd MMM yyyy
-        const opts = {day: '2-digit', month: 'short', year: 'numeric'};
-        return d.toLocaleDateString('en-US', opts);
-        // Nếu muốn HH:mm dd/MM/yyyy:
-        // return d.toLocaleString('vi-VN');
+        return d.toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'});
     }
 
     function escapeHtml(s) {
@@ -194,13 +197,40 @@
         }[c]));
     }
 
-    // Events
+    // ====== TÌM NGAY KHI GÕ (debounce) + HỖ TRỢ ENTER ======
+    function debounce(fn, delay = 100) {
+        let t;
+        return (...args) => {
+            clearTimeout(t);
+            t = setTimeout(() => fn(...args), delay);
+        };
+    }
+
+    // IME safe: chỉ chạy khi người dùng kết thúc nhập (không đang compose)
+    let composing = false;
+    searchInput?.addEventListener('compositionstart', () => composing = true);
+    searchInput?.addEventListener('compositionend', () => {
+        composing = false;
+        page = 0;
+        load();
+    });
+
+    searchInput?.addEventListener('input', debounce(() => {
+        if (composing) return;
+        page = 0;
+        load();
+    }, 300));
+
+    // Enter để tìm (fallback nếu bạn thích thao tác này)
     searchInput?.addEventListener('keydown', e => {
         if (e.key === 'Enter') {
+            e.preventDefault();
             page = 0;
             load();
         }
     });
+
+    // Đổi trạng thái vẫn hoạt động bình thường (không bắt buộc chọn)
     statusFilter?.addEventListener('change', () => {
         page = 0;
         load();
