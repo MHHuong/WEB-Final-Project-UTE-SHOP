@@ -1,7 +1,7 @@
 package vn.host.dto.shop;
 
 import lombok.Data;
-import vn.host.util.BeanRead;
+import vn.host.entity.Shop;
 
 @Data
 public class ShopRes {
@@ -9,20 +9,16 @@ public class ShopRes {
     private String shopName;
     private String address;
     private String description;
-    private Boolean hasLogo;
+    private String logo;
 
-    public static ShopRes of(vn.host.entity.Shop s) {
+    public static ShopRes of(Shop s) {
+        if (s == null) return null;
         ShopRes r = new ShopRes();
-        r.shopId = s.getShopId();
-        r.shopName = s.getShopName();
-        r.address = s.getAddress();
-        r.description = s.getDescription();
-        try {
-            Object logo = BeanRead.readField(s, "logo");
-            r.hasLogo = (logo != null);
-        } catch (Exception e) {
-            r.hasLogo = null;
-        }
+        r.setShopId(s.getShopId());
+        r.setShopName(s.getShopName());
+        r.setAddress(s.getAddress());
+        r.setDescription(s.getDescription());
+        r.setLogo(s.getLogo());
         return r;
     }
 }

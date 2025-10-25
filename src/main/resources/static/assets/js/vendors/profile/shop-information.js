@@ -5,6 +5,13 @@
         window.location.href = BASE + '/login';
         return;
     }
+    function buildUrl(p) {
+        if (!p) return null;
+        if (/^https?:\/\//i.test(p)) return p;
+        if (p.startsWith(BASE + '/')) return p;
+        if (p.startsWith('/')) return BASE + p;
+        return BASE + '/' + p.replace(/^\/+/, '');
+    }
 
     const $ = id => document.getElementById(id);
     const nameEl = $('shopName');
@@ -61,7 +68,7 @@
     async function loadMe() {
         setStatus('Đang tải dữ liệu…');
         try {
-            const res = await fetch(BASE + '/api/auth/me', {headers: {'Authorization': 'Bearer ' + token}});
+            const res = await fetch(BASE + '/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } });
             if (res.status === 401) {
                 window.location.href = BASE + '/login';
                 return;
@@ -85,14 +92,16 @@
             applyShopToCard(shop, user);
 
             if (imgPrev) {
-                imgPrev.src = shop.hasLogo ? (BASE + '/api/shops/me/logo?ts=' + Date.now()) : (imgPrev.dataset.fallback || '');
+                imgPrev.src = shop.logo
+                    ? buildUrl(shop.logo)
+                    : buildUrl(imgPrev.dataset.fallback);
             }
 
             original = {
                 shopName: shop.shopName || '',
                 description: shop.description || '',
                 address: shop.address || '',
-                hasLogo: !!shop.hasLogo,
+                logo: shop.logo || null,
                 userEmail: user.email || '',
                 userPhone: (user.phone || '').trim()
             };
@@ -142,12 +151,12 @@
             const s = await res.json();
 
             // update card + state
-            applyShopToCard(s, {email: original.userEmail, phone: payload.phone || original.userPhone});
+            applyShopToCard(s, { email: original.userEmail, phone: payload.phone || original.userPhone });
             original = {
                 shopName: s.shopName || '',
                 description: s.description || '',
                 address: s.address || '',
-                hasLogo: !!s.hasLogo,
+                logo: s.logo || null,
                 userEmail: original.userEmail,
                 userPhone: payload.phone || original.userPhone
             };
@@ -160,7 +169,6 @@
         }
     }
 
-    // ===== Reset =====
     function doReset() {
         if (!original) return;
 
@@ -176,8 +184,8 @@
         }
 
         applyShopToCard(
-            {shopName: original.shopName, address: original.address},
-            {email: original.userEmail, phone: original.userPhone}
+            { shopName: original.shopName, address: original.address },
+            { email: original.userEmail, phone: original.userPhone }
         );
 
         setStatus('Đã khôi phục dữ liệu ban đầu.');
@@ -191,12 +199,18 @@
             fd.append('file', file);
             const res = await fetch(BASE + '/api/shops/me/logo', {
                 method: 'POST',
-                headers: {'Authorization': 'Bearer ' + token},
+                headers: { 'Authorization': 'Bearer ' + token },
                 body: fd
             });
-            if (!res.ok) throw new Error(await res.text() || 'Upload failed');
-            if (imgPrev) imgPrev.src = BASE + '/api/shops/me/logo?ts=' + Date.now();
-            original && (original.hasLogo = true);
+            if (!res.ok) throw new Error((await res.text()) || 'Upload failed');
+
+            const data = await res.json();
+            if (data?.url) {
+                const url = buildUrl(data.url);
+                if (imgPrev) imgPrev.src = url;
+                if (original) original.logo = data.url;
+            }
+
             setStatus('Đã cập nhật logo.');
             avatarInp && (avatarInp.value = '');
         } catch (e) {
@@ -209,31 +223,23 @@
         try {
             const res = await fetch(BASE + '/api/shops/me/logo', {
                 method: 'DELETE',
-                headers: {'Authorization': 'Bearer ' + token}
+                headers: { 'Authorization': 'Bearer ' + token }
             });
-            if (!res.ok) throw new Error(await res.text() || 'Delete failed');
-            if (imgPrev) imgPrev.src = imgPrev.dataset.fallback || '';
-            original && (original.hasLogo = false);
+            if (!res.ok) throw new Error((await res.text()) || 'Delete failed');
+
+            if (imgPrev) imgPrev.src = buildUrl(imgPrev.dataset.fallback);
+            if (original) original.logo = null;
+
             setStatus('Đã xóa logo.');
         } catch (e) {
             setStatus('Xóa logo thất bại: ' + (e.message || ''), false);
         }
     }
 
-    saveBtn && saveBtn.addEventListener('click', e => {
-        e.preventDefault();
-        doSave();
-    });
-    resetBtn && resetBtn.addEventListener('click', e => {
-        e.preventDefault();
-        doReset();
-    });
+    saveBtn && saveBtn.addEventListener('click', e => { e.preventDefault(); doSave(); });
+    resetBtn && resetBtn.addEventListener('click', e => { e.preventDefault(); doReset(); });
     avatarInp && avatarInp.addEventListener('change', e => uploadLogo(e.target.files?.[0]));
-    window.deleteAvatar = (e) => {
-        e?.preventDefault();
-        deleteLogo();
-        return false;
-    };
+    window.deleteAvatar = (e) => { e?.preventDefault(); deleteLogo(); return false; };
 
     loadMe();
 })();

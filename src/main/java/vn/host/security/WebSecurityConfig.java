@@ -2,6 +2,7 @@ package vn.host.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -34,19 +35,16 @@ public class WebSecurityConfig {
                         ).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/locations/**").permitAll()
-                        .requestMatchers("/assets/**", "/login", "/register", "/shop/account/shop-register").permitAll()
+                        .requestMatchers("/assets/**", "/uploads/**", "/login", "/register", "/shop/account/shop-register").permitAll()
                         .requestMatchers("/api/shops/**").authenticated()
                         .anyRequest().permitAll()
                 )
 
-                // Tắt cơ chế đăng nhập mặc định
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
 
-                // Cho phép gọi logout mà không cần auth
                 .logout(logout -> logout.permitAll())
 
-                // Nếu có dùng H2-console hoặc cần nhúng frame, có thể mở frameOptions
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
