@@ -1,0 +1,131 @@
+package vn.host.controller.shop;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import vn.host.dto.product.ProductCreateReq;
+import vn.host.entity.*;
+import vn.host.repository.*;
+import vn.host.service.ProductService;
+import org.springframework.http.MediaType;
+
+import java.io.IOException;
+import java.nio.file.*;
+import java.time.Instant;
+import java.util.*;
+
+@RestController
+@RequestMapping("/api/shop/products")
+@RequiredArgsConstructor
+public class ProductController {
+
+    private final UserRepository users;
+    private final ShopRepository shops;
+    private final CategoryRepository categories;
+    private final ProductRepository products;
+    private final ProductMediaRepository mediaRepo;
+    private final ProductService productService;
+
+    private User authedUser(Authentication auth) {
+        if (auth == null || auth.getName() == null) throw new SecurityException("Unauthenticated");
+        return users.findByEmail(auth.getName()).orElseThrow(() -> new SecurityException("User not found"));
+    }
+
+    private static Path uploadsRoot() {
+        return Paths.get("uploads").toAbsolutePath().normalize();
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, Object>> createProduct(
+            Authentication auth,
+            @Valid @RequestPart("data") ProductCreateReq data,
+            @RequestPart(value = "files", required = false) MultipartFile[] files
+    ) throws IOException {
+
+        User u = authedUser(auth);
+        Shop shop = shops.findFirstByOwner_UserId(u.getUserId())
+                .orElseThrow(() -> new IllegalStateException("Bạn chưa đăng ký shop."));
+
+        Category cat = categories.findById(data.getCategoryId())
+                .orElseThrow(() -> new NoSuchElementException("Category không tồn tại"));
+
+        Product p = new Product();
+        p.setShop(shop);
+        p.setCategory(cat);
+        p.setName(data.getName());
+        p.setDescription(data.getDescription());
+        p.setPrice(data.getPrice());
+        p.setStock(data.getStock() != null ? data.getStock() : 0);
+        p.setStatus(data.getStatus() != null ? data.getStatus() : 0);
+
+        productService.save(p);
+
+        if (files != null && files.length > 0) {
+            Path base = uploadsRoot().resolve("products").resolve(String.valueOf(p.getProductId())).normalize();
+            Path imgDir = base.resolve("images");
+            Path vidDir = base.resolve("videos");
+            Files.createDirectories(imgDir);
+            Files.createDirectories(vidDir);
+
+            for (MultipartFile f : files) {
+                if (f == null || f.isEmpty()) continue;
+
+                String ct = Optional.ofNullable(f.getContentType()).orElse("");
+                boolean isImage = ct.startsWith("image/");
+                boolean isVideo = ct.startsWith("video/");
+
+                if (!isImage && !isVideo) {
+                    String extGuess = StringUtils.getFilenameExtension(f.getOriginalFilename());
+                    if (extGuess != null) {
+                        String lower = extGuess.toLowerCase();
+                        isImage = List.of("jpg","jpeg","png","gif","webp","bmp","avif").contains(lower);
+                        isVideo = List.of("mp4","webm","mov","mkv","avi").contains(lower);
+                    }
+                }
+                if (!isImage && !isVideo) continue;
+
+                String ext = "";
+                String original = f.getOriginalFilename();
+                if (original != null && original.contains(".")) {
+                    ext = original.substring(original.lastIndexOf('.')).toLowerCase();
+                } else {
+                    ext = isVideo ? ".mp4" : ".png";
+                }
+
+                String filename = (isVideo ? "vid-" : "img-") + Instant.now().toEpochMilli()
+                        + "-" + UUID.randomUUID() + ext;
+
+                Path target = (isVideo ? vidDir : imgDir).resolve(filename);
+                Files.copy(f.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+
+                String publicUrl = "/uploads/products/" + p.getProductId()
+                        + (isVideo ? "/videos/" : "/images/") + filename;
+
+                ProductMedia m = new ProductMedia();
+                m.setProduct(p);
+                m.setUrl(publicUrl);
+                m.setType(isVideo ? vn.host.util.sharedenum.MediaType.video : vn.host.util.sharedenum.MediaType.image);
+                mediaRepo.save(m);
+            }
+        }
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("productId", p.getProductId());
+        body.put("name", p.getName());
+        body.put("categoryId", p.getCategory().getCategoryId());
+        body.put("price", p.getPrice());
+        body.put("stock", p.getStock());
+        body.put("status", p.getStatus());
+        body.put("description", p.getDescription());
+        body.put("createdAt", p.getCreatedAt());
+        body.put("media", mediaRepo.findByProduct_ProductId(p.getProductId())
+                .stream().map(m -> Map.of("id", m.getMediaId(), "url", m.getUrl(), "type", m.getType().name()))
+                .toList());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+}

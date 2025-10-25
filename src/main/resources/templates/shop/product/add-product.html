@@ -18,8 +18,10 @@
                         <!-- breacrumb -->
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a th:href="@{/shop}" class="text-inherit">Dashboard</a></li>
-                                <li class="breadcrumb-item"><a th:href="@{/shop/product/products}" class="text-inherit">Products</a></li>
+                                <li class="breadcrumb-item"><a th:href="@{/shop}" class="text-inherit">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item"><a th:href="@{/shop/product/products}" class="text-inherit">Products</a>
+                                </li>
                                 <li class="breadcrumb-item active" aria-current="page">Add New Product</li>
                             </ol>
                         </nav>
@@ -43,7 +45,8 @@
                             <!-- input -->
                             <div class="mb-3 col-lg-6">
                                 <label class="form-label">Title</label>
-                                <input type="text" class="form-control" placeholder="Product Name" required/>
+                                <input id="productName" type="text" class="form-control" placeholder="Product Name"
+                                       required/>
                             </div>
                             <!-- input -->
                             <div class="mb-3 col-lg-6">
@@ -51,20 +54,28 @@
                                 <select class="form-select" id="categorySelect">
                                     <option value="">Product Category</option>
                                 </select>
-                                <script th:src="@{/assets/js/common/category-combobox.js}"></script>
+                                <script th:src="@{/assets/js/vendors/category/category-combobox.js}"></script>
                             </div>
                             <!-- input -->
                             <div class="mb-3 col-lg-6">
                                 <label class="form-label">Quantity</label>
-                                <input type="text" class="form-control" placeholder="Quantity" required/>
+                                <input id="stock" type="number" min="0" class="form-control" placeholder="Quantity"
+                                       required/>
                             </div>
                             <div>
                                 <div class="mb-3 col-lg-12 mt-5">
                                     <!-- heading -->
-                                    <h4 class="mb-3 h5">Product Images</h4>
-
+                                    <h4 class="mb-3 h5">Product Media (Images & Videos)</h4>
                                     <!-- input -->
-                                    <div id="my-dropzone" class="dropzone mt-4 border-dashed rounded-2 min-h-0"></div>
+                                    <div class="d-flex gap-3 align-items-center">
+                                        <input id="mediaInput" type="file" accept="image/*,video/*" multiple hidden/>
+                                        <button type="button" class="btn btn-outline-primary" id="btnPick">Upload
+                                            images/videos
+                                        </button>
+                                        <small class="text-muted">Can choose many files. Image: jpg/png/webp…; Video:
+                                            mp4/webm…</small>
+                                    </div>
+                                    <div id="preview" class="row g-3 mt-3"></div>
                                 </div>
                             </div>
                             <!-- input -->
@@ -73,7 +84,7 @@
                                 <div class="py-3" id="editor">
                                     <label class="form-label">Description</label>
                                     <textarea class="form-control" id="shopDescription" rows="4"
-                                              placeholder="Short description..."></textarea>
+                                              placeholder="Write something about this product..."></textarea>
                                 </div>
                             </div>
                         </div>
@@ -87,11 +98,11 @@
                     <div class="card-body p-6">
                         <div class="mb-3 col-lg-6">
                             <label class="form-label">Status</label>
-                            <select class="form-select">
+                            <select id="statusSelect" class="form-select">
                                 <option selected>Status</option>
-                                <option value="Dairy, Bread & Eggs">In Stock</option>
-                                <option value="Snacks & Munchies">Out of Stock</option>
-                                <option value="Fruits & Vegetables">Hide</option>
+                                <option value="0">In Stock</option>
+                                <option value="1">Out of Stock</option>
+                                <option value="2">Hide</option>
                             </select>
                         </div>
                     </div>
@@ -104,21 +115,20 @@
                         <!-- input -->
                         <div class="mb-3">
                             <label class="form-label">Regular Price</label>
-                            <input type="text" class="form-control" placeholder="$0.00"/>
+                            <input id="price" type="text" class="form-control" placeholder="$0.00"/>
                         </div>
                     </div>
                 </div>
                 <!-- button -->
                 <div class="d-grid">
-                    <a href="#" class="btn btn-primary">Create Product</a>
+                    <a th:href="@{/shop/product/products}" class="btn btn-primary">Create Product</a>
                 </div>
             </div>
         </div>
     </div>
-    <script th:src="@{/assets/libs/quill/dist/quill.min.js}"></script>
     <script th:src="@{/assets/js/vendors/editor.js}"></script>
-    <script th:src="@{/assets/libs/dropzone/dist/min/dropzone.min.js}"></script>
     <script th:src="@{/assets/js/vendors/dropzone.js}"></script>
+    <script th:src="@{/assets/js/vendors/product/create-product.js}"></script>
 </main>
 </body>
 
