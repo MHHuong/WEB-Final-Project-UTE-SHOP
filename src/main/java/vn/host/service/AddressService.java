@@ -21,4 +21,6 @@ public interface AddressService {
     Optional<Address> findDefaultAddressByUserId(Long userId);
 
     Address findAddressByAddressDetail(AddressRequest addressRequest, User user);
+
+    List<Address> findAllByUserId(Long userId);
 }

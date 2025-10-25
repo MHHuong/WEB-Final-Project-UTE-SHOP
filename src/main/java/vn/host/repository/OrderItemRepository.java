@@ -9,9 +9,6 @@ import vn.host.model.response.OrderItemResponse;
 import java.util.List;
 
 @Repository
-//Long ProductId;
-//int quantity;
-//BigDecimal unitPrice
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     @Query("""
             SELECT new vn.host.model.response.OrderItemResponse(

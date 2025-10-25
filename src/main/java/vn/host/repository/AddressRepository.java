@@ -30,4 +30,12 @@ public interface AddressRepository extends JpaRepository<Address,Long> {
             WHERE a.user.userId = :userId AND a.isDefault = 1
             """)
     Optional<Address> findDefaultAddressByUserId(Long userId);
+
+    @Query("""
+            SELECT a
+            FROM Address a
+            WHERE a.user.userId = :userId
+            ORDER BY a.isDefault DESC, a.addressId DESC
+            """)
+    List<Address> findAllByUserId(Long userId);
 }

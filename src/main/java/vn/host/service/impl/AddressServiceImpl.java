@@ -73,4 +73,9 @@ public class AddressServiceImpl implements AddressService {
                 .build();
         return addressRepository.save(newAddress);
     }
+
+    @Override
+    public List<Address> findAllByUserId(Long userId) {
+        return addressRepository.findAllByUserId(userId);
+    }
 }

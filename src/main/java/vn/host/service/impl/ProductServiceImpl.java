@@ -3,7 +3,7 @@ package vn.host.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.host.model.response.ProductModel;
-import vn.host.repository.ProductRespository;
+import vn.host.repository.ProductRepository;
 import vn.host.service.ProductService;
 
 import java.util.List;
@@ -11,10 +11,10 @@ import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService {
     @Autowired
-    ProductRespository productRespository;
+    ProductRepository productRepository;
 
     @Override
     public List<ProductModel> findAllProductOrder() {
-        return productRespository.findAllProductsOrder();
+        return productRepository.findAllProductsOrder();
     }
 }

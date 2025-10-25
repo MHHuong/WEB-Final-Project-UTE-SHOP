@@ -11,7 +11,7 @@ import vn.host.model.request.CartRequest;
 import vn.host.model.response.CartResponse;
 import vn.host.model.response.PageResponse;
 import vn.host.repository.CartItemRespository;
-import vn.host.repository.ProductRespository;
+import vn.host.repository.ProductRepository;
 import vn.host.repository.UserRepository;
 import vn.host.service.CartItemService;
 
@@ -28,7 +28,7 @@ public class CartItemServiceImpl implements CartItemService {
     UserRepository userRepository;
 
     @Autowired
-    ProductRespository productRespository;
+    ProductRepository productRepository;
 
     @Override
     public List<CartResponse> findUserCartItems(Long userId) {
@@ -79,7 +79,7 @@ public class CartItemServiceImpl implements CartItemService {
         User user = userRepository.findById(entity.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Product product = productRespository.findById(entity.getProductId())
+        Product product = productRepository.findById(entity.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         Optional<CartItem> cartItem = cartItemRepository.findCartItemByProduct_ProductIdAndUser_UserId

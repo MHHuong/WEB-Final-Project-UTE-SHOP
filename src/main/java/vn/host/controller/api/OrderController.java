@@ -5,7 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.host.entity.Payment;
+import vn.host.model.request.AddressRequest;
 import vn.host.model.request.OrderRequest;
+import vn.host.model.request.ShippingFeeRequest;
 import vn.host.model.response.OrderItemResponse;
 import vn.host.model.response.OrderResponse;
 import vn.host.model.response.ResponseModel;
@@ -133,5 +135,28 @@ public class OrderController {
                     ), HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
+    }
+
+    @PostMapping("shipping-fee")
+    public ResponseEntity<?> calculateShippingFee(@RequestBody ShippingFeeRequest shippingFeeRequest){
+        try {
+            Double fee = orderService.calculateShippingFee(shippingFeeRequest);
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "Success",
+                            "Shipping fee calculated successfully",
+                            fee
+                    ), HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "Error",
+                            "Failed to calculate shipping fee: " + e.getMessage(),
+                            null
+                    ), HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+
     }
 }

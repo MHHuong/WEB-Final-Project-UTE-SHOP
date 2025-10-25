@@ -509,8 +509,13 @@
             }
         }
 
-        window.handleNavigation = () => {
-            window.location.href = `/checkout`;
+        window.handleNavigation = async () => {
+            const selectedCartItems = cartItems.filter(item => selectedItems.has(item.cartId));
+            console.log(selectedCartItems);
+            const result = await cartService.saveSelectedCartItem(selectedCartItems);
+            if (result.status === 'true') {
+                window.location.href = `/checkout`;
+            }
         }
 
         // Initialize

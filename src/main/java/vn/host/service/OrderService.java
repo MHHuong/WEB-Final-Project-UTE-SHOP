@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import vn.host.entity.Order;
 import vn.host.entity.Payment;
 import vn.host.model.request.OrderRequest;
+import vn.host.model.request.ShippingFeeRequest;
 import vn.host.model.response.OrderResponse;
 
 import java.util.List;
@@ -23,4 +24,6 @@ public interface OrderService {
     void updatePayment(Long orderId, Payment payment);
 
     Order findOrderById(long l);
+
+    Double calculateShippingFee(ShippingFeeRequest shippingFeeRequest);
 }

@@ -254,3 +254,35 @@
         </div>
     </div>
 </div>
+
+<div th:fragment="vocher-modal" class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="voucherModalLabel">
+                    <i class="bi bi-ticket-perforated-fill text-primary me-2"></i>
+                    Chọn mã giảm giá
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Voucher list loading -->
+                <div id="voucher-loading" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                    <p class="text-muted mt-3">Đang tải mã giảm giá...</p>
+                </div>
+
+                <!-- Voucher list -->
+                <div id="voucher-list" style="display: none;"></div>
+
+                <!-- No vouchers message -->
+                <div id="no-vouchers-message" style="display: none;" class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <p class="text-muted mt-3">Không có mã giảm giá khả dụng</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

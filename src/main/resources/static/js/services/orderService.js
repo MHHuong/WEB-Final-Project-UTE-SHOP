@@ -1,3 +1,5 @@
+import apiClient from '/js/services/apiClient.js';
+
 const orderService = {
     getOrderByUserId: function(userId) {
         apiClient.get(`/orders/${userId}`).then((response) => {
@@ -27,5 +29,16 @@ const orderService = {
         apiClient.put(`/orders/payment?order=${orderId}`, payment).then((response) => {
             return response;
         })
+    },
+
+    calculateShippingFee: async function(shippingData) {
+        try {
+            return await apiClient.post('/orders/shipping-fee', shippingData)
+        } catch (error) {
+            console.error('Lỗi khi tính phí vận chuyển:', error);
+            throw error;
+        }
     }
 }
+
+export default orderService;
