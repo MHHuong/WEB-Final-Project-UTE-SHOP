@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import vn.host.dto.product.BulkStatusReq;
 import vn.host.dto.product.ProductCreateReq;
 import vn.host.entity.*;
 import vn.host.repository.*;
@@ -166,6 +167,16 @@ public class ProductController {
     ) {
         if (auth == null || auth.getName() == null) throw new SecurityException("Unauthenticated");
         productService.restoreOwnerProduct(auth.getName(), productId, toStatus);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/status")
+    public ResponseEntity<Void> bulkUpdateStatus(
+            Authentication auth,
+            @RequestBody BulkStatusReq req
+    ) {
+        if (auth == null || auth.getName() == null) throw new SecurityException("Unauthenticated");
+        productService.bulkUpdateStatus(auth.getName(), req.getIds(), req.getStatus());
         return ResponseEntity.noContent().build();
     }
 }

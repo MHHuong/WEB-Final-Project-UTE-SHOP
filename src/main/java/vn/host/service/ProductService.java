@@ -26,4 +26,6 @@ public interface ProductService {
     void softDeleteOwnerProduct(String userEmail, long productId);
 
     void restoreOwnerProduct(String userEmail, long productId, int toStatus);
+
+    void bulkUpdateStatus(String userEmail, List<Long> productIds, int status);
 }

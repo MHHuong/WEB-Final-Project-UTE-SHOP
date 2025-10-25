@@ -70,7 +70,7 @@
             const tr = document.createElement('tr');
 
             const tdCheck = document.createElement('td');
-            tdCheck.innerHTML = `<div class="form-check"><input class="form-check-input" type="checkbox"/></div>`;
+            tdCheck.innerHTML = `<div class="form-check"><input class="form-check-input row-check" type="checkbox" data-id="${it.productId}"/></div>`;
             tr.appendChild(tdCheck);
 
             // thumbnail an toàn

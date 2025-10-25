@@ -174,4 +174,26 @@ public class ProductServiceImpl implements ProductService {
         p.setStatus(toStatus);
         repo.save(p);
     }
+
+    @Override
+    @Transactional
+    public void bulkUpdateStatus(String userEmail, List<Long> productIds, int status) {
+        if (status < 0 || status > 3) throw new IllegalArgumentException("Status phải là 0/1/2/3");
+        if (productIds == null || productIds.isEmpty()) return;
+
+        var user = users.findByEmail(userEmail)
+                .orElseThrow(() -> new SecurityException("User not found"));
+        var shop = shops.findFirstByOwner_UserId(user.getUserId())
+                .orElseThrow(() -> new IllegalStateException("Bạn chưa đăng ký shop."));
+        Long shopId = shop.getShopId();
+
+        var list = repo.findAllById(productIds);
+        if (list.isEmpty()) return;
+
+        list.stream()
+                .filter(p -> p.getShop() != null && shopId.equals(p.getShop().getShopId()))
+                .forEach(p -> p.setStatus(status));
+
+        repo.saveAll(list);
+    }
 }

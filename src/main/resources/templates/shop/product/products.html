@@ -53,6 +53,21 @@
                                     <option value="3">Deleted</option>
                                 </select>
                             </div>
+
+                            <div id="bulkBar" class="col-lg-3 col-md-6 col-12 d-none">
+                                <div class="input-group">
+                                    <select id="bulkStatus" class="form-select">
+                                        <option value="" selected>Set status…</option>
+                                        <option value="0">Set: In stock</option>
+                                        <option value="1">Set: Out of stock</option>
+                                        <option value="2">Set: Hide</option>
+                                        <option value="3">Set: Deleted</option>
+                                    </select>
+                                    <button id="btnBulkApply" class="btn btn-outline-primary" type="button" disabled>
+                                        Apply
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <!-- card body -->
@@ -99,6 +114,7 @@
     </div>
     <script th:src="@{/assets/js/vendors/product/load-products.js}" defer></script>
     <script th:src="@{/assets/js/vendors/product/delete-product.js}" defer></script>
+    <script th:src="@{/assets/js/vendors/product/bulk-status.js}" defer></script>
 </main>
 </body>
 
