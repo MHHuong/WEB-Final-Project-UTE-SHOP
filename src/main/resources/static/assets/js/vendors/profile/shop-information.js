@@ -112,13 +112,13 @@
 
             setStatus('');
         } catch (e) {
-            setStatus('Không tải được dữ liệu.', false);
+            setStatus('Cannot load information.', false);
         }
     }
 
     async function doSave() {
         if (!nameEl.value.trim()) {
-            setStatus('Vui lòng nhập tên shop.', false);
+            setStatus('Please enter shop name.', false);
             return;
         }
 
@@ -132,7 +132,7 @@
             phone: phoneEl.value.trim() || null
         };
 
-        setStatus('Đang lưu…');
+        setStatus('Saving…');
         saveBtn && (saveBtn.disabled = true);
 
         try {
@@ -161,9 +161,9 @@
                 userPhone: payload.phone || original.userPhone
             };
 
-            setStatus('Đã lưu thay đổi.');
+            setStatus('Save changed.');
         } catch (err) {
-            setStatus('Lưu thất bại: ' + (err.message || 'Lỗi không xác định'), false);
+            setStatus('Save failed: ' + (err.message || 'Undefined error'), false);
         } finally {
             saveBtn && (saveBtn.disabled = false);
         }
@@ -188,12 +188,12 @@
             { email: original.userEmail, phone: original.userPhone }
         );
 
-        setStatus('Đã khôi phục dữ liệu ban đầu.');
+        setStatus('Reset original information.');
     }
 
     async function uploadLogo(file) {
         if (!file) return;
-        setStatus('Đang tải logo…');
+        setStatus('Uploading logo…');
         try {
             const fd = new FormData();
             fd.append('file', file);
@@ -211,15 +211,15 @@
                 if (original) original.logo = data.url;
             }
 
-            setStatus('Đã cập nhật logo.');
+            setStatus('Uploaded logo.');
             avatarInp && (avatarInp.value = '');
         } catch (e) {
-            setStatus('Tải logo thất bại: ' + (e.message || ''), false);
+            setStatus('Upload logo failed: ' + (e.message || ''), false);
         }
     }
 
     async function deleteLogo() {
-        setStatus('Đang xóa logo…');
+        setStatus('Deleting logo…');
         try {
             const res = await fetch(BASE + '/api/shops/me/logo', {
                 method: 'DELETE',
@@ -230,9 +230,9 @@
             if (imgPrev) imgPrev.src = buildUrl(imgPrev.dataset.fallback);
             if (original) original.logo = null;
 
-            setStatus('Đã xóa logo.');
+            setStatus('Deleted logo.');
         } catch (e) {
-            setStatus('Xóa logo thất bại: ' + (e.message || ''), false);
+            setStatus('Delete logo failed: ' + (e.message || ''), false);
         }
     }
 

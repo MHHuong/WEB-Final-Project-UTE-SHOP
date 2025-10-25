@@ -3,7 +3,7 @@
     const token = localStorage.getItem('authToken');
 
     if (!token) {
-        alert('Vui lòng đăng nhập để tiếp tục');
+        alert('Please login to continue...');
         window.location.href = BASE + '/login';
         return;
     }
@@ -36,7 +36,7 @@
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        setStatus('Đang tạo shop…');
+        setStatus('Creating…');
 
         const shopName = document.getElementById('shopName')?.value?.trim() || '';
         const description = document.getElementById('shopDescription')?.value?.trim() || '';
@@ -50,7 +50,7 @@
         const address = parts.join(', ');
 
         if (!shopName) {
-            setStatus('Vui lòng nhập tên shop.', false);
+            setStatus('Please enter shop name.', false);
             return;
         }
 
@@ -68,13 +68,13 @@
 
             if (!res.ok) {
                 const t = await res.text();
-                setStatus((res.status === 409 ? 'Tài khoản đã có shop. ' : '') + 'Đăng ký thất bại: ' + t, false);
+                setStatus((res.status === 409 ? 'Existing shop in this account. ' : '') + 'Register failed: ' + t, false);
                 return;
             }
 
             window.location.href = BASE + '/shop/account/profile';
         } catch (err) {
-            setStatus('Có lỗi mạng. Vui lòng thử lại.', false);
+            setStatus('Have any errors. Please try again.', false);
         }
     });
 })();
