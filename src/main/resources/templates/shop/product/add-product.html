@@ -48,12 +48,10 @@
                             <!-- input -->
                             <div class="mb-3 col-lg-6">
                                 <label class="form-label">Product Category</label>
-                                <select class="form-select">
-                                    <option selected>Product Category</option>
-                                    <option value="Dairy, Bread & Eggs">Dairy, Bread & Eggs</option>
-                                    <option value="Snacks & Munchies">Snacks & Munchies</option>
-                                    <option value="Fruits & Vegetables">Fruits & Vegetables</option>
+                                <select class="form-select" id="categorySelect">
+                                    <option value="">Product Category</option>
                                 </select>
+                                <script th:src="@{/assets/js/common/category-combobox.js}"></script>
                             </div>
                             <!-- input -->
                             <div class="mb-3 col-lg-6">
