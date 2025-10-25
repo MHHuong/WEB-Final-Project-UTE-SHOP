@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/admin")
 public class AdminDashboardController {
 
+    //Dashboard
     @GetMapping({"", "/"})
     public String root() {
         // /admin -> /admin/dashboard
@@ -21,11 +22,14 @@ public class AdminDashboardController {
         return "admin/dashboard/index"; // templates/admin/dashboard/index.html
     }
 
+
+    //Product
     @GetMapping("/products")
     public String productsPage() {
         return "admin/products/products";
     }
 
+    //Categories
     @GetMapping("/categories")
     public String categoriesPage() {
         return "admin/category/categories";
@@ -41,38 +45,46 @@ public class AdminDashboardController {
         model.addAttribute("id", id);
         return "admin/category/edit-category";
     }
+
+    //User
     @GetMapping("/customers")
     public String customersPage() {
         return "admin/customers/customers"; // templates/admin/customers/customers.html
     }
 
-    // thêm user
     @GetMapping("/customers/create-customers")
     public String createCustomerPage() {
         return "admin/customers/create-customers";
     }
 
-    // sửa user
     @GetMapping("/customers/customers-edits")
     public String editCustomerPage() {
         return "admin/customers/customers-edits";
     }
 
-    // Quản lý chiết khấu App
+    //COUPON
     @GetMapping("/coupons")
     public String couponsPage() {
         return "admin/coupons/admin-coupons";
-        // templates/admin/coupons/admin-coupons.html
     }
 
     @GetMapping("/coupons/add")
     public String addCouponPage() {
         return "admin/coupons/add-coupons";
     }
-    // Quản lý khuyến mãi toàn hệ thống
-//    @GetMapping("/promotions")
-//    public String promotionsPage() {
-//        return "admin/promotions/admin-promotions";
-//        // templates/admin/promotions/admin-promotions.html
-//    }
+
+    //PROMOTION
+    @GetMapping("/promotions")
+    public String promotionsPage() {
+        return "admin/promotions/promotions";
+    }
+
+    @GetMapping("/promotions/add")
+    public String addPromotionPage() {
+        return "admin/promotions/add-promotions";
+    }
+    @GetMapping("/promotions/edit")
+    public String editPromotionPage() {
+        return "admin/promotions/edit-promotions";
+    }
 }

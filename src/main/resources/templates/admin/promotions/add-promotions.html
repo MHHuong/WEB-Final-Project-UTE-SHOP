@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="admin/_layout :: head(~{::title})">
+    <title>UTESHOP • Add Promotion</title>
+</head>
+<body>
+
+<!-- Layout wrapper -->
+<div th:replace="admin/_layout :: layout(~{::content})">
+
+    <div th:fragment="content">
+        <style>
+            .page-wrap { max-width: 800px; margin: 0 auto; }
+            .card { border-radius: 14px; }
+            .form-label { font-weight: 500; }
+        </style>
+
+        <div class="page-wrap">
+
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/promotions">Promotions</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Add Promotion</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h3 class="m-0">Add New Promotion</h3>
+                <div class="text-muted">System-wide promotion management</div>
+            </div>
+
+            <!-- Form -->
+            <form id="promotionForm" class="card shadow-sm p-4">
+                <div class="mb-3">
+                    <label class="form-label">Title <span class="text-danger">*</span></label>
+                    <input type="text" id="title" class="form-control" placeholder="Enter promotion title" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea id="description" class="form-control" rows="3" placeholder="Short description..."></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Discount (%) <span class="text-danger">*</span></label>
+                        <input type="number" id="discountPercent" class="form-control" min="1" max="100" placeholder="e.g. 20" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                        <input type="date" id="startDate" class="form-control" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">End Date <span class="text-danger">*</span></label>
+                        <input type="date" id="endDate" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Apply Category</label>
+                    <select id="applyCategoryId" class="form-select">
+                        <option value="">— Apply to all categories —</option>
+                        <option th:each="c : ${categories}" th:value="${c.categoryId}" th:text="${c.name}"></option>
+                    </select>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="/admin/promotions" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save Promotion
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Toast -->
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
+            <div id="toast" class="toast align-items-center text-bg-success border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body" id="toastMsg">Done!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script th:src="@{/js/admin/admin-promotions.js}"></script>
+</body>
+</html>

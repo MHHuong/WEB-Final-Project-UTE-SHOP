@@ -21,7 +21,7 @@ import java.util.List;
 @RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
-public class AdminController {
+public class AdminUserController {
 
     private final AdminService adminService;
     private final PasswordEncoder passwordEncoder;

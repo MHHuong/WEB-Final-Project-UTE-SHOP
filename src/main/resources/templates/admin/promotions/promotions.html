@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="admin/_layout :: head(~{::title})">
+    <title>UTESHOP • Promotions</title>
+</head>
+<body>
+
+<div th:replace="admin/_layout :: layout(~{::content})">
+
+    <div th:fragment="content">
+        <style>
+            /* Custom style for Promotion page */
+            .page-wrap {max-width: 1200px; margin: 0 auto;}
+            .card {border-radius: 14px;}
+            .table thead th {font-weight: 600; color: #475467; background: #f8fafc;}
+            .status-badge {font-size: .8rem; border-radius: 6px; padding: 3px 8px;}
+            .status-ongoing {background: #ecfdf3; color: #047857;}
+            .status-upcoming {background: #eff6ff; color: #1d4ed8;}
+            .status-expired {background: #fef2f2; color: #b91c1c;}
+        </style>
+
+        <div class="page-wrap">
+
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Promotions</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h3 class="m-0">Promotion Management</h3>
+                <div class="text-muted">System-wide promotion control</div>
+            </div>
+
+            <a href="/admin/promotions/add" class="btn btn-primary mb-3">
+                <i class="bi bi-plus-circle"></i> Add Promotion
+            </a>
+
+            <!-- Toolbar -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-12 col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                                <input id="searchKeyword" type="text" class="form-control" placeholder="Search by title...">
+                                <button id="btnSearch" class="btn btn-primary">Search</button>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <button id="btnReload" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-arrow-clockwise"></i> Reload
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="tblPromotions" class="table align-middle">
+                            <thead>
+                            <tr>
+                                <th style="width:80px">ID</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Discount (%)</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Applied Category</th>
+                                <th style="width:120px">Status</th>
+                                <th style="width:150px" class="text-center">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody><!-- Rendered by JS --></tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-center mt-3">
+                        <div id="pagination" class="btn-group"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Modal -->
+        <div class="modal fade" id="confirmDel" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Deletion</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete the promotion
+                        <b id="delTitle">...</b> (ID: <span id="delId"></span>)?
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button id="btnDoDelete" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
+            <div id="toast" class="toast align-items-center text-bg-success border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body" id="toastMsg">Success!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script th:src="@{/js/admin/admin-promotions.js}"></script>
+</body>
+</html>
