@@ -34,13 +34,13 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         log.info("OAuth2 login successful, user email: {}", email);
         AuthRes authRes = authService.processOAuth2User(email, name);
 
-        String redirectUrl = UriComponentsBuilder.fromUriString("/")
+        String redirectUrl = UriComponentsBuilder.fromUriString("http://localhost:8082/UTE_SHOP/login")
                 .queryParam("token", authRes.token())
-                .queryParam("email", authRes.email()) // Gửi kèm thêm thông tin nếu frontend cần
+                .queryParam("email", authRes.email())
                 .queryParam("name", authRes.fullName())
                 .queryParam("role", authRes.role())
                 .queryParam("userId", authRes.userId())
-                .build().toUriString();
+                .build().encode().toUriString();
 
         log.debug("Redirecting to: {}", redirectUrl);
         response.sendRedirect(redirectUrl);
