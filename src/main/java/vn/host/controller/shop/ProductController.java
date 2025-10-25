@@ -62,6 +62,13 @@ public class ProductController {
         p.setStock(data.getStock() != null ? data.getStock() : 0);
         p.setStatus(data.getStatus() != null ? data.getStatus() : 0);
 
+        if (!hasAtLeastOneImage(files)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST,
+                    "A product has to have at least one image file"
+            );
+        }
+
         productService.save(p);
 
         if (files != null && files.length > 0) {
@@ -74,41 +81,25 @@ public class ProductController {
             for (MultipartFile f : files) {
                 if (f == null || f.isEmpty()) continue;
 
-                String ct = Optional.ofNullable(f.getContentType()).orElse("");
-                boolean isImage = ct.startsWith("image/");
-                boolean isVideo = ct.startsWith("video/");
-
-                if (!isImage && !isVideo) {
-                    String extGuess = StringUtils.getFilenameExtension(f.getOriginalFilename());
-                    if (extGuess != null) {
-                        String lower = extGuess.toLowerCase();
-                        isImage = List.of("jpg","jpeg","png","gif","webp","bmp","avif").contains(lower);
-                        isVideo = List.of("mp4","webm","mov","mkv","avi").contains(lower);
-                    }
-                }
+                boolean isImage = isImageFile(f);
+                boolean isVideo = isVideoFile(f);
                 if (!isImage && !isVideo) continue;
 
-                String ext = "";
-                String original = f.getOriginalFilename();
-                if (original != null && original.contains(".")) {
-                    ext = original.substring(original.lastIndexOf('.')).toLowerCase();
-                } else {
-                    ext = isVideo ? ".mp4" : ".png";
-                }
+                String ext = guessExt(f, isVideo ? ".mp4" : ".png");
+                String filename = (isVideo ? "vid-" : "img-")
+                        + java.time.Instant.now().toEpochMilli() + "-" + java.util.UUID.randomUUID() + ext;
 
-                String filename = (isVideo ? "vid-" : "img-") + Instant.now().toEpochMilli()
-                        + "-" + UUID.randomUUID() + ext;
-
-                Path target = (isVideo ? vidDir : imgDir).resolve(filename);
-                Files.copy(f.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+                java.nio.file.Path target = (isVideo ? vidDir : imgDir).resolve(filename);
+                java.nio.file.Files.copy(f.getInputStream(), target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
                 String publicUrl = "/uploads/products/" + p.getProductId()
                         + (isVideo ? "/videos/" : "/images/") + filename;
 
-                ProductMedia m = new ProductMedia();
+                var m = new ProductMedia();
                 m.setProduct(p);
                 m.setUrl(publicUrl);
-                m.setType(isVideo ? vn.host.util.sharedenum.MediaType.video : vn.host.util.sharedenum.MediaType.image);
+                m.setType(isVideo ? vn.host.util.sharedenum.MediaType.video
+                        : vn.host.util.sharedenum.MediaType.image);
                 mediaRepo.save(m);
             }
         }
@@ -127,5 +118,37 @@ public class ProductController {
                 .toList());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    private boolean hasAtLeastOneImage(MultipartFile[] files) {
+        if (files == null || files.length == 0) return false;
+        for (MultipartFile f : files) {
+            if (f != null && !f.isEmpty() && isImageFile(f)) return true;
+        }
+        return false;
+    }
+
+    private boolean isImageFile(MultipartFile f) {
+        String ct = java.util.Optional.ofNullable(f.getContentType()).orElse("");
+        if (ct.startsWith("image/")) return true;
+        String ext = org.springframework.util.StringUtils.getFilenameExtension(f.getOriginalFilename());
+        return ext != null && java.util.Set.of("jpg", "jpeg", "png", "gif", "webp", "bmp", "avif")
+                .contains(ext.toLowerCase());
+    }
+
+    private boolean isVideoFile(MultipartFile f) {
+        String ct = java.util.Optional.ofNullable(f.getContentType()).orElse("");
+        if (ct.startsWith("video/")) return true;
+        String ext = org.springframework.util.StringUtils.getFilenameExtension(f.getOriginalFilename());
+        return ext != null && java.util.Set.of("mp4", "webm", "mov", "mkv", "avi")
+                .contains(ext.toLowerCase());
+    }
+
+    private String guessExt(MultipartFile f, String fallback) {
+        String original = f.getOriginalFilename();
+        if (original != null && original.lastIndexOf('.') >= 0) {
+            return original.substring(original.lastIndexOf('.')).toLowerCase();
+        }
+        return fallback;
     }
 }

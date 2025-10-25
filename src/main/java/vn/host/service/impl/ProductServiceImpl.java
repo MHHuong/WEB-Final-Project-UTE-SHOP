@@ -112,14 +112,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private String resolveThumb(Long productId) {
-        List<ProductMedia> list = mediaRepo.findByProduct_ProductId(productId);
+        var list = mediaRepo.findByProduct_ProductId(productId);
         if (list == null || list.isEmpty()) return null;
-        // Ưu tiên ảnh; nếu không có thì trả URL phần tử đầu tiên (có thể là video)
+
         return list.stream()
-                .sorted(Comparator.comparing(ProductMedia::getMediaId))
                 .filter(m -> m.getType() == vn.host.util.sharedenum.MediaType.image)
-                .map(ProductMedia::getUrl)
+                .sorted(java.util.Comparator.comparing(vn.host.entity.ProductMedia::getMediaId))
+                .map(vn.host.entity.ProductMedia::getUrl)
                 .findFirst()
-                .orElse(list.get(0).getUrl());
+                .orElse(null);
     }
 }
