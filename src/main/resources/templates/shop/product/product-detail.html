@@ -36,6 +36,16 @@
                 <div id="thumbs" class="d-flex gap-2 mt-3 overflow-auto">
                     <!-- thumbs injected -->
                 </div>
+                <hr class="mt-4">
+
+                <div id="reviewsBlock">
+                    <h5 class="mb-3">Đánh giá gần đây</h5>
+                    <div id="reviewsList" class="d-flex flex-column gap-4"></div>
+
+                    <div class="text-center mt-3">
+                        <button id="loadMoreReviews" class="btn btn-sm btn-outline-secondary d-none">Xem thêm</button>
+                    </div>
+                </div>
             </div>
 
             <!-- RIGHT: Info -->
@@ -110,6 +120,68 @@
         #pdDesc {
             white-space: pre-line;
             word-wrap: break-word;
+        }
+
+        .rv-item .rv-head {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .rv-item .rv-ava {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .rv-item .rv-name {
+            font-weight: 600;
+        }
+
+        .rv-item .rv-time {
+            color: #6c757d;
+            font-size: .9rem;
+        }
+
+        .rv-item .rv-cmt {
+            white-space: pre-line;
+            margin: .5rem 0 0;
+        }
+
+        .rv-thumbs {
+            display: flex;
+            gap: .5rem;
+            margin-top: .5rem;
+            overflow: auto;
+        }
+
+        .rv-thumb {
+            width: 64px;
+            height: 64px;
+            border-radius: .5rem;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid #eee;
+            position: relative;
+        }
+
+        .rv-thumb video, .rv-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .rv-thumb .play-badge {
+            position: absolute;
+            right: 4px;
+            bottom: 4px;
+            background: rgba(0, 0, 0, .6);
+            color: #fff;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
         }
     </style>
 
