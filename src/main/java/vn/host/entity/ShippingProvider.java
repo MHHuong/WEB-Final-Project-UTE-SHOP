@@ -1,5 +1,7 @@
 package vn.host.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,6 +16,7 @@ import java.util.Set;
 @Builder
 @Entity
 @Table(name = "shippingproviders")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // Giữ nguyên
 public class ShippingProvider {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,5 +31,6 @@ public class ShippingProvider {
     private Integer estimatedDays = 3;
 
     @OneToMany(mappedBy = "shippingProvider")
+    @JsonIgnore
     private Set<Shipper> shippers = new HashSet<>();
 }

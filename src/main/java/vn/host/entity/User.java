@@ -56,5 +56,6 @@ public class User {
     private Set<Shop> shops = new HashSet<>();
 
     @OneToOne(mappedBy = "user")
+    @JsonIgnoreProperties({"user", "shippingProvider", "assignedOrders", "hibernateLazyInitializer", "handler"})
     private Shipper shipper;
 }
