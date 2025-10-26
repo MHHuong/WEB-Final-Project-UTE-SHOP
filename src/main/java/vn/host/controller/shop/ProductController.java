@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.host.dto.product.BulkStatusReq;
 import vn.host.dto.product.ProductCreateReq;
+import vn.host.dto.product.ProductUpdateReq;
+import vn.host.dto.product.ProductVM;
 import vn.host.entity.*;
 import vn.host.service.*;
 import org.springframework.http.MediaType;
@@ -174,5 +176,104 @@ public class ProductController {
         if (auth == null || auth.getName() == null) throw new SecurityException("Unauthenticated");
         productService.bulkUpdateStatus(auth.getName(), req.getIds(), req.getStatus());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductVM> getOwnerProduct(
+            Authentication auth,
+            @PathVariable long productId
+    ) {
+        User u = authedUser(auth);
+        Shop shop = shops.findFirstByOwner_UserId(u.getUserId());
+        Product p = productService.findById(productId);
+
+        if (!p.getShop().getShopId().equals(shop.getShopId())) {
+            throw new SecurityException("Not your product");
+        }
+
+        var media = mediaService.findByProduct_ProductId(productId);
+        var vm = ProductVM.of(p, media);
+        return ResponseEntity.ok(vm);
+    }
+
+    @PutMapping(path = "/{productId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductVM> updateOwnerProduct(
+            Authentication auth,
+            @PathVariable long productId,
+            @Valid @RequestPart("data") ProductUpdateReq data,
+            @RequestPart(value = "files", required = false) MultipartFile[] files
+    ) throws IOException {
+
+        User u = authedUser(auth);
+        Shop shop = shops.findFirstByOwner_UserId(u.getUserId());
+        Product p = productService.findById(productId);
+
+        if (!p.getShop().getShopId().equals(shop.getShopId())) {
+            throw new SecurityException("Not your product");
+        }
+
+        Category cat = categories.findById(data.getCategoryId());
+        p.setCategory(cat);
+        p.setName(data.getName());
+        p.setDescription(data.getDescription());
+        p.setPrice(data.getPrice());
+        p.setStock(data.getStock() != null ? data.getStock() : 0);
+        if (data.getStatus() != null) p.setStatus(data.getStatus());
+        productService.save(p);
+
+        if (data.getRemoveMediaIds() != null && !data.getRemoveMediaIds().isEmpty()) {
+            for (Long mid : data.getRemoveMediaIds()) {
+                ProductMedia m = mediaService.findById(mid);
+                if (m == null) continue;
+                if (!m.getProduct().getProductId().equals(productId)) continue;
+
+                try {
+                    Path root = uploadsRoot();
+                    Path absolute = root.resolve(m.getUrl().replaceFirst("^/+", ""));
+                    Files.deleteIfExists(absolute);
+                } catch (Exception ignore) {
+                }
+
+                mediaService.delete(m);
+            }
+        }
+
+        // thêm file mới nếu có
+        if (files != null && files.length > 0) {
+            Path root = uploadsRoot();
+            Path baseDir = root.resolve("uploads/products/" + p.getProductId());
+            Path imgDir = baseDir.resolve("images");
+            Path vidDir = baseDir.resolve("videos");
+            Files.createDirectories(imgDir);
+            Files.createDirectories(vidDir);
+
+            for (MultipartFile f : files) {
+                if (f == null || f.isEmpty()) continue;
+
+                boolean isImage = isImageFile(f);
+                boolean isVideo = isVideoFile(f);
+                if (!isImage && !isVideo) continue;
+
+                String ext = guessExt(f, isVideo ? ".mp4" : ".png");
+                String filename = (isVideo ? "vid-" : "img-")
+                        + java.time.Instant.now().toEpochMilli() + "-" + java.util.UUID.randomUUID() + ext;
+
+                Path target = (isVideo ? vidDir : imgDir).resolve(filename);
+                Files.copy(f.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+
+                String publicUrl = "/uploads/products/" + p.getProductId()
+                        + (isVideo ? "/videos/" : "/images/") + filename;
+
+                var m = new ProductMedia();
+                m.setProduct(p);
+                m.setUrl(publicUrl);
+                m.setType(isVideo ? vn.host.util.sharedenum.MediaType.video : vn.host.util.sharedenum.MediaType.image);
+                mediaService.save(m);
+            }
+        }
+
+        var media = mediaService.findByProduct_ProductId(productId);
+        var vm = ProductVM.of(p, media);
+        return ResponseEntity.ok(vm);
     }
 }

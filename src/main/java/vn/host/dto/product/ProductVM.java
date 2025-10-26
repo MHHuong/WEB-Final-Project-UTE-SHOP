@@ -30,17 +30,19 @@ public class ProductVM {
         return ProductVM.builder()
                 .productId(p.getProductId())
                 .name(p.getName())
-                .categoryId(p.getCategory()!=null? p.getCategory().getCategoryId(): null)
-                .categoryName(p.getCategory()!=null? p.getCategory().getName(): null)
-                .shopId(p.getShop()!=null? p.getShop().getShopId(): null)
+                .categoryId(p.getCategory() != null ? p.getCategory().getCategoryId() : null)
+                .categoryName(p.getCategory() != null ? p.getCategory().getName() : null)
+                .shopId(p.getShop() != null ? p.getShop().getShopId() : null)
                 .price(p.getPrice())
                 .stock(p.getStock())
                 .status(p.getStatus())
                 .description(p.getDescription())
                 .createdAt(p.getCreatedAt())
-                .media(media.stream().map(m ->
+                .media(media != null
+                        ? media.stream().map(m ->
                         new ProductMediaVM(m.getMediaId(), m.getUrl(), m.getType().name())
-                ).toList())
+                ).toList()
+                        : List.of())
                 .build();
     }
 }

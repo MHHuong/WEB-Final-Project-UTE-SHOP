@@ -22,4 +22,14 @@ public class ProductMediaServiceImpl implements ProductMediaService {
     public List<ProductMedia> findByProduct_ProductId(Long productId) {
         return productMediaRepository.findByProduct_ProductId(productId);
     }
+
+    @Override
+    public ProductMedia findById(Long id) {
+        return productMediaRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public void delete(ProductMedia productMedia) {
+        productMediaRepository.delete(productMedia);
+    }
 }

@@ -49,4 +49,9 @@ public class PageController {
     public String registerPage() {
         return "shop/account/shop-register";
     }
+
+    @GetMapping("/shop/product/edit-product")
+    public String editProduct() {
+        return "shop/product/edit-product";
+    }
 }

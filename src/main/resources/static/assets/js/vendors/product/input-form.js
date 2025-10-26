@@ -87,17 +87,20 @@
             return Number(v);
         },
         collectDataOrThrow(requireImage = true) {
+            if (typeof requireImage === 'object' && requireImage !== null) {
+                requireImage = !!requireImage.requireImage;
+            }
             const name = document.getElementById('productName')?.value?.trim();
             const catVal = document.getElementById('categorySelect')?.value;
             const price = Number(document.getElementById('price')?.value || 0);
             const stock = Number(document.getElementById('stock')?.value || 0);
             const status = this.getStatusOrThrow();
             const description = document.getElementById('shopDescription')?.value || null;
-            if (!name) throw new Error('Vui lòng nhập tên sản phẩm.');
-            if (!catVal) throw new Error('Vui lòng chọn danh mục.');
-            if (isNaN(price) || price < 0) throw new Error('Giá không hợp lệ.');
+            if (!name) throw new Error('Please enter product name');
+            if (!catVal) throw new Error('Please choose a category');
+            if (isNaN(price) || price < 0) throw new Error('Invalid price');
             const files = this.getSelectedFiles();
-            if (requireImage && !this.hasAtLeastOneImage(files)) throw new Error('Sản phẩm cần có ít nhất 1 hình ảnh.');
+            if (requireImage && !this.hasAtLeastOneImage(files)) throw new Error('A product must have at least one image.');
             return {data: {name, categoryId: Number(catVal), price, stock, status, description}, files};
         },
         fillForm(p) {
@@ -125,7 +128,7 @@
                     col.className = 'col-6 col-md-3';
                     col.innerHTML = `
             <div class="position-relative">
-              ${isVid ? `<video src="${url}" class="w-100 rounded"
+              ${isVid ? `<video src="${m.url}" class="w-100 rounded"
        controls playsinline preload="metadata"
        style="max-height:160px;object-fit:cover"></video>`
                         : `<img src="${m.url}" class="img-fluid rounded" style="max-height:160px;object-fit:cover"/>`}
