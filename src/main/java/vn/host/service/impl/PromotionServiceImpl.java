@@ -21,6 +21,11 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     @Override
+    public void delete(Long id) {
+        promotionRepository.deleteById(id);
+    }
+
+    @Override
     public Promotion findById(long id) {
         return promotionRepository.findById(id).orElse(null);
     }

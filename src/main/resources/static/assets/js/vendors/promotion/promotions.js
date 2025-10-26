@@ -149,7 +149,6 @@
         pager.appendChild(pageItem('»', Math.min(totalPages - 1, page + 1), false, page === totalPages - 1));
     }
 
-    // Delegated actions
     tbody.addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-act]');
         if (!btn) return;
@@ -159,7 +158,7 @@
         if (act === 'edit') {
             window.location.href = `${BASE}/shop/promotion/edit-promotion?id=${id}`;
         } else if (act === 'del') {
-            if (confirm('Xác nhận xóa mềm (expire) promotion này?')) {
+            if (confirm('Xác nhận xóa promotion này?')) {
                 authFetch(`${BASE}/shop/promotions/${id}`, {method: 'DELETE'})
                     .then(r => {
                         if (r.ok) {

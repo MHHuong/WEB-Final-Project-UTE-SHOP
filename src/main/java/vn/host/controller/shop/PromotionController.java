@@ -1,8 +1,12 @@
 package vn.host.controller.shop;
 
+import jakarta.persistence.PersistenceException;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -164,7 +168,7 @@ public class PromotionController {
 
     // XÓA MỀM — expire (đặt endDate về hôm qua)
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> softDelete(Authentication auth, @PathVariable Long id) {
+    public ResponseEntity<?> delete(Authentication auth, @PathVariable Long id) {
         User u = authedUser(auth);
         Shop s = myShopOr403(u);
 
@@ -173,13 +177,26 @@ public class PromotionController {
             return ResponseEntity.notFound().build();
         }
 
-        // Đặt endDate = hôm qua (nếu hiện đang tương lai hoặc hôm nay)
-        LocalDate today = LocalDate.now();
-        if (p.getEndDate() == null || !p.getEndDate().isBefore(today)) {
-            p.setEndDate(today.minusDays(1));
-            promotionService.save(p);
+        try {
+            // XÓA CỨNG
+            promotionService.delete(id);
+            return ResponseEntity.noContent().build(); // 204
+        } catch (DataIntegrityViolationException ex) {
+            // Spring bọc lỗi FK vào đây
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Không thể xóa: Promotion đang được tham chiếu bởi dữ liệu khác (khóa ngoại).");
+        } catch (PersistenceException ex) {
+            // Một số JPA provider ném PersistenceException/ConstraintViolationException
+            Throwable cause = ex.getCause();
+            if (cause instanceof ConstraintViolationException) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("Không thể xóa: Promotion đang được tham chiếu bởi dữ liệu khác (khóa ngoại).");
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Xóa thất bại do lỗi hệ thống.");
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Xóa thất bại.");
         }
-
-        return ResponseEntity.noContent().build();
     }
 }

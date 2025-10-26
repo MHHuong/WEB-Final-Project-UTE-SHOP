@@ -10,6 +10,8 @@ import java.util.List;
 public interface PromotionService {
     void save(Promotion promotion);
 
+    void delete(Long id);
+
     Promotion findById(long id);
 
     Page<Promotion> findByShop_ShopId(long shopId, Pageable pageable);
