@@ -80,7 +80,7 @@
         });
         if (!res.ok) {
             console.error(await res.text());
-            alert('Tải chi tiết review thất bại');
+            alert('Load failed');
             return;
         }
 

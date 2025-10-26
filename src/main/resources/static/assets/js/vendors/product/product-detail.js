@@ -168,7 +168,7 @@
         const id = getQueryId();
         currentProductId = id;
         if (!id) {
-            alert('Thiếu id sản phẩm');
+            alert('Miss product id');
             return;
         }
 
@@ -177,7 +177,7 @@
         });
         if (!res.ok) {
             console.error(await res.text());
-            alert('Tải chi tiết sản phẩm thất bại');
+            alert('Load failed');
             return;
         }
         const d = await res.json();
