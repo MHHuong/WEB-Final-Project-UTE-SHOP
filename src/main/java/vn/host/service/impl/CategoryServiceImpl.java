@@ -7,6 +7,7 @@ import vn.host.repository.CategoryRepository;
 import vn.host.service.CategoryService;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -21,5 +22,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<Category> findByParent_CategoryId(Long parentId) {
         return categoryRepository.findByParent_CategoryId(parentId);
+    }
+
+    @Override
+    public Category findById(Long id) {
+        return categoryRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Category không tồn tại"));
     }
 }

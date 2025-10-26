@@ -12,7 +12,6 @@ import vn.host.dto.shop.ShopRes;
 import vn.host.dto.shop.UpdateReq;
 import vn.host.entity.Shop;
 import vn.host.entity.User;
-import vn.host.repository.UserRepository;
 import vn.host.service.UserService;
 import vn.host.service.ShopService;
 
@@ -25,7 +24,6 @@ import java.util.Map;
 public class ShopController {
 
     private final ShopService shopSvc;
-    private final UserRepository userRepo;
     private final UserService userService;
 
     private User authedUser(Authentication auth) {
@@ -66,14 +64,14 @@ public class ShopController {
         });
         if (req.getPhone() != null) {
             u.setPhone(req.getPhone().trim());
-            userRepo.save(u);
+            userService.save(u);
         }
         return ResponseEntity.ok(ShopRes.of(updated));
     }
 
     @PostMapping(value = "/me/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Map<String,String>> uploadMyLogo(Authentication auth,
-                                                           @RequestPart("file") MultipartFile file) throws Exception {
+    public ResponseEntity<Map<String, String>> uploadMyLogo(Authentication auth,
+                                                            @RequestPart("file") MultipartFile file) throws Exception {
         User u = authedUser(auth);
         String url = shopSvc.updateMyLogo(u.getUserId(), file);
         return ResponseEntity.ok(Map.of("url", url));

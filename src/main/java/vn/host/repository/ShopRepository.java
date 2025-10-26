@@ -15,12 +15,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ShopRepository extends JpaRepository<Shop,Long>, JpaSpecificationExecutor<Shop> {
+public interface ShopRepository extends JpaRepository<Shop, Long>, JpaSpecificationExecutor<Shop> {
     Optional<Shop> findFirstByOwner_UserId(Long userId);
 
     boolean existsByOwner_UserId(Long userId);
-
-    List<Shop> findAllByOwner_UserId(Long userId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from Shop s where s.owner.userId = :userId")

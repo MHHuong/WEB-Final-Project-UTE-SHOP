@@ -110,7 +110,7 @@
             </a>
             <ul class="dropdown-menu">
               <li>
-                <a class="dropdown-item" href="${BASE}/shop/product/edit?pid=${it.productId}">
+                <a class="dropdown-item" href="${BASE}/shop/product/edit-product?pid=${it.productId}">
                   <i class="bi bi-pencil-square me-3"></i>Edit
                 </a>
               </li>

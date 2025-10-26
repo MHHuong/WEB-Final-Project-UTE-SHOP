@@ -4,19 +4,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.host.dto.product.BulkStatusReq;
 import vn.host.dto.product.ProductCreateReq;
 import vn.host.entity.*;
-import vn.host.repository.*;
-import vn.host.service.ProductService;
+import vn.host.service.*;
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
 import java.nio.file.*;
-import java.time.Instant;
 import java.util.*;
 
 @RestController
@@ -24,15 +21,15 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final UserRepository users;
-    private final ShopRepository shops;
-    private final CategoryRepository categories;
-    private final ProductMediaRepository mediaRepo;
+    private final UserService users;
+    private final ShopService shops;
+    private final CategoryService categories;
+    private final ProductMediaService mediaService;
     private final ProductService productService;
 
     private User authedUser(Authentication auth) {
         if (auth == null || auth.getName() == null) throw new SecurityException("Unauthenticated");
-        return users.findByEmail(auth.getName()).orElseThrow(() -> new SecurityException("User not found"));
+        return users.getUserByEmail(auth.getName());
     }
 
     private static Path uploadsRoot() {
@@ -47,11 +44,10 @@ public class ProductController {
     ) throws IOException {
 
         User u = authedUser(auth);
-        Shop shop = shops.findFirstByOwner_UserId(u.getUserId())
-                .orElseThrow(() -> new IllegalStateException("Bạn chưa đăng ký shop."));
+        Shop shop = shops.findFirstByOwner_UserId(u.getUserId());
 
-        Category cat = categories.findById(data.getCategoryId())
-                .orElseThrow(() -> new NoSuchElementException("Category không tồn tại"));
+
+        Category cat = categories.findById(data.getCategoryId());
 
         Product p = new Product();
         p.setShop(shop);
@@ -100,7 +96,7 @@ public class ProductController {
                 m.setUrl(publicUrl);
                 m.setType(isVideo ? vn.host.util.sharedenum.MediaType.video
                         : vn.host.util.sharedenum.MediaType.image);
-                mediaRepo.save(m);
+                mediaService.save(m);
             }
         }
 
@@ -113,7 +109,7 @@ public class ProductController {
         body.put("status", p.getStatus());
         body.put("description", p.getDescription());
         body.put("createdAt", p.getCreatedAt());
-        body.put("media", mediaRepo.findByProduct_ProductId(p.getProductId())
+        body.put("media", mediaService.findByProduct_ProductId(p.getProductId())
                 .stream().map(m -> Map.of("id", m.getMediaId(), "url", m.getUrl(), "type", m.getType().name()))
                 .toList());
 

@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.host.dto.category.CategoryVM;
 import vn.host.entity.Category;
-import vn.host.repository.CategoryRepository;
+import vn.host.service.CategoryService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,15 +15,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CategoryController {
 
-    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
     @GetMapping
     public ResponseEntity<List<CategoryVM.SimpleItem>> list(
             @RequestParam(required = false) Long parentId
     ) {
         List<Category> categories = (parentId == null)
-                ? categoryRepository.findAll()
-                : categoryRepository.findByParent_CategoryId(parentId);
+                ? categoryService.findAll()
+                : categoryService.findByParent_CategoryId(parentId);
 
         List<CategoryVM.SimpleItem> items = categories.stream()
                 .map(c -> new CategoryVM.SimpleItem(

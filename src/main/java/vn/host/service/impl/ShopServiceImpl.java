@@ -109,7 +109,8 @@ public class ShopServiceImpl implements ShopService {
             try {
                 Path old = uploadsRoot().resolve(s.getLogo().substring(1));
                 Files.deleteIfExists(old);
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) {
+            }
         }
 
         Path target = dir.resolve(filename).normalize();
@@ -132,9 +133,20 @@ public class ShopServiceImpl implements ShopService {
             try {
                 Path p = uploadsRoot().resolve(s.getLogo().substring(1));
                 Files.deleteIfExists(p);
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) {
+            }
         }
         s.setLogo(null);
         shopRepo.save(s);
+    }
+
+    @Override
+    public Shop findFirstByOwner_UserId(Long userId) {
+        return shopRepo.findFirstByOwner_UserId(userId).orElseThrow(() -> new IllegalStateException("Bạn chưa đăng ký shop."));
+    }
+
+    @Override
+    public Shop findShopByOwner_UserId(Long userId) {
+        return shopRepo.findFirstByOwner_UserId(userId).orElse(null);
     }
 }
