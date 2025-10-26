@@ -24,4 +24,9 @@ public class ReviewServiceImpl implements ReviewService {
     public RatingSummary getRatingSummaryByProductId(Long productId) {
         return reviewRepo.getRatingSummaryByProductId(productId);
     }
+
+    @Override
+    public Review findById(Long id) {
+        return reviewRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Review not found"));
+    }
 }

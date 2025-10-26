@@ -16,4 +16,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecif
     @Query("select avg(r.rating) as avg, count(r) as total " +
             "from Review r where r.product.productId = :productId")
     RatingSummary getRatingSummaryByProductId(Long productId);
+
+    Optional<Review> findById(Long id);
 }

@@ -5,4 +5,5 @@ import vn.host.entity.ReviewMedia;
 import java.util.List;
 
 public interface ReviewMediaService {
+    List<ReviewMedia> findByReview_ReviewId(Long id);
 }

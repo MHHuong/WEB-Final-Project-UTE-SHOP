@@ -8,12 +8,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import vn.host.dto.common.PageResult;
+import vn.host.dto.product.ProductMediaVM;
+import vn.host.dto.review.ReviewDetailVM;
 import vn.host.dto.review.ReviewItemRes;
 import vn.host.dto.review.ReviewMediaRes;
 import vn.host.entity.*;
-import vn.host.repository.ReviewRepository;
-import vn.host.service.ShopService;
-import vn.host.service.UserService;
+import vn.host.service.*;
 
 import jakarta.persistence.criteria.Join;
 
@@ -26,7 +26,9 @@ public class ReviewController {
 
     private final UserService userService;
     private final ShopService shopService;
-    private final ReviewRepository reviewRepo;
+    private final ReviewService reviewService;
+    private final ReviewMediaService reviewMediaService;
+    private final ProductMediaService productMediaService;
 
     // Lấy user từ Authentication (giống ShopController của bạn)
     private User authedUser(Authentication auth) {
@@ -94,7 +96,7 @@ public class ReviewController {
             return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
         };
 
-        Page<Review> pageData = reviewRepo.findAll(spec, pageable);
+        Page<Review> pageData = reviewService.findAll(spec, pageable);
 
         List<ReviewItemRes> items = pageData.getContent().stream().map(r -> {
             Product p = r.getProduct();
@@ -103,7 +105,7 @@ public class ReviewController {
                 reviewer = (User) Review.class.getMethod("getUser").invoke(r);
             } catch (Exception ignored) {
             }
-            
+
             final User reviewerRef = reviewer;
 
             return ReviewItemRes.builder()
@@ -169,5 +171,50 @@ public class ReviewController {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    @GetMapping("/{reviewId}/detail")
+    public ResponseEntity<ReviewDetailVM> getReviewDetail(
+            Authentication auth, @PathVariable Long reviewId) {
+
+        User u = authedUser(auth);
+        Shop myShop = shopService.findFirstByOwner_UserId(u.getUserId());
+
+        Review r = reviewService.findById(reviewId);
+
+        // Bảo vệ: review phải thuộc product của shop mình
+        if (r.getProduct() == null || r.getProduct().getShop() == null
+                || !r.getProduct().getShop().getShopId().equals(myShop.getShopId())) {
+            throw new SecurityException("Not your review");
+        }
+
+        // 1) Nếu có media của review -> dùng
+        List<ProductMediaVM> gallery;
+
+        List<ProductMediaVM> rmedias = reviewMediaService.findByReview_ReviewId(reviewId)
+                .stream()
+                .map(m -> new ProductMediaVM(
+                        m.getReviewMediaId(),
+                        m.getUrl(),
+                        m.getType().name().toLowerCase() // "image" | "video" cho JS
+                ))
+                .toList();
+
+        if (!rmedias.isEmpty()) {
+            gallery = rmedias;
+        } else {
+            gallery = productMediaService.findByProduct_ProductId(r.getProduct().getProductId())
+                    .stream()
+                    .map(m -> new ProductMediaVM(
+                            m.getMediaId(),
+                            m.getUrl(),
+                            m.getType().name().toLowerCase()
+                    ))
+                    .toList();
+        }
+        String categoryName = r.getProduct().getCategory() != null
+                ? r.getProduct().getCategory().getName() : null;
+
+        return ResponseEntity.ok(ReviewDetailVM.of(r, categoryName, gallery));
     }
 }

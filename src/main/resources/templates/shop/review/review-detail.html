@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{shop/common/main}">
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-12 d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>Review detail</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a th:href="@{/templates/shop}"
+                                                           class="text-inherit">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a th:href="@{/shop/review/reviews}" class="text-inherit">Reviews</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Detail</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div>
+                    <a th:href="@{/shop/review/reviews}" class="btn btn-light">Back</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- LEFT: Gallery giống product -->
+            <div class="col-lg-6">
+                <div id="mainPreview" class="border rounded d-flex align-items-center justify-content-center"
+                     style="aspect-ratio:1/1;background:#fafafa;overflow:hidden;"></div>
+                <div id="thumbs" class="d-flex gap-2 mt-3 overflow-auto"></div>
+            </div>
+
+            <!-- RIGHT: Review info -->
+            <div class="col-lg-6">
+                <h3 id="prodName" class="mb-1"></h3>
+                <div class="mb-2">
+                    <a id="prodLink" href="#" class="small text-decoration-underline">Xem sản phẩm</a>
+                    <span class="text-muted"> • <span id="categoryName">—</span></span>
+                </div>
+
+                <div class="d-flex align-items-center mb-3">
+                    <span id="avgScore" class="fw-bold me-2" style="min-width:42px;text-align:right">0.0</span>
+                    <div class="rating position-relative" style="font-size:20px; line-height:1;">
+                        <span class="stars-base" style="color:#ddd;">★★★★★</span>
+                        <span class="stars-fill position-absolute top-0 start-0"
+                              style="color:#ffc107; white-space:nowrap; overflow:hidden; width:0%;">★★★★★</span>
+                    </div>
+                    <span id="createdAt" class="text-muted ms-2"></span>
+                </div>
+
+                <div class="mb-2">
+                    <strong>Reviewer:</strong> <span id="reviewerName">—</span> <span class="text-muted"
+                                                                                      id="reviewerId"></span>
+                </div>
+
+                <div>
+                    <h5>Comment</h5>
+                    <p id="comment" class="text-muted" style="white-space: pre-line;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .thumb {
+            width: 72px;
+            height: 72px;
+            cursor: pointer;
+            position: relative;
+            border-radius: .5rem;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .thumb.active {
+            outline: 2px solid #0aad0a;
+        }
+
+        .thumb .play-badge {
+            position: absolute;
+            right: 4px;
+            bottom: 4px;
+            background: rgba(0, 0, 0, .6);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: .25rem;
+            font-size: 12px;
+        }
+
+        #mainPreview img, #mainPreview video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    </style>
+
+    <script th:src="@{/assets/js/vendors/review/review-detail.js}" defer></script>
+</main>
+</body>
+</html>

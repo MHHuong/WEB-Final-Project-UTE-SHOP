@@ -68,7 +68,7 @@
             const created = fmtDate(item.createdAt);
 
             // link sản phẩm (nếu bạn có route chi tiết)
-            const productLink = `<a href="#" class="text-reset">${productName}</a>`;
+            const productLink = `<a class="text-reset" href="${BASE}/shop/product/product-detail?id=${item.productId}">${productName}</a>`;
 
             return `
                 <tr>
@@ -80,7 +80,10 @@
                     <td class="text-end">
                         <!-- chừa chỗ hành động (xem chi tiết, ẩn review, v.v.) -->
                         <div class="btn-group">
-                            <button class="btn btn-sm btn-outline-secondary" data-id="${item.reviewId}">View</button>
+                            <a class="btn btn-sm btn-outline-secondary"
+                               href="${BASE}/shop/review/review-detail?id=${item.reviewId}">
+                               View
+                            </a>
                         </div>
                     </td>
                 </tr>

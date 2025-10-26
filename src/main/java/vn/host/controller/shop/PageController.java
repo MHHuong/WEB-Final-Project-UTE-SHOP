@@ -59,4 +59,9 @@ public class PageController {
     public String productDetailPage() {
         return "shop/product/product-detail";
     }
+
+    @GetMapping("/shop/review/review-detail")
+    public String reviewDetailPage() {
+        return "shop/review/review-detail";
+    }
 }
