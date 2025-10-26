@@ -1,22 +1,26 @@
 package vn.host.controller.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.host.entity.Payment;
+import vn.host.entity.User;
 import vn.host.model.request.AddressRequest;
 import vn.host.model.request.OrderRequest;
 import vn.host.model.request.ShippingFeeRequest;
 import vn.host.model.response.OrderItemResponse;
 import vn.host.model.response.OrderResponse;
 import vn.host.model.response.ResponseModel;
+import vn.host.model.response.TempOrderResponse;
 import vn.host.repository.OrderRepository;
 import vn.host.service.OrderItemService;
 import vn.host.service.OrderService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -165,6 +169,11 @@ public class OrderController {
     public ResponseEntity<?> saveTempOrder(@RequestBody Object order, HttpSession session){
         try {
             session.removeAttribute("selectedProducts");
+            Map<String, Object> orderMap = (Map<String, Object>) order;
+            ObjectMapper mapper = new ObjectMapper();
+            TempOrderResponse tempOrderResponse = mapper.convertValue(orderMap, TempOrderResponse.class);
+            String orderId = orderService.findTopOrderByUser(tempOrderResponse);
+            orderMap.put("orderCode", orderId);
             session.setAttribute("tempOrder", order);
             return new ResponseEntity<>(
                     new ResponseModel(
@@ -187,7 +196,7 @@ public class OrderController {
     @GetMapping("temp-order")
     public ResponseEntity<?> getTempOrder(HttpSession session) {
         try {
-            Object order = session.getAttribute("tempOrder");
+            Map<String, Object> order = (Map<String, Object>) session.getAttribute("tempOrder");
             return new ResponseEntity<>(
                     new ResponseModel(
                             "Success",

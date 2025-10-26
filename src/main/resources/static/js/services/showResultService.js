@@ -1,6 +1,11 @@
-import {showErrorToast} from "/js/utils/toastUtils.js";
+import {showErrorToast, showSuccessToast, showWarningToast, showInfoToast} from "/js/utils/toastUtils.js";
 import orderService from "/js/services/orderService.js";
+import {urlParams} from "/js/services/apiClient.js";
+import paymentService from "/js/services/paymentService.js";
 
+
+let paymentData = {};
+let paymentMethod = '';
 // Format currency
 function formatCurrency(amount) {
     if (isNaN(amount)) return "0₫";
@@ -29,12 +34,27 @@ function getPaymentMethodText(method) {
 }
 
 async function loadOrderData() {
+    const status = urlParams.get('status'); // success, pending, failed
    const result = await orderService.getDisplayTempOrder();
+   console.log(result);
     if (result.status === "Success") {
         try {
             console.log(result.data);
             document.getElementById('order-code').textContent = result.orderCode || 'N/A';
             displayOrderData(result.data);
+            paymentData = {
+                orderId: result.data.orderCode,
+                amount: result.data.payment.total || 0,
+            }
+            paymentMethod = result.paymentMethod
+            if (status) {
+                setPaymentState(status);
+            } else if (result.paymentMethod === 'COD') {
+                setPaymentState(PAYMENT_STATE.SUCCESS);
+            } else {
+                // E-wallet payment - check if already paid
+                setPaymentState(PAYMENT_STATE.PENDING);
+            }
         } catch (error) {
             console.error('Error parsing order data:', error);
             showErrorToast('Không thể tải thông tin đơn hàng');
@@ -42,6 +62,11 @@ async function loadOrderData() {
     } else {
         document.getElementById('order-code').textContent = result.orderCode || 'N/A';
         populateDefaultData();
+        if (status) {
+            setPaymentState(status);
+        } else {
+            setPaymentState(PAYMENT_STATE.SUCCESS);
+        }
     }
 }
 
@@ -134,6 +159,186 @@ function populateDefaultData() {
     document.getElementById('order-time').textContent = new Date().toLocaleString('vi-VN');
 }
 
+const PAYMENT_STATE = {
+    PENDING: 'pending',
+    SUCCESS: 'success',
+    FAILED: 'failed'
+};
+
+let currentState = PAYMENT_STATE.SUCCESS;
+let countdownTimer = null;
+let remainingSeconds = 900;
+
+function setPaymentState(state) {
+    currentState = state;
+
+    // Hide all states
+    document.getElementById('success-state').style.display = 'none';
+    document.getElementById('pending-state').style.display = 'none';
+    document.getElementById('failed-state').style.display = 'none';
+
+    // Show appropriate state
+    switch(state) {
+        case PAYMENT_STATE.SUCCESS:
+            document.getElementById('success-state').style.display = 'block';
+            document.getElementById('action-buttons-card').style.display = 'block';
+            updatePaymentStatus('Đã thanh toán', 'bg-success');
+            updateInfoAlert('success');
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+            }
+            break;
+
+        case PAYMENT_STATE.PENDING:
+            document.getElementById('pending-state').style.display = 'block';
+            document.getElementById('action-buttons-card').style.display = 'none';
+            updatePaymentStatus('Chờ thanh toán', 'bg-warning');
+            updateInfoAlert('pending');
+            startCountdown();
+            break;
+
+        case PAYMENT_STATE.FAILED:
+            document.getElementById('failed-state').style.display = 'block';
+            document.getElementById('action-buttons-card').style.display = 'block';
+            updatePaymentStatus('Thanh toán thất bại', 'bg-danger');
+            updateInfoAlert('failed');
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+            }
+            break;
+    }
+}
+
+function updatePaymentStatus(text, badgeClass) {
+    const badge = document.getElementById('payment-status');
+    badge.textContent = text;
+    badge.className = `badge ${badgeClass}`;
+}
+
+function updateInfoAlert(state) {
+    const infoList = document.getElementById('info-list');
+
+    switch(state) {
+        case 'success':
+            infoList.innerHTML = `
+                    <li>Bạn sẽ nhận được email xác nhận đơn hàng trong vài phút.</li>
+                    <li>Vui lòng kiểm tra thông tin đơn hàng và liên hệ với chúng tôi nếu có bất kỳ thắc mắc nào.</li>
+                    <li>Đơn hàng sẽ được giao trong thời gian dự kiến theo phương thức vận chuyển bạn đã chọn.</li>
+                `;
+            break;
+        case 'pending':
+            infoList.innerHTML = `
+                    <li>Vui lòng hoàn tất thanh toán trong thời gian quy định.</li>
+                    <li>Đơn hàng sẽ tự động hủy nếu không thanh toán trong thời gian cho phép.</li>
+                    <li>Sau khi thanh toán thành công, bạn sẽ nhận được email xác nhận.</li>
+                `;
+            break;
+        case 'failed':
+            infoList.innerHTML = `
+                    <li>Đơn hàng của bạn chưa được thanh toán thành công.</li>
+                    <li>Bạn có thể thử lại thanh toán hoặc đặt hàng mới.</li>
+                    <li>Liên hệ với chúng tôi nếu bạn cần hỗ trợ.</li>
+                `;
+            break;
+    }
+}
+
+function startCountdown() {
+    const timerDisplay = document.getElementById('timer-display');
+    const timerBox = document.querySelector('.timer-box');
+
+    countdownTimer = setInterval(() => {
+        remainingSeconds--;
+
+        // Format time as MM:SS
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        // Warning when less than 5 minutes
+        if (remainingSeconds <= 300 && remainingSeconds > 0) {
+            timerBox.classList.add('warning');
+        }
+
+        // Timer expired
+        if (remainingSeconds <= 0) {
+            clearInterval(countdownTimer);
+            setPaymentState(PAYMENT_STATE.FAILED);
+            document.getElementById('failed-message').textContent = 'Đơn hàng của bạn đã hết thời gian thanh toán. Vui lòng thử lại.';
+            showErrorToast('Hết thời gian thanh toán!');
+        }
+    }, 1000);
+}
+
+async function handlePaymentClick() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderCode = urlParams.get('orderCode');
+
+    const url = await paymentService.createPayment(paymentData, paymentMethod);
+    showInfoToast('Đang chuyển đến trang thanh toán...');
+    setTimeout(() => {
+        window.location.href = url.data;
+    }, 2000);
+}
+
+// Handle retry payment
+function handleRetryPayment() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderCode = urlParams.get('orderCode');
+
+    // Reset timer
+    remainingSeconds = 900;
+
+    // Go back to pending state
+    setPaymentState(PAYMENT_STATE.PENDING);
+    showWarningToast('Vui lòng hoàn tất thanh toán trong 15 phút');
+
+    // Update URL
+    const newUrl = window.location.pathname + '?orderCode=' + orderCode + '&status=pending';
+    window.history.pushState({}, '', newUrl);
+}
+
+// Check payment status (simulate)
+function checkPaymentStatus() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderCode = urlParams.get('orderCode');
+
+    // In real implementation, poll server for payment status
+    // This is just a simulation
+
+    console.log('Checking payment status for order:', orderCode);
+}
+
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', async () => {
     await loadOrderData();
+
+    // Add event listeners
+    const payNowBtn = document.getElementById('pay-now-btn');
+    if (payNowBtn) {
+        payNowBtn.addEventListener('click', handlePaymentClick);
+    }
+
+    const retryBtn = document.getElementById('retry-payment-btn');
+    if (retryBtn) {
+        retryBtn.addEventListener('click', handleRetryPayment);
+    }
+
+    // Poll payment status if in pending state
+    if (currentState === PAYMENT_STATE.PENDING) {
+        const statusCheckInterval = setInterval(() => {
+            if (currentState !== PAYMENT_STATE.PENDING) {
+                clearInterval(statusCheckInterval);
+                return;
+            }
+            checkPaymentStatus();
+        }, 5000); // Check every 5 seconds
+    }
+});
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+    if (countdownTimer) {
+        clearInterval(countdownTimer);
+    }
 });

@@ -1,0 +1,61 @@
+<div th:fragment = "success" id="success-state" style="display: none;">
+    <div class="mb-4">
+        <div class="success-checkmark">
+            <div class="check-icon">
+                <span class="icon-line line-tip"></span>
+                <span class="icon-line line-long"></span>
+                <div class="icon-circle"></div>
+                <div class="icon-fix"></div>
+            </div>
+        </div>
+    </div>
+    <h2 class="fw-bold text-success mb-3">Đặt Hàng Thành Công!</h2>
+    <p class="text-muted mb-4">Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ xử lý đơn hàng của bạn ngay lập tức.</p>
+</div>
+
+<div th:fragment = "pending" id="pending-state" style="display: none;">
+    <div class="mb-4">
+        <div class="pending-icon">
+            <i class="bi bi-hourglass-split text-secondary"></i>
+        </div>
+    </div>
+    <h2 class="fw-bold text-secondary mb-3">Chờ Thanh Toán</h2>
+    <p class="text-muted mb-3">Vui lòng hoàn tất thanh toán trong thời gian quy định.</p>
+
+    <!-- Timer -->
+    <div class="countdown-timer mb-4">
+        <div class="timer-box">
+            <span id="timer-display" class="timer-text">15:00</span>
+            <small class="text-muted d-block mt-2">Thời gian còn lại</small>
+        </div>
+    </div>
+
+    <!-- Payment Button -->
+    <div class="mb-3">
+        <button class="btn btn-primary btn-lg px-5" id="pay-now-btn">
+            <i class="bi bi-credit-card me-2"></i>
+            Thanh Toán Ngay
+        </button>
+    </div>
+    <small class="text-muted">Nhấn vào nút trên để chuyển đến trang thanh toán</small>
+</div>
+
+<div th:fragment = "failed" id="failed-state" style="display: none;">
+    <div class="mb-4">
+        <div class="failed-icon">
+            <i class="bi bi-x-circle-fill text-danger"></i>
+        </div>
+    </div>
+    <h2 class="fw-bold text-danger mb-3">Thanh Toán Thất Bại</h2>
+    <p class="text-muted mb-4" id="failed-message">Đơn hàng của bạn đã hết thời gian thanh toán hoặc gặp sự cố.</p>
+
+    <!-- Retry Button -->
+    <div class="mb-3">
+        <button class="btn btn-primary btn-lg px-5" id="retry-payment-btn">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Thử Lại Thanh Toán
+        </button>
+    </div>
+</div>
+
+

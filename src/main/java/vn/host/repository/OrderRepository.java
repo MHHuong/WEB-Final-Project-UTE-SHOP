@@ -53,4 +53,6 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
            """
     )
     List<OrderResponse> findAllOrdersByUserId(Long userId);
+
+    Order findTopByUser_UserIdAndShop_ShopIdOrderByOrderIdDesc(Long userId, Long shopId);
 }

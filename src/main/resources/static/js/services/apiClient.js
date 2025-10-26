@@ -38,3 +38,4 @@ const apiClient = {
 }
 
 export default apiClient;
+export const urlParams = new URLSearchParams(window.location.search);

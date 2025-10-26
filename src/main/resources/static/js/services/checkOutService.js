@@ -1,5 +1,5 @@
 import cartService from "/js/services/cartService.js";
-import { showSuccessToast, showErrorToast, showWarningToast } from "/js/utils/toastUtils.js";
+import { showSuccessToast, showErrorToast, showWarningToast, showInfoToast } from "/js/utils/toastUtils.js";
 import addresses from "/addresses.json" with { type: "json" };
 import addressService from "/js/services/addressService.js";
 import orderService from "/js/services/orderService.js";
@@ -395,12 +395,15 @@ function showSaveAddressModal() {
 
 // Process order
 async function processOrder(shouldSaveAddress = false) {
+    const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+    const ewalletType = paymentMethod === 'E_WALLET' ? document.querySelector('input[name="ewallet-type"]:checked')?.value : null;
+
     const orderData = {
         userId: USER_ID,
-        paymentMethod: document.querySelector('input[name="payment-method"]:checked').value,
+        paymentMethod: ewalletType || paymentMethod,
         shippingProviderId: 1,
         total: parseInt(document.getElementById('total').innerText.replace(/₫/g, '').replace(/\./g, '') || 0),
-        note: document.getElementById('order-note').value,
+        payments: null,
         coupon: document.getElementById('voucher-code-input').value || null,
         address: {
             receiverName: document.getElementById('receiver-name').value,
@@ -410,15 +413,17 @@ async function processOrder(shouldSaveAddress = false) {
             ward: document.getElementById('ward').selectedOptions[0].text,
             addressDetail: document.getElementById('address-detail').value,
         },
+        note: document.getElementById('order-note').value,
         orders: selectedProducts.map(item => ({
             productId: item.productModel.productId,
+            shopId: item.productModel.shopId,
             quantity: item.quantity,
             price: item.productModel.price,
-            shopId: item.productModel.shopId,
             discountAmount: item.discountValue || 0
         })),
     };
 
+    // Save address if requested
     if (shouldSaveAddress) {
         const isDefault = document.getElementById('set-as-default-address').checked;
         const addressData = {
@@ -433,25 +438,25 @@ async function processOrder(shouldSaveAddress = false) {
         };
 
         try {
-            const result = await addressService.createAddress(addressData, USER_ID);
-            if (result.status === 'Success') {
+            const result = await addressService.createAddress(addressData);
+            if (result.status === 'true') {
                 showSuccessToast('Đã lưu địa chỉ thành công!');
             }
         } catch (error) {
             console.error('Error saving address:', error);
-            showErrorToast("Lỗi khi lưu địa chỉ: " + error.message);
             // Continue with order even if address save fails
         }
     }
-    const result = await orderService.saveOrder(orderData);
-    if (result.status !== 'Success') {
-        showErrorToast('Đặt hàng thất bại: ' + result.message);
-        return;
-    }
 
-    showSuccessToast('Đặt hàng thành công!');
+    console.log('Order data:', orderData);
     await handleNavigation();
-
+    const result = await orderService.saveOrder(orderData);
+    if (result.status === 'Success') {
+        showSuccessToast('Đặt hàng thành công!');
+        await handleNavigation()
+    } else {
+        showErrorToast('Đặt hàng thất bại: ' + result.message);
+    }
 }
 
 async function handleNavigation() {
@@ -460,6 +465,9 @@ async function handleNavigation() {
 
     const discountText = document.getElementById('discount').innerText.replace(/₫/g, '').replace(/\./g, '').replace(/-/g, '');
     const discount = parseInt(discountText) || 0;
+
+    const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+    const ewalletType = paymentMethod === 'E_WALLET' ? document.querySelector('input[name="ewallet-type"]:checked')?.value : null;
 
     const displayOrderData = {
         userId: USER_ID,
@@ -471,7 +479,7 @@ async function handleNavigation() {
             subtotal: subtotal,
             shippingFee: shippingFee,
             discount: discount,
-            paymentMethod: document.querySelector('input[name="payment-method"]:checked').value,
+            paymentMethod: ewalletType || paymentMethod,
         },
         address: {
             receiverName: document.getElementById('receiver-name').value,
@@ -495,7 +503,10 @@ async function handleNavigation() {
     };
     await orderService.setDisplayTempOrder(displayOrderData);
     setTimeout(() => {
-        window.location.href = `/success/${displayOrderData.orderCode}`;
+        if (paymentMethod === 'E_WALLET' && ewalletType) {
+            window.location.href = `/status/${displayOrderData.orderCode}?status=pending`;
+        }
+        else window.location.href = `/status/${displayOrderData.orderCode}?status=success`;
     }, 2000);
 }
 

@@ -21,8 +21,6 @@ public class OrderRequest {
     Payment payments;
     String coupon;
     AddressRequest address;
-    String receiverName;
-    String phone;
     String note;
     List<OrderItemRequest> orders;
 }

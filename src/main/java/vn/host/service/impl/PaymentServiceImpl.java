@@ -3,10 +3,14 @@ package vn.host.service.impl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import vn.host.config.PaymentConfig;
+import vn.host.config.api.MomoAPI;
 import vn.host.entity.Payment;
+import vn.host.model.request.CreateMomoRequest;
 import vn.host.model.request.PaymentRequest;
+import vn.host.model.response.CreateMomoResponse;
 import vn.host.repository.PaymentRepository;
 import vn.host.service.PaymentService;
 
@@ -21,6 +25,22 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     PaymentRepository paymentRepository;
+
+    @Value("${momo.partnerCode}")
+    private String partnerCode;
+    @Value("${momo.accessKey}")
+    private String accessKey;
+    @Value("${momo.secretKey}")
+    private String secretKey;
+    @Value("${momo.returnUrl}")
+    private String returnUrl;
+    @Value("${momo.ipn-url}")
+    private String notifyUrl;
+    @Value("${momo.requestType}")
+    private String requestType;
+
+    @Autowired
+    private MomoAPI momoAPI;
 
     @Override
     public String createVnPayRequest(PaymentRequest paymentRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -82,6 +102,43 @@ public class PaymentServiceImpl implements PaymentService {
         String vnp_SecureHash = PaymentConfig.hmacSHA512(PaymentConfig.secretKey, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
         return PaymentConfig.vnp_PayUrl + "?" + queryUrl;
+    }
+
+    @Override
+    public CreateMomoResponse createMoMoRequest(PaymentRequest paymentRequest) {
+        String orderId = paymentRequest.getOrderId();
+        String orderInfo = "Thanh toan don hang: " + orderId;
+        String requestId = UUID.randomUUID().toString();
+        String extraData = "Khong co khuyen mai";
+        long amount = paymentRequest.getAmount();
+
+        String rawSignature = "accessKey=" + accessKey +
+                "&amount=" + amount +
+                "&extraData=" + extraData +
+                "&ipnUrl=" + notifyUrl +
+                "&orderId=" + orderId +
+                "&orderInfo=" + orderInfo +
+                "&partnerCode=" + partnerCode +
+                "&redirectUrl=" + returnUrl +
+                "&requestId=" + requestId +
+                "&requestType=" + requestType;
+        String signature = PaymentConfig.hmacSHA256(secretKey, rawSignature);
+
+        CreateMomoRequest request = CreateMomoRequest.builder()
+                .partnerCode(partnerCode)
+                .requestType(requestType)
+                .ipnUrl(notifyUrl)
+                .redirectUrl(returnUrl)
+                .orderId(orderId)
+                .orderInfo(orderInfo)
+                .requestId(requestId)
+                .extraData(extraData)
+                .signature(signature)
+                .amount(amount)
+                .lang("vi")
+                .build();
+
+        return momoAPI.createMomoQR(request);
     }
 
     @Override

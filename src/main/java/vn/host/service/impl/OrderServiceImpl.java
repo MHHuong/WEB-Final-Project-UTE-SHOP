@@ -14,12 +14,15 @@ import vn.host.model.request.OrderItemRequest;
 import vn.host.model.request.OrderRequest;
 import vn.host.model.request.ShippingFeeRequest;
 import vn.host.model.response.OrderResponse;
+import vn.host.model.response.ProductModel;
+import vn.host.model.response.TempOrderResponse;
 import vn.host.model.websocket.OrderStatusMessage;
 import vn.host.repository.*;
 import vn.host.service.AddressService;
 import vn.host.service.CartItemService;
 import vn.host.service.OrderService;
 import vn.host.util.sharedenum.OrderStatus;
+import vn.host.util.sharedenum.PaymentMethod;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -64,6 +67,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private CartItemService cartItemService;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     @Value("${here.api.key}")
     private String hereApiKey;
@@ -186,7 +192,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Double calculateShippingFee(ShippingFeeRequest shippingFeeRequest) {
         try {
-            Double distanceFee =  calDistanceFee(shippingFeeRequest.getShippingService());
+            Double distanceFee = calDistanceFee(shippingFeeRequest.getShippingService());
             double sum = 0;
             String source = shippingFeeRequest.getWard() + ", " + shippingFeeRequest.getDistrict() + ", " + shippingFeeRequest.getProvince();
             Map<String, Object> originData = geoCodeConfig.getGeocode(source, hereApiKey);
@@ -210,7 +216,6 @@ public class OrderServiceImpl implements OrderService {
                 String dest = destMap.get("lat") + "," + destMap.get("lng");
 
 
-
                 Map<String, Object> routeData = routeConfig.getRoute("car", origin, dest, "summary", hereApiKey);
                 List<Map<String, Object>> routes = (List<Map<String, Object>>) routeData.get("routes");
                 Map<String, Object> firstRoute = routes.get(0);
@@ -219,9 +224,76 @@ public class OrderServiceImpl implements OrderService {
                 Map<String, Object> summary = (Map<String, Object>) firstSection.get("summary");
                 sum += ((Number) summary.get("length")).doubleValue() / 100000;
             }
-            return sum*distanceFee;
+            return sum * distanceFee;
         } catch (Exception e) {
             throw new RuntimeException("Failed to calculate shipping fee: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String findTopOrderByUser(TempOrderResponse tempOrderResponse) {
+        List<ProductModel> products = tempOrderResponse.getOrders();
+        Long userId = tempOrderResponse.getUserId();
+        List<Long> shopIds = products.stream()
+                .map(ProductModel::getShopId)
+                .distinct()
+                .toList();
+        return shopIds.stream().map(shopId -> {
+                    Order order = orderRepository.findTopByUser_UserIdAndShop_ShopIdOrderByOrderIdDesc(userId, shopId);
+                    return order != null ? String.valueOf(order.getOrderId()) : "";
+                }).filter(id -> !id.isEmpty())
+                .collect(Collectors.joining("-"));
+    }
+
+    @Override
+    public void updateOrderPaymentVnPay(String orderIdsStr, String responseCode, Long amount) {
+        String[] orderIds = orderIdsStr.split("-");
+        for (String idStr : orderIds) {
+            Long orderId = Long.parseLong(idStr);
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+            Payment payment = Payment.builder()
+                    .order(order)
+                    .transactionCode(responseCode)
+                    .amount(BigDecimal.valueOf(amount))
+                    .method(PaymentMethod.VNPAY)
+                    .build();
+            if ("00".equals(responseCode)) {
+                payment.setStatus(vn.host.util.sharedenum.PaymentStatus.SUCCESS);
+                order.setStatus(OrderStatus.CONFIRMED);
+            } else {
+                payment.setStatus(vn.host.util.sharedenum.PaymentStatus.FAILED);
+                order.setStatus(OrderStatus.CANCELLED);
+            }
+            Payment new_payment =  paymentRepository.save(payment);
+            order.getPayments().add(new_payment);
+            orderRepository.save(order);
+        }
+    }
+
+    @Override
+    public void updateOrderPaymentMomo(String orderIdsStr, Integer responseCode, Long amount) {
+        String[] orderIds = orderIdsStr.split("-");
+        for (String idStr : orderIds) {
+            Long orderId = Long.parseLong(idStr);
+            Order order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+            Payment payment = Payment.builder()
+                    .order(order)
+                    .transactionCode(responseCode.toString())
+                    .amount(BigDecimal.valueOf(amount))
+                    .method(PaymentMethod.MOMO)
+                    .build();
+            if (responseCode == 0) {
+                payment.setStatus(vn.host.util.sharedenum.PaymentStatus.SUCCESS);
+            } else {
+                payment.setStatus(vn.host.util.sharedenum.PaymentStatus.FAILED);
+                order.setStatus(OrderStatus.CANCELLED);
+            }
+            Payment new_payment =  paymentRepository.save(payment);
+            order.getPayments().add(new_payment);
+            order.setStatus(OrderStatus.CONFIRMED);
+            orderRepository.save(order);
         }
     }
 }

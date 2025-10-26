@@ -7,6 +7,7 @@ import vn.host.entity.Payment;
 import vn.host.model.request.OrderRequest;
 import vn.host.model.request.ShippingFeeRequest;
 import vn.host.model.response.OrderResponse;
+import vn.host.model.response.TempOrderResponse;
 
 import java.util.List;
 
@@ -26,4 +27,10 @@ public interface OrderService {
     Order findOrderById(long l);
 
     Double calculateShippingFee(ShippingFeeRequest shippingFeeRequest);
+
+    String findTopOrderByUser(TempOrderResponse tempOrderResponse);
+
+    void updateOrderPaymentVnPay(String orderIdsStr, String responseCode, Long amount);
+
+    void updateOrderPaymentMomo(String orderIdsStr, Integer responseCode, Long amount);
 }
