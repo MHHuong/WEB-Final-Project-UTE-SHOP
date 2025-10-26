@@ -14,7 +14,7 @@
                     <!-- breacrumb -->
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="#" class="text-inherit">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a th:href="@{/shop}" class="text-inherit">Dashboard</a></li>
                             <li class="breadcrumb-item active" aria-current="page">Reviews</li>
                         </ol>
                     </nav>
@@ -55,12 +55,6 @@
                             <table class="table table-centered table-hover table-borderless mb-0 table-with-checkbox text-nowrap">
                                 <thead class="bg-light">
                                 <tr>
-                                    <th>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="checkAll"/>
-                                            <label class="form-check-label" for="checkAll"></label>
-                                        </div>
-                                    </th>
                                     <th>Product</th>
                                     <th>Name</th>
                                     <th>Reviews</th>
@@ -71,13 +65,6 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="reviewOne"/>
-                                            <label class="form-check-label" for="reviewOne"></label>
-                                        </div>
-                                    </td>
-
                                     <td><a href="#" class="text-reset">Haldiram's Sev Bhujia</a></td>
                                     <td>Barry McKenzie</td>
 
@@ -94,37 +81,8 @@
                                         </div>
                                     </td>
                                     <td>23 Nov,2022</td>
-                                    <td>
-                                        <div class="dropdown">
-                                            <a href="#" class="text-reset" data-bs-toggle="dropdown"
-                                               aria-expanded="false">
-                                                <i class="feather-icon icon-more-vertical fs-5"></i>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-trash me-3"></i>
-                                                        Delete
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-pencil-square me-3"></i>
-                                                        Edit
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
                                 </tr>
                                 <tr>
-                                    <td class="pe-0">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="reviewTwo"/>
-                                            <label class="form-check-label" for="reviewTwo"></label>
-                                        </div>
-                                    </td>
-
                                     <td><a href="#" class="text-reset">NutriChoice Digestive</a></td>
                                     <td>Dale Jenkins</td>
 
@@ -141,38 +99,8 @@
                                         </div>
                                     </td>
                                     <td>23 Nov,2022</td>
-                                    <td>
-                                        <div class="dropdown">
-                                            <a href="#" class="text-reset" data-bs-toggle="dropdown"
-                                               aria-expanded="false">
-                                                <i class="feather-icon icon-more-vertical fs-5"></i>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-trash me-3"></i>
-                                                        Delete
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-pencil-square me-3"></i>
-                                                        Edit
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
                                 </tr>
                                 <tr>
-                                    <td class="pe-0">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value=""
-                                                   id="checkAllThree"/>
-                                            <label class="form-check-label" for="checkAllThree"></label>
-                                        </div>
-                                    </td>
-
                                     <td><a href="#" class="text-reset">Cadbury 5 Star Chocolate</a></td>
                                     <td>Michael Phillips</td>
 
@@ -189,37 +117,8 @@
                                         </div>
                                     </td>
                                     <td>23 Nov,2022</td>
-                                    <td>
-                                        <div class="dropdown">
-                                            <a href="#" class="text-reset" data-bs-toggle="dropdown"
-                                               aria-expanded="false">
-                                                <i class="feather-icon icon-more-vertical fs-5"></i>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-trash me-3"></i>
-                                                        Delete
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-pencil-square me-3"></i>
-                                                        Edit
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
                                 </tr>
                                 <tr>
-                                    <td class="pe-0">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="reviewFour"/>
-                                            <label class="form-check-label" for="reviewFour"></label>
-                                        </div>
-                                    </td>
-
                                     <td><a href="#" class="text-reset">Onion Flavour Potato</a></td>
                                     <td>James Parker</td>
 
@@ -236,37 +135,8 @@
                                         </div>
                                     </td>
                                     <td>23 Nov,2022</td>
-                                    <td>
-                                        <div class="dropdown">
-                                            <a href="#" class="text-reset" data-bs-toggle="dropdown"
-                                               aria-expanded="false">
-                                                <i class="feather-icon icon-more-vertical fs-5"></i>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-trash me-3"></i>
-                                                        Delete
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-pencil-square me-3"></i>
-                                                        Edit
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
                                 </tr>
                                 <tr>
-                                    <td class="pe-0">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="reviewFive"/>
-                                            <label class="form-check-label" for="reviewFive"></label>
-                                        </div>
-                                    </td>
-
                                     <td><a href="#" class="text-reset">Salted Instant Popcorn</a></td>
                                     <td>William Hansen</td>
 
@@ -283,37 +153,8 @@
                                         </div>
                                     </td>
                                     <td>23 Nov,2022</td>
-                                    <td>
-                                        <div class="dropdown">
-                                            <a href="#" class="text-reset" data-bs-toggle="dropdown"
-                                               aria-expanded="false">
-                                                <i class="feather-icon icon-more-vertical fs-5"></i>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-trash me-3"></i>
-                                                        Delete
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-pencil-square me-3"></i>
-                                                        Edit
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
                                 </tr>
                                 <tr>
-                                    <td class="pe-0">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="reviewSix"/>
-                                            <label class="form-check-label" for="reviewSix"></label>
-                                        </div>
-                                    </td>
-
                                     <td><a href="#" class="text-reset">Blueberry Greek Yogurt</a></td>
                                     <td>Helen Speller</td>
 
@@ -330,37 +171,8 @@
                                         </div>
                                     </td>
                                     <td>23 Nov,2022</td>
-                                    <td>
-                                        <div class="dropdown">
-                                            <a href="#" class="text-reset" data-bs-toggle="dropdown"
-                                               aria-expanded="false">
-                                                <i class="feather-icon icon-more-vertical fs-5"></i>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-trash me-3"></i>
-                                                        Delete
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-pencil-square me-3"></i>
-                                                        Edit
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
                                 </tr>
                                 <tr>
-                                    <td class="pe-0">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="reviewSeven"/>
-                                            <label class="form-check-label" for="reviewSeven"></label>
-                                        </div>
-                                    </td>
-
                                     <td><a href="#" class="text-reset">Britannia Cheese Slices</a></td>
                                     <td>Larry Anderson</td>
 
@@ -377,37 +189,8 @@
                                         </div>
                                     </td>
                                     <td>23 Nov,2022</td>
-                                    <td>
-                                        <div class="dropdown">
-                                            <a href="#" class="text-reset" data-bs-toggle="dropdown"
-                                               aria-expanded="false">
-                                                <i class="feather-icon icon-more-vertical fs-5"></i>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-trash me-3"></i>
-                                                        Delete
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-pencil-square me-3"></i>
-                                                        Edit
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
                                 </tr>
                                 <tr>
-                                    <td class="pe-0">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="reviewEight"/>
-                                            <label class="form-check-label" for="reviewEight"></label>
-                                        </div>
-                                    </td>
-
                                     <td><a href="#" class="text-reset">Kellogg's Original Cereals</a></td>
                                     <td>William McCulloch</td>
 
@@ -424,37 +207,8 @@
                                         </div>
                                     </td>
                                     <td>23 Nov,2022</td>
-                                    <td>
-                                        <div class="dropdown">
-                                            <a href="#" class="text-reset" data-bs-toggle="dropdown"
-                                               aria-expanded="false">
-                                                <i class="feather-icon icon-more-vertical fs-5"></i>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-trash me-3"></i>
-                                                        Delete
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-pencil-square me-3"></i>
-                                                        Edit
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
                                 </tr>
                                 <tr>
-                                    <td class="pe-0">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="reviewNine"/>
-                                            <label class="form-check-label" for="reviewNine"></label>
-                                        </div>
-                                    </td>
-
                                     <td><a href="#" class="text-reset">Slurrp Millet Chocolate</a></td>
                                     <td>Louise Brown</td>
 
@@ -471,37 +225,8 @@
                                         </div>
                                     </td>
                                     <td>23 Nov,2022</td>
-                                    <td>
-                                        <div class="dropdown">
-                                            <a href="#" class="text-reset" data-bs-toggle="dropdown"
-                                               aria-expanded="false">
-                                                <i class="feather-icon icon-more-vertical fs-5"></i>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-trash me-3"></i>
-                                                        Delete
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-pencil-square me-3"></i>
-                                                        Edit
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
                                 </tr>
                                 <tr>
-                                    <td class="pe-0">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="reviewTen"/>
-                                            <label class="form-check-label" for="reviewTen"></label>
-                                        </div>
-                                    </td>
-
                                     <td><a href="#" class="text-reset">Amul Butter - 500 g</a></td>
                                     <td>John Meyer</td>
 
@@ -518,28 +243,6 @@
                                         </div>
                                     </td>
                                     <td>23 Nov,2022</td>
-                                    <td>
-                                        <div class="dropdown">
-                                            <a href="#" class="text-reset" data-bs-toggle="dropdown"
-                                               aria-expanded="false">
-                                                <i class="feather-icon icon-more-vertical fs-5"></i>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-trash me-3"></i>
-                                                        Delete
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">
-                                                        <i class="bi bi-pencil-square me-3"></i>
-                                                        Edit
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </td>
                                 </tr>
                                 </tbody>
                             </table>

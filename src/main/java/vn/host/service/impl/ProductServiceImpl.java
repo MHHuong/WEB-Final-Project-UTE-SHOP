@@ -61,17 +61,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public PageResult<ProductListItemVM> searchOwnerProducts(
-            String userEmail,
-            String q,
-            Long categoryId,
-            Integer status,
-            BigDecimal minPrice,
-            BigDecimal maxPrice,
-            int page,
-            int size,
-            Sort sort
-    ) {
+    public PageResult<ProductListItemVM> searchOwnerProducts(String userEmail, String q, Long categoryId, Integer status, BigDecimal minPrice, BigDecimal maxPrice, int page, int size, Sort sort) {
         var user = users.findByEmail(userEmail)
                 .orElseThrow(() -> new SecurityException("User not found"));
         var shop = shops.findFirstByOwner_UserId(user.getUserId())

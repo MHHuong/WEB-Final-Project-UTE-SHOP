@@ -242,7 +242,7 @@ public class ProductController {
         // thêm file mới nếu có
         if (files != null && files.length > 0) {
             Path root = uploadsRoot();
-            Path baseDir = root.resolve("uploads/products/" + p.getProductId());
+            Path baseDir = root.resolve("products/" + p.getProductId());
             Path imgDir = baseDir.resolve("images");
             Path vidDir = baseDir.resolve("videos");
             Files.createDirectories(imgDir);
