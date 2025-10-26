@@ -1,5 +1,6 @@
 package vn.host.controller.admin;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,9 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/admin")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminDashboardController {
 
-    //Dashboard
+    //DASHBOARD
     @GetMapping({"", "/"})
     public String root() {
         // /admin -> /admin/dashboard
@@ -23,13 +25,13 @@ public class AdminDashboardController {
     }
 
 
-    //Product
+    //PRODUCT
     @GetMapping("/products")
     public String productsPage() {
         return "admin/products/products";
     }
 
-    //Categories
+    //CATEGORIES
     @GetMapping("/categories")
     public String categoriesPage() {
         return "admin/category/categories";
@@ -46,7 +48,7 @@ public class AdminDashboardController {
         return "admin/category/edit-category";
     }
 
-    //User
+    //USER
     @GetMapping("/customers")
     public String customersPage() {
         return "admin/customers/customers"; // templates/admin/customers/customers.html
@@ -83,8 +85,26 @@ public class AdminDashboardController {
     public String addPromotionPage() {
         return "admin/promotions/add-promotions";
     }
+
     @GetMapping("/promotions/edit")
     public String editPromotionPage() {
         return "admin/promotions/edit-promotions";
     }
+
+    //SHIPPING-PROVIDER
+    @GetMapping("/shipping-providers")
+    public String shippingProviderPage() {
+        return "admin/shipping-provider/shipping-provider";
+    }
+
+    @GetMapping("/shipping-providers/add")
+    public String addShippingProviderPage() {
+        return "admin/shipping-provider/add-shipping-provider";
+    }
+
+    @GetMapping("/shipping-providers/edit")
+    public String editShippingProviderPage() {
+        return "admin/shipping-provider/edit-shipping-provider";
+    }
+
 }

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.host.entity.Category;
 import vn.host.service.CategoryService;
@@ -12,7 +13,7 @@ import vn.host.service.CategoryService;
 @RestController
 @RequestMapping("/api/admin/categories")
 @RequiredArgsConstructor
-@CrossOrigin("*")
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminCategoryController {
 
     private final CategoryService categoryService;
