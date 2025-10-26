@@ -11,6 +11,5 @@ import java.util.Optional;
 
 @Repository
 public interface ShipperRepository extends JpaRepository<Shipper,Long>, JpaSpecificationExecutor<Shipper> {
-    Page<Shipper> findByShippingProvider_ShippingProviderId(Long providerId, Pageable pageable);
-    Optional<Shipper> findByUser_UserId(Long userId);
+
 }
