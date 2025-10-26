@@ -35,7 +35,9 @@
             col.className = 'col-6 col-md-3';
             col.innerHTML = `
         <div class="position-relative">
-          ${isVid ? `<video src="${url}" class="w-100 rounded" muted preload="metadata" style="max-height:160px;object-fit:cover"></video>`
+          ${isVid ? `<video src="${url}" class="w-100 rounded"
+       controls playsinline preload="metadata"
+       style="max-height:160px;object-fit:cover"></video>`
                 : `<img src="${url}" class="img-fluid rounded" style="max-height:160px;object-fit:cover"/>`}
           <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
                   data-role="remove-staged" data-index="${idx}">
@@ -123,7 +125,9 @@
                     col.className = 'col-6 col-md-3';
                     col.innerHTML = `
             <div class="position-relative">
-              ${isVid ? `<video src="${m.url}" class="w-100 rounded" muted preload="metadata" style="max-height:160px;object-fit:cover"></video>`
+              ${isVid ? `<video src="${url}" class="w-100 rounded"
+       controls playsinline preload="metadata"
+       style="max-height:160px;object-fit:cover"></video>`
                         : `<img src="${m.url}" class="img-fluid rounded" style="max-height:160px;object-fit:cover"/>`}
               <button type="button" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-1"
                       data-role="delete-existing" data-media-id="${m.id}">
