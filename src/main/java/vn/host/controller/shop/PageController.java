@@ -54,4 +54,9 @@ public class PageController {
     public String editProduct() {
         return "shop/product/edit-product";
     }
+
+    @GetMapping("/shop/product/product-detail")
+    public String productDetailPage() {
+        return "shop/product/product-detail";
+    }
 }

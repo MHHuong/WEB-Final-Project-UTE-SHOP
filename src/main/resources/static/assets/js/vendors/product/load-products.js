@@ -83,7 +83,7 @@
             tr.appendChild(tdImg);
 
             const tdName = document.createElement('td');
-            tdName.innerHTML = `<a href="#" class="text-reset">${escapeHtml(it.name)}</a>`;
+            tdName.innerHTML = `<a class="text-reset" href="${BASE}/shop/product/product-detail?id=${it.productId}">${escapeHtml(it.name)}</a>`;
             tr.appendChild(tdName);
 
             const tdCat = document.createElement('td');

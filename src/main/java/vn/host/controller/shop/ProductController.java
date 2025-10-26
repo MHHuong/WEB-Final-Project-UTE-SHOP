@@ -29,6 +29,7 @@ public class ProductController {
     private final CategoryService categories;
     private final ProductMediaService mediaService;
     private final ProductService productService;
+    private final ReviewService reviewService;
 
     private User authedUser(Authentication auth) {
         if (auth == null || auth.getName() == null) throw new SecurityException("Unauthenticated");
@@ -312,5 +313,27 @@ public class ProductController {
             case "stock" -> Sort.by(dir, "stock");
             default -> Sort.by(dir, "createdAt");
         };
+    }
+
+    @GetMapping("/{productId}/detail")
+    public ResponseEntity<vn.host.dto.product.ProductDetailVM> getOwnerProductDetail(
+            Authentication auth,
+            @PathVariable long productId
+    ) {
+        User u = authedUser(auth);
+        Shop shop = shops.findFirstByOwner_UserId(u.getUserId());
+        Product p = productService.findById(productId);
+
+        if (p.getShop() == null || !p.getShop().getShopId().equals(shop.getShopId())) {
+            throw new SecurityException("Not your product");
+        }
+
+        var media = mediaService.findByProduct_ProductId(productId);
+        var rs = reviewService.getRatingSummaryByProductId(productId);
+        Double avg = rs != null ? rs.getAvg() : 0.0;
+        Long total = rs != null ? rs.getTotal() : 0L;
+
+        var vm = vn.host.dto.product.ProductDetailVM.of(p, media, avg, total);
+        return ResponseEntity.ok(vm);
     }
 }

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import vn.host.dto.review.RatingSummary;
 import vn.host.entity.Review;
 import vn.host.repository.ReviewRepository;
 import vn.host.service.ReviewService;
@@ -17,5 +18,10 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Page<Review> findAll(Specification<Review> spec, Pageable pageable) {
         return reviewRepo.findAll(spec, pageable);
+    }
+
+    @Override
+    public RatingSummary getRatingSummaryByProductId(Long productId) {
+        return reviewRepo.getRatingSummaryByProductId(productId);
     }
 }
