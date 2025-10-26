@@ -3,6 +3,7 @@ import { showSuccessToast, showErrorToast, showWarningToast } from "/js/utils/to
 import addresses from "/addresses.json" with { type: "json" };
 import addressService from "/js/services/addressService.js";
 import orderService from "/js/services/orderService.js";
+import couponService from "/js/services/couponService.js";
 
 const USER_ID = 1;
 let selectedProducts = [];
@@ -226,7 +227,7 @@ function loadDistricts(provinceId) {
         const districtSelect = document.getElementById('district');
         const wardSelect = document.getElementById('ward');
 
-        districtSelect.innerHTML = '<option value="" selected disabled>Chọn Qu��n/Huyện</option>';
+        districtSelect.innerHTML = '<option value="" selected disabled>Chọn Quận/Huyện</option>';
         wardSelect.innerHTML = '<option value="" selected disabled>Chọn Phường/Xã</option>';
         wardSelect.disabled = true;
 
@@ -336,10 +337,12 @@ function updateOrderSummary() {
     const itemCount = selectedProducts.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = selectedProducts.reduce((sum, item) =>
         sum + (item.productModel.price * item.quantity), 0);
+    const discount = selectedProducts[0]?.discount || 0;
 
     document.getElementById('item-count').textContent = itemCount;
     document.getElementById('subtotal').textContent = formatCurrency(subtotal);
     document.getElementById('total').textContent = formatCurrency(subtotal);
+    document.getElementById('discount').textContent = `-${formatCurrency(discount)}`;
 }
 
 // Validate form
@@ -359,32 +362,140 @@ async function placeOrder() {
         return;
     }
 
+    // Check if this is a new address (not from saved addresses)
+    const isNewAddress = !selectedAddressId;
+
+    if (isNewAddress) {
+        // Show confirmation modal for new address
+        showSaveAddressModal();
+    } else {
+        // Process order directly if using saved address
+        processOrder(false);
+    }
+}
+
+// Show save address confirmation modal
+function showSaveAddressModal() {
+    // Populate preview data
+    const receiverName = document.getElementById('receiver-name').value;
+    const receiverPhone = document.getElementById('receiver-phone').value;
+    const province = document.getElementById('province').selectedOptions[0].text;
+    const district = document.getElementById('district').selectedOptions[0].text;
+    const ward = document.getElementById('ward').selectedOptions[0].text;
+    const addressDetail = document.getElementById('address-detail').value;
+
+    document.getElementById('preview-receiver-name').textContent = receiverName;
+    document.getElementById('preview-phone').textContent = receiverPhone;
+    document.getElementById('preview-address').textContent = `${addressDetail}, ${ward}, ${district}, ${province}`;
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('saveAddressModal'));
+    modal.show();
+}
+
+// Process order
+async function processOrder(shouldSaveAddress = false) {
     const orderData = {
         userId: USER_ID,
-        receiverName: document.getElementById('receiver-name').value,
-        receiverPhone: document.getElementById('receiver-phone').value,
-        province: document.getElementById('province').selectedOptions[0].text,
-        district: document.getElementById('district').selectedOptions[0].text,
-        ward: document.getElementById('ward').selectedOptions[0].text,
-        addressDetail: document.getElementById('address-detail').value,
-        note: document.getElementById('order-note').value,
         paymentMethod: document.querySelector('input[name="payment-method"]:checked').value,
-        shippingMethod: document.querySelector('input[name="shipping-method"]:checked').value,
-        items: selectedProducts.map(item => ({
+        shippingProviderId: 1,
+        total: parseInt(document.getElementById('total').innerText.replace(/₫/g, '').replace(/\./g, '') || 0),
+        note: document.getElementById('order-note').value,
+        coupon: document.getElementById('voucher-code-input').value || null,
+        address: {
+            receiverName: document.getElementById('receiver-name').value,
+            phone: document.getElementById('receiver-phone').value,
+            province: document.getElementById('province').selectedOptions[0].text,
+            district: document.getElementById('district').selectedOptions[0].text,
+            ward: document.getElementById('ward').selectedOptions[0].text,
+            addressDetail: document.getElementById('address-detail').value,
+        },
+        orders: selectedProducts.map(item => ({
             productId: item.productModel.productId,
             quantity: item.quantity,
-            price: item.productModel.price
-        }))
+            price: item.productModel.price,
+            shopId: item.productModel.shopId,
+            discountAmount: item.discountValue || 0
+        })),
     };
 
-    console.log('Order data:', orderData);
+    if (shouldSaveAddress) {
+        const isDefault = document.getElementById('set-as-default-address').checked;
+        const addressData = {
+            userId: USER_ID,
+            receiverName: orderData.receiverName,
+            phone: orderData.receiverPhone,
+            province: orderData.province,
+            district: orderData.district,
+            ward: orderData.ward,
+            addressDetail: orderData.addressDetail,
+            isDefault: isDefault ? 1 : 0
+        };
+
+        try {
+            const result = await addressService.createAddress(addressData, USER_ID);
+            if (result.status === 'Success') {
+                showSuccessToast('Đã lưu địa chỉ thành công!');
+            }
+        } catch (error) {
+            console.error('Error saving address:', error);
+            showErrorToast("Lỗi khi lưu địa chỉ: " + error.message);
+            // Continue with order even if address save fails
+        }
+    }
+    const result = await orderService.saveOrder(orderData);
+    if (result.status !== 'Success') {
+        showErrorToast('Đặt hàng thất bại: ' + result.message);
+        return;
+    }
 
     showSuccessToast('Đặt hàng thành công!');
+    await handleNavigation();
 
-    // Clear sessionStorage and redirect
+}
+
+async function handleNavigation() {
+    const subtotalText = document.getElementById('subtotal').innerText.replace(/₫/g, '').replace(/\./g, '');
+    const subtotal = parseInt(subtotalText) || 0;
+
+    const discountText = document.getElementById('discount').innerText.replace(/₫/g, '').replace(/\./g, '').replace(/-/g, '');
+    const discount = parseInt(discountText) || 0;
+
+    const displayOrderData = {
+        userId: USER_ID,
+        shippingProviderId: 1,
+        coupon: document.getElementById('voucher-code-input').value || null,
+        shippingMethod: document.querySelector('input[name="shipping-method"]:checked').value,
+        payment: {
+            total: parseInt(document.getElementById('total').innerText.replace(/₫/g, '').replace(/\./g, '') || 0),
+            subtotal: subtotal,
+            shippingFee: shippingFee,
+            discount: discount,
+            paymentMethod: document.querySelector('input[name="payment-method"]:checked').value,
+        },
+        address: {
+            receiverName: document.getElementById('receiver-name').value,
+            phone: document.getElementById('receiver-phone').value,
+            province: document.getElementById('province').selectedOptions[0].text,
+            district: document.getElementById('district').selectedOptions[0].text,
+            ward: document.getElementById('ward').selectedOptions[0].text,
+            addressDetail: document.getElementById('address-detail').value,
+        },
+        orders: selectedProducts.map(item => ({
+            productId: item.productModel.productId,
+            quantity: item.quantity,
+            image: item.productModel.image,
+            productName: item.productModel.productName,
+            price: item.productModel.price,
+            shopId: item.productModel.shopId,
+            discountAmount: item.discountValue || 0
+        })),
+        orderTime: new Date().toLocaleString('vi-VN'),
+        orderCode: 'ORD' + Date.now()
+    };
+    await orderService.setDisplayTempOrder(displayOrderData);
     setTimeout(() => {
-        sessionStorage.removeItem('selectedCartItems');
-        // window.location.href = '/user/order/success';
+        window.location.href = `/success/${displayOrderData.orderCode}`;
     }, 2000);
 }
 
@@ -405,148 +516,28 @@ function addShippingServiceFee() {
     document.getElementById("shipping-fee").innerText = formatCurrency(shippingFee);
     const subtotalText = document.getElementById("subtotal").innerText.replace(/₫/g, '').replace(/\./g, '');
     const subtotal = parseInt(subtotalText) || 0;
-    const total = subtotal + shippingFee;
+
+    const discountText = document.getElementById('discount').innerText.replace(/₫/g, '').replace(/\./g, '').replace(/-/g, '');
+    const discount = parseInt(discountText) || 0;
+
+    const total = subtotal + shippingFee - discountText;
     document.getElementById("total").innerText = formatCurrency(total);
 }
 
-document.querySelectorAll('input[name="shipping-method"]').forEach(radio => {
-    radio.addEventListener("change", () => {
-        addShippingServiceFee();
-    });
-});
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    loadProvinces();
-    loadSelectedProducts();
-    loadSavedAddresses();
-
-    // Add new address button
-    document.getElementById('add-new-address-btn').addEventListener('click', showAddressForm);
-
-    // Cancel new address button
-    document.getElementById('cancel-new-address-btn').addEventListener('click', cancelAddressForm);
-
-    // Province change event
-    document.getElementById('province').addEventListener('change', (e) => {
-        loadDistricts(e.target.value);
-    });
-
-    // District change event
-    document.getElementById('district').addEventListener('change', (e) => {
-        loadWards(e.target.value);
-    });
-
-    // document.getElementById("ward").addEventListener('change', (e) => {
-    //     calcShippingFeeFist();
-    // })
-
-    // Enable place order button when all required fields are filled
-    const form = document.getElementById('shipping-form');
-    const placeOrderBtn = document.getElementById('place-order-btn');
-
-    form.addEventListener('input', () => {
-        if (form.checkValidity()) {
-            placeOrderBtn.disabled = false;
-        }
-    });
-
-    // Place order button click
-    placeOrderBtn.addEventListener('click', placeOrder);
-
-    // Payment method change event
-    document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            const value = e.target.value;
-            const ewalletOptions = document.getElementById('ewallet-options');
-
-            if (value === 'E_WALLET') {
-                ewalletOptions.style.display = 'block';
-            } else {
-                ewalletOptions.style.display = 'none';
-            }
-        });
-    });
-
-    // View vouchers button click
-    document.getElementById('view-vouchers-btn').addEventListener('click', async () => {
-        // Get modal element and check if it exists
-        const modalElement = document.getElementById('voucherModal');
-        if (!modalElement) {
-            console.error('Voucher modal not found');
-            return;
-        }
-
-        // Show modal
-        const voucherModal = new bootstrap.Modal(modalElement);
-        voucherModal.show();
-
-        // Show loading
-        document.getElementById('voucher-loading').style.display = 'block';
-        document.getElementById('voucher-list').style.display = 'none';
-        document.getElementById('no-vouchers-message').style.display = 'none';
-
-        // TODO: Fetch available vouchers from API
-        // Mock data for now
-        setTimeout(() => {
-            const mockVouchers = [
-                {
-                    code: 'FREESHIP50K',
-                    discountValue: 50000,
-                    discountType: 'FIXED',
-                    description: 'Giảm 50K phí vận chuyển cho đơn từ 200K',
-                    expiryDate: '2024-12-31',
-                    minOrderValue: 200000,
-                    conditionMet: true
-                },
-                {
-                    code: 'DISCOUNT100K',
-                    discountValue: 100000,
-                    discountType: 'FIXED',
-                    description: 'Giảm 100K cho đơn hàng từ 500K',
-                    expiryDate: '2024-12-31',
-                    minOrderValue: 500000,
-                    conditionMet: false
-                },
-                {
-                    code: 'SALE20',
-                    discountValue: 20,
-                    discountType: 'PERCENT',
-                    description: 'Giảm 20% tối đa 200K cho đơn từ 300K',
-                    expiryDate: '2024-12-31',
-                    minOrderValue: 300000,
-                    maxDiscount: 200000,
-                    conditionMet: true
-                }
-            ];
-
-            renderVouchers(mockVouchers);
-        }, 500);
-    });
-
-    // Apply voucher button click
-    document.getElementById('apply-voucher-btn').addEventListener('click', async () => {
-        const voucherCode = document.getElementById('voucher-code-input').value.trim();
-
-        if (!voucherCode) {
-            showWarningToast('Vui lòng nhập mã giảm giá');
-            return;
-        }
-
-        // TODO: Validate voucher code with API
-        // Mock validation for now
-        showSuccessToast('Áp dụng mã giảm giá thành công!');
-        applyVoucher(voucherCode, 50000, 'Giảm 50K phí vận chuyển');
-    });
-
-    // Remove voucher button click
-    document.getElementById('remove-voucher-btn').addEventListener('click', () => {
-        removeVoucher();
-    });
-});
-
 // Render vouchers in modal
-function renderVouchers(vouchers) {
+async function renderVouchers() {
+    let vouchers = [];
+    try {
+        const result = await couponService.getAllGlobalCoupons();
+        if (result.status === 'Success' && result.data) {
+            vouchers = result.data;
+        }
+        else showErrorToast(result.message);
+    } catch (error) {
+        console.error('Error fetching vouchers:', error);
+        showErrorToast('Lỗi khi tải mã giảm giá');
+        return;
+    }
     const container = document.getElementById('voucher-list');
     document.getElementById('voucher-loading').style.display = 'none';
 
@@ -557,15 +548,17 @@ function renderVouchers(vouchers) {
 
     container.innerHTML = '';
 
+    const total = parseInt(document.getElementById("total").innerText.replace(/₫/g, '').replace(/\./g, '') || 0);
     vouchers.forEach(voucher => {
-        const isDisabled = !voucher.conditionMet;
+        const isDisabled = Number(total) < Number(voucher.minOrderAmount);
         const discountValue = voucher.discountType === 'PERCENT'
-            ? `${voucher.discountValue}%`
-            : `${formatCurrency(voucher.discountValue)}`;
-        const discountLabel = voucher.discountType === 'PERCENT' ? 'GIẢM' : 'GIẢM';
+            ? `${voucher.value}%`
+            : `${formatCurrency(voucher.value)}`;
+        const discountLabel = 'GIẢM';
+        const description = `Giảm ${discountValue} cho các hóa đơn từ ${formatCurrency(voucher.minOrderAmount)} trở lên`
 
         const voucherCard = document.createElement('div');
-        voucherCard.className = `voucher-card ${isDisabled ? 'disabled' : ''}`;
+        voucherCard.className = `voucher-card border border-secondary-subtle rounded p-3 mb-3 bg-white position-relative cursor-pointer d-flex gap-3 ${isDisabled ? 'disabled' : ''}`;
         voucherCard.innerHTML = `
             <div class="voucher-left">
                 <div class="discount-value">${discountValue}</div>
@@ -573,8 +566,8 @@ function renderVouchers(vouchers) {
             </div>
             <div class="voucher-content d-flex flex-column justify-content-center flex-fill">
                 <div class="voucher-code">${voucher.code}</div>
-                <div class="voucher-description">${voucher.description}</div>
-                <div class="voucher-expiry">HSD: ${new Date(voucher.expiryDate).toLocaleDateString('vi-VN')}</div>
+                <div class="voucher-description">${description}</div>
+                <div class="voucher-expiry">HSD: ${new Date(voucher.expiredAt).toLocaleDateString('vi-VN')}</div>
             </div>
             <div class="voucher-action d-flex align-items-center justify-content-center flex-shrink-0">
                 <button class="btn-apply btn btn-outline-success btn-sm fw-medium px-3 py-1 rounded-1" ${isDisabled ? 'disabled' : ''}>
@@ -584,11 +577,12 @@ function renderVouchers(vouchers) {
         `;
 
         if (!isDisabled) {
+            const discount = selectedProducts[0]?.discount || 0
             voucherCard.onclick = () => {
                 const discountAmount = voucher.discountType === 'PERCENT'
-                    ? calculatePercentDiscount(voucher.discountValue, voucher.maxDiscount)
-                    : voucher.discountValue;
-                applyVoucher(voucher.code, discountAmount, voucher.description);
+                    ? discount + calculatePercentDiscount(voucher.value, 0)
+                    : discount + voucher.value;
+                applyVoucher(voucher.code, discountAmount, description);
                 bootstrap.Modal.getInstance(document.getElementById('voucherModal')).hide();
             };
         }
@@ -645,7 +639,8 @@ function removeVoucher() {
     document.getElementById('voucher-selection-section').style.display = 'block';
 
     // Reset discount
-    document.getElementById('discount').textContent = '-0₫';
+    const discount = selectedProducts[0]?.discount
+    document.getElementById('discount').textContent = `-${formatCurrency(discount)}`;
 
     // Recalculate total
     updateTotal();
@@ -667,3 +662,116 @@ function updateTotal() {
     const total = subtotal + shippingFee - discount;
     document.getElementById('total').textContent = formatCurrency(total);
 }
+
+document.querySelectorAll('input[name="shipping-method"]').forEach(radio => {
+    radio.addEventListener("change", () => {
+        addShippingServiceFee();
+    });
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    loadProvinces();
+    loadSelectedProducts();
+    loadSavedAddresses();
+
+    // Add new address button
+    document.getElementById('add-new-address-btn').addEventListener('click', showAddressForm);
+
+    // Cancel new address button
+    document.getElementById('cancel-new-address-btn').addEventListener('click', cancelAddressForm);
+
+    // Province change event
+    document.getElementById('province').addEventListener('change', (e) => {
+        loadDistricts(e.target.value);
+    });
+
+    // District change event
+    document.getElementById('district').addEventListener('change', (e) => {
+        loadWards(e.target.value);
+    });
+
+    // document.getElementById("ward").addEventListener('change', (e) => {
+    //     calcShippingFeeFist();
+    // })
+
+    // Enable place order button when all required fields are filled
+    const form = document.getElementById('shipping-form');
+    const placeOrderBtn = document.getElementById('place-order-btn');
+
+    form.addEventListener('input', () => {
+        if (form.checkValidity()) {
+            placeOrderBtn.disabled = false;
+        }
+    });
+
+    // Place order button click
+    placeOrderBtn.addEventListener('click', placeOrder);
+
+    // Save address modal - Confirm save button
+    document.getElementById('confirm-save-address-btn').addEventListener('click', () => {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('saveAddressModal'));
+        modal.hide();
+        processOrder(true); // Save address and process order
+    });
+
+    // Save address modal - Skip button
+    document.getElementById('skip-save-address-btn').addEventListener('click', () => {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('saveAddressModal'));
+        modal.hide();
+        processOrder(false); // Process order without saving address
+    });
+
+    // Payment method change event
+    document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const value = e.target.value;
+            const ewalletOptions = document.getElementById('ewallet-options');
+
+            if (value === 'E_WALLET') {
+                ewalletOptions.style.display = 'block';
+            } else {
+                ewalletOptions.style.display = 'none';
+            }
+        });
+    });
+
+    // View vouchers button click
+    document.getElementById('view-vouchers-btn').addEventListener('click', async () => {
+        // Get modal element and check if it exists
+        const modalElement = document.getElementById('voucherModal');
+        if (!modalElement) {
+            console.error('Voucher modal not found');
+            return;
+        }
+
+        // Show modal
+        const voucherModal = new bootstrap.Modal(modalElement);
+        voucherModal.show();
+
+        // Show loading
+        document.getElementById('voucher-loading').style.display = 'block';
+        document.getElementById('voucher-list').style.display = 'none';
+        document.getElementById('no-vouchers-message').style.display = 'none';
+
+        await renderVouchers();
+    });
+
+    // Apply voucher button click
+    document.getElementById('apply-voucher-btn').addEventListener('click', async () => {
+        const voucherCode = document.getElementById('voucher-code-input').value.trim();
+
+        if (!voucherCode) {
+            showWarningToast('Vui lòng nhập mã giảm giá');
+            return;
+        }
+        showSuccessToast('Áp dụng mã giảm giá thành công!');
+        applyVoucher(voucherCode, 50000, 'Giảm 50K phí vận chuyển');
+    });
+
+    // Remove voucher button click
+    document.getElementById('remove-voucher-btn').addEventListener('click', () => {
+        removeVoucher();
+    });
+});
+

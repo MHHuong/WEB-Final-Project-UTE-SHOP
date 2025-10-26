@@ -56,19 +56,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Voucher Section -->
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-ticket-perforated text-primary fs-4 me-3"></i>
-                                <div class="flex-grow-1">
-                                    <span class="fw-bold">Mã giảm giá</span>
-                                </div>
-                                <button class="btn btn-sm btn-outline-primary">Chọn mã giảm giá</button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Order Summary -->
@@ -174,354 +161,327 @@
             opacity: 1;
             color: #dc3545 !important;
         }
+
+        /* Shop voucher section */
+        .shop-voucher-section {
+            background-color: #fff9e6;
+            border-top: 1px solid #e9ecef;
+            padding: 0.75rem 1rem;
+        }
+
+        .voucher-badge {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            border: 1px dashed #856404;
+        }
+
+        .voucher-card:hover {
+            border-color: #0aad0a;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .voucher-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f5f5f5;
+        }
+
+        .voucher-card.disabled:hover {
+            border-color: #e5e5e5;
+            box-shadow: none;
+        }
+
+        .voucher-left {
+            width: 80px;
+            background: #0aad0a;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            flex-shrink: 0;
+        }
+
+        .voucher-left .discount-value {
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        .voucher-left .discount-label {
+            color: white;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+
+        .voucher-code {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .voucher-description {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .voucher-expiry {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .voucher-condition {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 2px;
+            font-weight: 500;
+        }
+
+        .voucher-condition.available {
+            background: #fff0e8;
+            color: #0aad0a;
+        }
+
+        .voucher-condition.unavailable {
+            background: #f5f5f5;
+            color: #999;
+        }
+
+        .voucher-action {
+            width: 100px;
+        }
+
+        .voucher-action .btn-apply {
+            height: 50px;
+        }
+
+        .voucher-card:hover .voucher-action .btn-apply {
+            background: #0aad0a;
+            color: white;
+        }
+
+        .voucher-card.disabled .voucher-action .btn-apply {
+            border-color: #ccc;
+            color: #ccc;
+            pointer-events: none;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 991.98px) {
+            /* Order summary sticky on tablet */
+            .card.sticky-top {
+                position: relative !important;
+                top: 0 !important;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            /* Hide desktop cart header */
+            .border-bottom.p-3.bg-light {
+                display: none;
+            }
+
+            /* Mobile product item layout */
+            .product-item .row {
+                flex-direction: column;
+            }
+
+            .product-item .col-1,
+            .product-item .col-2,
+            .product-item .col-5 {
+                width: 100%;
+                max-width: 100%;
+                flex: 0 0 100%;
+            }
+
+            /* Product info section */
+            .product-info-section {
+                display: flex;
+                align-items: flex-start;
+                margin-bottom: 12px;
+            }
+
+            .product-info-section .form-check {
+                margin-right: 12px;
+                margin-top: 8px;
+            }
+
+            .product-img {
+                width: 100px;
+                height: 100px;
+                margin-right: 12px;
+            }
+
+            /* Price and quantity section */
+            .product-details-mobile {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 12px;
+                padding-top: 12px;
+                border-top: 1px solid #e9ecef;
+            }
+
+            .price-section-mobile {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .quantity-section-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            /* Adjust quantity input for mobile */
+            .input-group {
+                width: auto !important;
+            }
+
+            .quantity-input {
+                width: 50px;
+            }
+
+            /* Total and delete section */
+            .total-delete-mobile {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 8px;
+                padding-top: 8px;
+            }
+
+            /* Shop header responsive */
+            .shop-header .row {
+                flex-direction: row !important;
+            }
+
+            .shop-header .col-1,
+            .shop-header .col-11 {
+                flex: 0 0 auto;
+            }
+
+            .shop-header .col-1 {
+                width: auto;
+                margin-right: 8px;
+            }
+
+            .shop-header .col-11 {
+                flex: 1;
+            }
+
+            /* Card padding adjustment */
+            .card-body {
+                padding: 1rem !important;
+            }
+
+            .product-item {
+                padding: 1rem !important;
+            }
+
+            .order-summary-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+                z-index: 1000;
+                padding: 1rem;
+            }
+
+            /* Add bottom padding to content to prevent overlap */
+            .cart-content-mobile {
+                padding-bottom: 180px;
+            }
+
+            /* Compact order summary for mobile */
+            .order-summary-mobile .d-flex {
+                margin-bottom: 0.5rem !important;
+            }
+
+            .order-summary-mobile h5 {
+                font-size: 1rem;
+            }
+
+            /* Hide detailed summary items on very small screens */
+            .summary-detail-item {
+                font-size: 0.875rem;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            /* Extra small screens */
+            .product-img {
+                width: 80px;
+                height: 80px;
+            }
+
+            h1 {
+                font-size: 1.5rem !important;
+            }
+
+            .btn-lg {
+                padding: 0.75rem 1rem;
+                font-size: 1rem;
+            }
+
+            /* Compact shop header */
+            .shop-header {
+                padding: 0.75rem !important;
+            }
+
+            .shop-header .fw-bold {
+                font-size: 0.875rem;
+            }
+
+            /* Smaller text in product details */
+            .product-item h6 {
+                font-size: 0.875rem;
+            }
+
+            .product-item small {
+                font-size: 0.75rem;
+            }
+
+            /* Compact quantity controls */
+            .btn-quantity {
+                width: 28px;
+                height: 28px;
+                font-size: 14px;
+            }
+
+            .quantity-input {
+                width: 45px;
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Landscape mobile optimization */
+        @media (max-width: 767.98px) and (orientation: landscape) {
+            .order-summary-mobile {
+                position: relative;
+                box-shadow: none;
+            }
+
+            .cart-content-mobile {
+                padding-bottom: 0;
+            }
+        }
     </style>
 
-    <script type="module">
-        import cartService from "/js/services/cartService.js";
-        import { showSuccessToast, showErrorToast } from "/js/utils/toastUtils.js";
-        import cartBadgeUtils from "/js/utils/cartBadgeUtils.js";
-
-        const USER_ID = 1;
-        let cartItems = [];
-        let selectedItems = new Set();
-
-        // Format currency
-        function formatCurrency(amount) {
-            if (isNaN(amount)) return "0₫";
-            return amount.toLocaleString('vi-VN') + '₫';
-        }
-
-        // Group cart items by shop
-        function groupByShop(items) {
-            const grouped = {};
-            items.forEach(item => {
-                const shopId = item.productModel.shopId || 0;
-                const shopName = item.productModel.shopName || 'Cửa hàng chưa xác định';
-
-                if (!grouped[shopId]) {
-                    grouped[shopId] = {
-                        shopId: shopId,
-                        shopName: shopName,
-                        items: []
-                    };
-                }
-                grouped[shopId].items.push(item);
-            });
-            return Object.values(grouped);
-        }
-
-        // Load cart items
-        async function loadCartItems() {
-            try {
-                const result = await cartService.getCartItemByUserId(USER_ID);
-                if (result.status === 'true') {
-                    cartItems = result.data;
-                    renderCartItems();
-                    updateTotalItems();
-                } else {
-                    cartItems = [];
-                    renderEmptyCart();
-                }
-            } catch (error) {
-                console.error('Error loading cart:', error);
-                showErrorToast('Không thể tải giỏ hàng!');
-            }
-        }
-
-        // Render empty cart
-        function renderEmptyCart() {
-            const container = document.getElementById('cart-items-container');
-            container.innerHTML = `
-                <div class="text-center py-8">
-                    <img src="/images/svg-graphics/empty-cart.svg" alt="Empty Cart" style="max-width: 200px;" class="mb-4">
-                    <h5>Giỏ hàng trống</h5>
-                    <p class="text-muted">Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm</p>
-                    <a href="/" class="btn btn-primary mt-3">Về trang chủ</a>
-                </div>
-            `;
-        }
-
-        // Render cart items grouped by shop
-        function renderCartItems() {
-            const container = document.getElementById('cart-items-container');
-
-            if (cartItems.length === 0) {
-                renderEmptyCart();
-                return;
-            }
-
-            const groupedShops = groupByShop(cartItems);
-            let html = '';
-
-            groupedShops.forEach(shop => {
-                html += `
-                    <div class="shop-section mb-3">
-                        <!-- Shop Header -->
-                        <div class="shop-header p-3">
-                            <div class="row align-items-center">
-                                <div class="col-1">
-                                    <div class="form-check">
-                                        <input class="form-check-input shop-checkbox" type="checkbox"
-                                               id="shop-${shop.shopId}" data-shop-id="${shop.shopId}">
-                                        <label class="form-check-label" for="shop-${shop.shopId}"></label>
-                                    </div>
-                                </div>
-                                <div class="col-11">
-                                    <div class="d-flex align-items-center">
-                                        <i class="bi bi-shop text-primary me-2"></i>
-                                        <span class="fw-bold">${shop.shopName}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Shop Products -->
-                        <div class="shop-products">
-                            ${shop.items.map(item => renderProductItem(item)).join('')}
-                        </div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-            attachEventListeners();
-            document.querySelectorAll('.product-checkbox').forEach(cb => {
-                const cartId = parseInt(cb.dataset.cartId);
-                cb.checked = selectedItems.has(cartId);
-            });
-
-            document.querySelectorAll('.shop-checkbox').forEach(cb => {
-                const shopId = parseInt(cb.dataset.shopId);
-                const shopItems = cartItems.filter(i => i.productModel.shopId === shopId);
-                const selectedShopItems = shopItems.filter(i => selectedItems.has(i.cartId));
-
-                cb.checked = selectedShopItems.length === shopItems.length;
-                cb.indeterminate = selectedShopItems.length > 0 && selectedShopItems.length < shopItems.length;
-            });
-        }
-
-        // Render single product item
-        function renderProductItem(item) {
-            const total = item.productModel.price * item.quantity;
-            const isSelected = selectedItems.has(item.cartId);
-
-            return `
-                <div class="product-item p-3 border-bottom ${isSelected ? 'selected' : ''}" data-cart-id="${item.cartId}">
-                    <div class="row align-items-center">
-                        <div class="col-1">
-                            <div class="form-check">
-                                <input class="form-check-input product-checkbox" type="checkbox"
-                                       id="item-${item.cartId}" data-cart-id="${item.cartId}"
-                                       data-shop-id="${item.productModel.shopId}" ${isSelected ? 'checked' : ''}>
-                                <label class="form-check-label" for="item-${item.cartId}"></label>
-                            </div>
-                        </div>
-                        <div class="col-5">
-                            <div class="d-flex align-items-center">
-                                <img src="${item.productModel.image}" class="product-img me-3" alt="${item.productModel.productName}">
-                                <div>
-                                    <h6 class="mb-1">${item.productModel.productName}</h6>
-                                    <small class="text-muted">Mã SP: ${item.productModel.productId}</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-2 text-center">
-                            <span class="fw-bold">${formatCurrency(item.productModel.price)}</span>
-                        </div>
-                        <div class="col-2 text-center">
-                            <div class="input-group input-group-sm justify-content-center">
-                                <button class="btn btn-outline-secondary btn-quantity" type="button"
-                                        onclick="decreaseQuantity(${item.cartId})">-</button>
-                                <input type="number" class="form-control quantity-input"
-                                       value="${item.quantity}" min="1" max="10" readonly>
-                                <button class="btn btn-outline-secondary btn-quantity" type="button"
-                                        onclick="increaseQuantity(${item.cartId})">+</button>
-                            </div>
-                        </div>
-                        <div class="col-2 text-end">
-                            <div class="d-flex justify-content-end align-items-center">
-                                <span class="fw-bold text-primary me-3">${formatCurrency(total)}</span>
-                                <button class="btn btn-link text-muted delete-btn p-0"
-                                        onclick="removeItem(${item.cartId})">
-                                    <i class="bi bi-trash fs-5"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Attach event listeners
-        function attachEventListeners() {
-            // Select all checkbox
-            const selectAllCheckbox = document.getElementById('select-all');
-            selectAllCheckbox?.addEventListener('change', handleSelectAll);
-
-            // Shop checkboxes
-            document.querySelectorAll('.shop-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', handleShopCheckbox);
-            });
-
-            // Product checkboxes
-            document.querySelectorAll('.product-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', handleProductCheckbox);
-            });
-        }
-
-        // Handle select all
-        function handleSelectAll(e) {
-            const isChecked = e.target.checked;
-            selectedItems.clear();
-
-            if (isChecked) {
-                cartItems.forEach(item => selectedItems.add(item.cartId));
-            }
-
-            renderCartItems();
-            updateOrderSummary();
-        }
-
-        // Handle shop checkbox
-        function handleShopCheckbox(e) {
-            const shopId = parseInt(e.target.dataset.shopId);
-            const isChecked = e.target.checked;
-            const shopItems = cartItems.filter(item => item.productModel.shopId === shopId);
-
-            console.log(shopId)
-            shopItems.forEach(item => {
-                if (isChecked) {
-                    selectedItems.add(item.cartId);
-                } else {
-                    selectedItems.delete(item.cartId);
-                }
-            });
-
-            renderCartItems();
-            updateOrderSummary();
-        }
-
-        // Handle product checkbox
-        function handleProductCheckbox(e) {
-            const cartId = parseInt(e.target.dataset.cartId);
-
-            if (e.target.checked) {
-                selectedItems.add(cartId);
-            } else {
-                selectedItems.delete(cartId);
-            }
-
-            // Update shop checkbox
-            const shopId = parseInt(e.target.dataset.shopId);
-            updateShopCheckbox(shopId);
-
-            renderCartItems();
-            updateOrderSummary();
-        }
-
-        // Update shop checkbox state
-        function updateShopCheckbox(shopId) {
-            const shopItems = cartItems.filter(item => item.productModel.shopId === shopId);
-            const selectedShopItems = shopItems.filter(item => selectedItems.has(item.cartId));
-            const shopCheckbox = document.querySelector(`#shop-${shopId}`);
-
-            if (shopCheckbox) {
-                shopCheckbox.checked = selectedShopItems.length === shopItems.length;
-                shopCheckbox.indeterminate = selectedShopItems.length > 0 && selectedShopItems.length < shopItems.length;
-            }
-        }
-
-        // Update total items
-        function updateTotalItems() {
-            const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-            document.getElementById('total-items').textContent = totalItems;
-        }
-
-        // Update order summary
-        function updateOrderSummary() {
-            const selectedCartItems = cartItems.filter(item => selectedItems.has(item.cartId));
-            const selectedCount = selectedCartItems.length;
-            const subtotal = selectedCartItems.reduce((sum, item) =>
-                sum + (item.productModel.price * item.quantity), 0);
-
-            document.getElementById('selected-count').textContent = selectedCount;
-            document.getElementById('checkout-count').textContent = selectedCount;
-            document.getElementById('subtotal').textContent = formatCurrency(subtotal);
-            document.getElementById('total').textContent = formatCurrency(subtotal);
-
-            // Enable/disable checkout button
-            const checkoutBtn = document.getElementById('checkout-btn');
-            checkoutBtn.disabled = selectedCount === 0;
-        }
-
-        // Increase quantity
-        window.increaseQuantity = async function(cartId) {
-            const item = cartItems.find(i => i.cartId === cartId);
-            if (item && item.quantity < 10) {
-                await updateQuantity(cartId, item.quantity + 1);
-            }
-        }
-
-        // Decrease quantity
-        window.decreaseQuantity = async function(cartId) {
-            const item = cartItems.find(i => i.cartId === cartId);
-            if (item && item.quantity > 1) {
-                await updateQuantity(cartId, item.quantity - 1);
-            }
-        }
-
-        // Update quantity
-        async function updateQuantity(cartId, newQuantity) {
-            try {
-                const result = await cartService.updateCartItem(cartId, newQuantity);
-                if (result.status === 'true') {
-                    showSuccessToast('Cập nhật số lượng thành công!');
-                    await loadCartItems();
-                    await cartBadgeUtils.refreshCartBadge(USER_ID);
-                    updateOrderSummary();
-                } else {
-                    showErrorToast('Không thể cập nhật số lượng!');
-                }
-            } catch (error) {
-                console.error('Error updating quantity:', error);
-                showErrorToast('Có lỗi xảy ra!');
-            }
-        }
-
-        // Remove item
-        window.removeItem = async function(cartId) {
-            if (!confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
-
-            try {
-                const result = await cartService.removeCartItem(cartId);
-                if (result.status === 'true') {
-                    showSuccessToast('Đã xóa sản phẩm khỏi giỏ hàng!');
-                    selectedItems.delete(cartId);
-                    await loadCartItems();
-                    await cartBadgeUtils.refreshCartBadge(USER_ID);
-                    updateOrderSummary();
-                } else {
-                    showErrorToast('Không thể xóa sản phẩm!');
-                }
-            } catch (error) {
-                console.error('Error removing item:', error);
-                showErrorToast('Có lỗi xảy ra!');
-            }
-        }
-
-        window.handleNavigation = async () => {
-            const selectedCartItems = cartItems.filter(item => selectedItems.has(item.cartId));
-            console.log(selectedCartItems);
-            const result = await cartService.saveSelectedCartItem(selectedCartItems);
-            if (result.status === 'true') {
-                window.location.href = `/checkout`;
-            }
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', async () => {
-            await loadCartItems();
-        });
-    </script>
+    <script type="module" src="/js/services/shopCartService.js"></script>
 </main>
 </html>

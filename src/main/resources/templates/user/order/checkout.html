@@ -63,9 +63,9 @@
                             <div id="address-form-section">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="mb-0" id="form-title">Địa chỉ giao hàng</h6>
-                                    <button type="button" class="btn btn-sm btn-link text-decoration-none" id="cancel-new-address-btn" style="display: none;">
-                                        <i class="bi bi-x-circle me-1"></i>Hủy
-                                    </button>
+                                    <button type="button" id="cancel-new-address-btn" class="btn-close" aria-label="Close" style="display: none;">
+
+                                        </button>
                                 </div>
 
                                 <form id="shipping-form">
@@ -96,7 +96,7 @@
                                                 Tỉnh/Thành phố <span class="text-danger">*</span>
                                             </label>
                                             <select class="form-select" id="province" required>
-                                                <option value="" selected disabled>Chọn T��nh/Thành phố</option>
+                                                <option value="" selected disabled>Chọn Tỉnh/Thành phố</option>
                                             </select>
                                             <div class="invalid-feedback">Vui lòng chọn tỉnh/thành phố</div>
                                         </div>
@@ -234,9 +234,7 @@
                                         <p class="mb-0 small text-muted" id="voucher-desc-display"></p>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-outline-danger" id="remove-voucher-btn">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
+                                <button type="button" id="remove-voucher-btn" class="btn-close" aria-label="Close"></button>
                             </div>
 
                             <!-- Voucher input/selection -->
@@ -382,7 +380,7 @@
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Phí vận chuyển</span>
-                                    <span id="shipping-fee" class="text-success">Miễn phí</span>
+                                    <span id="shipping-fee" class="text-success">0₫</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-2">
@@ -532,18 +530,18 @@
             margin-left: 32px;
         }
 
-        .voucher-card {
-            border: 1px solid #e5e5e5;
-            border-radius: 4px;
-            padding: 12px;
-            margin-bottom: 12px;
-            background: white;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            gap: 12px;
-        }
+        /*.voucher-card {*/
+        /*    border: 1px solid #e5e5e5;*/
+        /*    border-radius: 4px;*/
+        /*    padding: 12px;*/
+        /*    margin-bottom: 12px;*/
+        /*    background: white;*/
+        /*    position: relative;*/
+        /*    cursor: pointer;*/
+        /*    transition: all 0.2s;*/
+        /*    display: flex;*/
+        /*    gap: 12px;*/
+        /*}*/
 
         .voucher-card:hover {
             border-color: #0aad0a;

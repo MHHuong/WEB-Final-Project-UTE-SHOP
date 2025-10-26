@@ -1,5 +1,6 @@
 package vn.host.controller.api;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -158,5 +159,50 @@ public class OrderController {
             );
         }
 
+    }
+
+    @PostMapping("temp-order")
+    public ResponseEntity<?> saveTempOrder(@RequestBody Object order, HttpSession session){
+        try {
+            session.removeAttribute("selectedProducts");
+            session.setAttribute("tempOrder", order);
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "Success",
+                            "Orders saved successfully",
+                            order
+                    ), HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "Error",
+                            "Failed to saved orders: " + e.getMessage(),
+                            null
+                    ), HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    @GetMapping("temp-order")
+    public ResponseEntity<?> getTempOrder(HttpSession session) {
+        try {
+            Object order = session.getAttribute("tempOrder");
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "Success",
+                            "Orders retrieved successfully",
+                            order
+                    ), HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "Error",
+                            "Failed to retrieve orders: " + e.getMessage(),
+                            null
+                    ), HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
     }
 }

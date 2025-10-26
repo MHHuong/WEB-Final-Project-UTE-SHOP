@@ -286,3 +286,56 @@
         </div>
     </div>
 </div>
+
+<!-- Save Address Confirmation Modal -->
+<div th:fragment="save-address-modal" class="modal fade" id="saveAddressModal" tabindex="-1" aria-labelledby="saveAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="saveAddressModalLabel">
+                    <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                    Lưu địa chỉ giao hàng
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <p class="text-muted mb-3">Bạn có muốn lưu địa chỉ này vào danh sách địa chỉ để sử dụng cho lần mua hàng sau?</p>
+
+                <!-- Address Preview -->
+                <div class="card bg-light border-0 mb-3">
+                    <div class="card-body p-3">
+                        <div class="mb-2">
+                            <small class="text-muted">Người nhận:</small>
+                            <p class="mb-1 fw-medium" id="preview-receiver-name"></p>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">Số điện thoại:</small>
+                            <p class="mb-1" id="preview-phone"></p>
+                        </div>
+                        <div class="mb-0">
+                            <small class="text-muted">Địa chỉ:</small>
+                            <p class="mb-0" id="preview-address"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Set as default option -->
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="set-as-default-address" checked>
+                    <label class="form-check-label" for="set-as-default-address">
+                        Đặt làm địa chỉ mặc định
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" id="skip-save-address-btn">
+                    Bỏ qua
+                </button>
+                <button type="button" class="btn btn-primary" id="confirm-save-address-btn">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Lưu địa chỉ
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

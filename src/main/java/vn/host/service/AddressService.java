@@ -22,5 +22,7 @@ public interface AddressService {
 
     Address findAddressByAddressDetail(AddressRequest addressRequest, User user);
 
+    void saveUserAddress(AddressRequest address, Long userId);
+
     List<Address> findAllByUserId(Long userId);
 }

@@ -7,16 +7,13 @@ const orderService = {
         })
     },
 
-    saveOrder: function(orderData) {
-        apiClient.post('/orders', orderData).then((response) => {
-            return response;
-        })
-    },
-
-    updateOrder: function(orderId, orderData) {
-        apiClient.put(`/orders/${orderId}`, orderData).then((response) => {
-            return response;
-        })
+    saveOrder: async function(orderData) {
+        try {
+           return await apiClient.post(`/orders`, orderData)
+        } catch (error) {
+            console.error('Lỗi khi tạo đơn hàng:', error);
+            throw error;
+        }
     },
 
     updateStatusOrder: function(orderId, status) {
@@ -36,6 +33,24 @@ const orderService = {
             return await apiClient.post('/orders/shipping-fee', shippingData)
         } catch (error) {
             console.error('Lỗi khi tính phí vận chuyển:', error);
+            throw error;
+        }
+    },
+
+    setDisplayTempOrder: async function (orderDate) {
+        try {
+            return await apiClient.post('/orders/temp-order', orderDate)
+        } catch (error) {
+            console.error('Lỗi khi lưu đơn hàng tạm thời:', error);
+            throw error;
+        }
+    },
+
+    getDisplayTempOrder: async function () {
+        try {
+            return await apiClient.get('/orders/temp-order')
+        } catch (error) {
+            console.error('Lỗi khi lấy đơn hàng tạm thời:', error);
             throw error;
         }
     }

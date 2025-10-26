@@ -15,4 +15,5 @@ public class OrderItemRequest {
     BigDecimal price;
     Integer quantity;
     Long shopId;
+    BigDecimal discountAmount;
 }

@@ -85,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         ShippingProvider shippingProvider = shippingProviderRepository.findById(orderRequest.getShippingProviderId())
                 .orElseThrow(() -> new RuntimeException("Shipping Provider not found"));
-        Coupon coupon = couponRepository.findById(orderRequest.getCouponId()).orElse(null);
+        Coupon coupon = couponRepository.findByCode(orderRequest.getCoupon()).orElse(null);
         Address address = addressService.findAddressByAddressDetail(orderRequest.getAddress(), user);
 
         List<OrderItemRequest> orderItems = orderRequest.getOrders();
@@ -128,10 +128,9 @@ public class OrderServiceImpl implements OrderService {
                         .product(product)
                         .unitPrice(item.getPrice())
                         .quantity(item.getQuantity())
+                        .discountAmount(item.getDiscountAmount())
                         .build();
             }).collect(Collectors.toList());
-
-
             orderItemRepository.saveAll(orderItemEntities);
             cartItemService.removeCartItems(orderRequest.getUserId(), orderItemEntities);
             return savedOrder;

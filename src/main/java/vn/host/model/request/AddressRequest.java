@@ -19,4 +19,5 @@ public class AddressRequest {
     String addressDetail;
     String receiverName;
     String phone;
+    Integer isDefault;
 }

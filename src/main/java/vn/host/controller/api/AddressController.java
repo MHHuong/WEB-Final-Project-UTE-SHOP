@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.host.entity.Address;
 import vn.host.model.ResponseModel;
+import vn.host.model.request.AddressRequest;
 import vn.host.model.response.AddressResponse;
 import vn.host.service.AddressService;
 
@@ -61,6 +62,28 @@ public class AddressController {
                             "Get default address successfully",
                             address
                     ), HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "false",
+                            "Error: " + e.getMessage(),
+                            null
+                    ), HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    @PostMapping("{userId}")
+    public ResponseEntity<?> addAddress(@PathVariable Long userId, @RequestBody AddressRequest address) {
+        try {
+            addressService.saveUserAddress(address, userId);
+            return new ResponseEntity<>(
+                    new ResponseModel (
+                            "true",
+                            "Add address successfully",
+                            null
+                    ), HttpStatus.CREATED
             );
         } catch (Exception e) {
             return new ResponseEntity<>(

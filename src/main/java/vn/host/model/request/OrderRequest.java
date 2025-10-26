@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.host.entity.*;
-import vn.host.model.response.CartResponse;
 import vn.host.util.sharedenum.PaymentMethod;
 
 import java.math.BigDecimal;
@@ -20,9 +19,10 @@ public class OrderRequest {
     Long shippingProviderId;
     BigDecimal totalAmount;
     Payment payments;
-    Long CouponId;
+    String coupon;
     AddressRequest address;
     String receiverName;
     String phone;
+    String note;
     List<OrderItemRequest> orders;
 }

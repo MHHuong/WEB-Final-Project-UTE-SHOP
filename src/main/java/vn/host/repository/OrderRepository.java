@@ -36,13 +36,14 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
                o.paymentMethod,
                o.totalAmount,
                o.status,
-               new vn.host.model.request.AddressRequest(                                                            \s
+               new vn.host.model.request.AddressRequest(
                    o.address.province,
                    o.address.district,
                    o.address.ward,
                    o.address.addressDetail,
                    o.address.receiverName,
-                   o.address.phone
+                   o.address.phone,
+                   o.address.isDefault
                ),
                o.createdAt
             )

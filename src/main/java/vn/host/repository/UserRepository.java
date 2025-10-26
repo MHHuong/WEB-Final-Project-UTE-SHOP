@@ -7,4 +7,5 @@ import vn.host.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User,Long> {
 
+    User findUserByFullName(String fullName);
 }

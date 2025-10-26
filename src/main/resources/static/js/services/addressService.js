@@ -17,7 +17,16 @@ const addressService = {
             console.error('Lỗi khi lấy địa chỉ mặc định:', error);
             throw error;
         }
-    }
+    },
+
+    createAddress : async function (addressData, userId) {
+        try {
+            return await apiClient.post(`/addresses/${userId}`, addressData);
+        } catch (error) {
+            console.error('Lỗi khi thêm địa chỉ:', error);
+            throw error;
+        }
+    },
 }
 
 export default addressService
