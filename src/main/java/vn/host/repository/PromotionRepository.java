@@ -4,10 +4,41 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.host.entity.Promotion;
 
+import java.time.LocalDate;
+
 @Repository
-public interface PromotionRepository extends JpaRepository<Promotion,Long>, JpaSpecificationExecutor<Promotion> {
+public interface PromotionRepository extends JpaRepository<Promotion, Long>, JpaSpecificationExecutor<Promotion> {
     Page<Promotion> findByShop_ShopId(Long shopId, Pageable pageable);
+
+    @Query("""
+                select count(p) > 0 from Promotion p
+                where p.shop.shopId = :shopId
+                  and (:ignoreId is null or p.promotionId <> :ignoreId)
+                  and p.startDate <= :endDate and p.endDate >= :startDate
+            """)
+    boolean existsOverlappingGlobal(@Param("shopId") Long shopId,
+                                    @Param("startDate") LocalDate startDate,
+                                    @Param("endDate") LocalDate endDate,
+                                    @Param("ignoreId") Long ignoreId);
+
+    @Query("""
+                select count(p) > 0 from Promotion p
+                where p.shop.shopId = :shopId
+                  and (:ignoreId is null or p.promotionId <> :ignoreId)
+                  and p.startDate <= :endDate and p.endDate >= :startDate
+                  and (
+                        p.applyCategory is null
+                        or p.applyCategory.categoryId = :categoryId
+                      )
+            """)
+    boolean existsOverlappingForCategory(@Param("shopId") Long shopId,
+                                         @Param("categoryId") Long categoryId,
+                                         @Param("startDate") LocalDate startDate,
+                                         @Param("endDate") LocalDate endDate,
+                                         @Param("ignoreId") Long ignoreId);
 }

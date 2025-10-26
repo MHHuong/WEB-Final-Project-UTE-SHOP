@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{shop/common/main}">
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <div class="row mb-8">
+            <div class="col-md-12">
+                <div class="d-md-flex justify-content-between align-items-center">
+                    <div>
+                        <h2>Edit Promotion</h2>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a th:href="@{/shop}" class="text-inherit">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item"><a th:href="@{/shop/promotions}" class="text-inherit">Promotions</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">Edit Promotion</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div>
+                        <a th:href="@{/shop/promotions}" class="btn btn-light">Back to Promotions</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fragment form -->
+        <div th:replace="~{shop/promotion/common/input-form :: promotionForm('edit')}"></div>
+    </div>
+
+    <script th:src="@{/assets/js/vendors/editor.js}"></script>
+    <script th:src="@{/assets/js/vendors/promotion/input-form.js}" defer></script>
+    <script th:src="@{/assets/js/vendors/promotion/edit-promotion.js}" defer></script>
+</main>
+</body>
+</html>

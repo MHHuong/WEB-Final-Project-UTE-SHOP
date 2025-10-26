@@ -64,4 +64,14 @@ public class PageController {
     public String reviewDetailPage() {
         return "shop/review/review-detail";
     }
+
+    @GetMapping("shop/promotion/add-promotion")
+    public String addPromotion() {
+        return "shop/promotion/add-promotion";
+    }
+
+    @GetMapping("shop/promotion/edit-promotion")
+    public String editPromotion() {
+        return "shop/promotion/edit-promotion";
+    }
 }
