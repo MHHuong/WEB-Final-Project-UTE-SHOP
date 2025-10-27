@@ -74,4 +74,9 @@ public class PageController {
     public String editPromotion() {
         return "shop/promotion/edit-promotion";
     }
+
+    @GetMapping("shop/coupon/coupons")
+    public String coupons() {
+        return "shop/coupon/coupons";
+    }
 }

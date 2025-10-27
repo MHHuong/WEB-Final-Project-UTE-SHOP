@@ -10,32 +10,33 @@
             <div class="col-md-12">
                 <div class="d-md-flex justify-content-between align-items-center">
                     <div>
-                        <h2>Edit Promotion</h2>
+                        <h2>Add New Coupon</h2>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb mb-0">
                                 <li class="breadcrumb-item"><a th:href="@{/shop}" class="text-inherit">Dashboard</a>
                                 </li>
-                                <li class="breadcrumb-item"><a th:href="@{/shop/promotion/promotions}"
-                                                               class="text-inherit">Promotions</a>
+                                <li class="breadcrumb-item"><a th:href="@{/shop/coupon/coupons}"
+                                                               class="text-inherit">Coupons</a>
                                 </li>
-                                <li class="breadcrumb-item active" aria-current="page">Edit Promotion</li>
+                                <li class="breadcrumb-item active" aria-current="page">Add New Coupon</li>
                             </ol>
                         </nav>
                     </div>
                     <div>
-                        <a th:href="@{/shop/promotion/promotions}" class="btn btn-light">Back to Promotions</a>
+                        <a th:href="@{/shop/coupon/coupons}" class="btn btn-light">Back to Coupons</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Fragment form -->
-        <div th:replace="~{shop/promotion/common/input-form :: promotionForm('edit')}"></div>
+        <div th:replace="~{shop/coupon/common/input-form :: couponForm('create')}"></div>
     </div>
 
+    <!-- (giữ pattern giống add-product: block vendor js + page js) -->
     <script th:src="@{/assets/js/vendors/editor.js}"></script>
-    <script th:src="@{/assets/js/vendors/promotion/input-form.js}" defer></script>
-    <script th:src="@{/assets/js/vendors/promotion/edit-promotion.js}" defer></script>
+    <script th:src="@{/assets/js/vendors/coupon/input-form.js}" defer></script>
+    <script th:src="@{/assets/js/vendors/coupon/create-coupon.js}" defer></script>
 </main>
 </body>
 </html>
