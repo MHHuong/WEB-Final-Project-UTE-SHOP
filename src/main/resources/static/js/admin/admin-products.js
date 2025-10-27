@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector("#tblProducts");
+    const pagination = document.querySelector("#pagination"); // ✅ thêm
     const searchBtn = document.querySelector("#btnSearch");
     const searchInput = document.querySelector("#searchProduct");
     const searchShopBtn = document.querySelector("#btnSearchShop");
@@ -11,7 +12,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentPage = 0;
     const pageSize = 10;
 
-    // ================= RENDER PRODUCT LIST =================
     // ================= RENDER PRODUCT LIST =================
     function renderProducts(products) {
         tbody.innerHTML = "";
@@ -53,6 +53,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // ================= RENDER PAGINATION ================= ✅ thêm
+    function renderPagination(totalPages, currentPage) {
+        pagination.innerHTML = "";
+        if (totalPages <= 1) return;
+
+        for (let i = 0; i < totalPages; i++) {
+            const btn = document.createElement("button");
+            btn.textContent = i + 1;
+            btn.className = "btn btn-sm " + (i === currentPage ? "btn-primary" : "btn-outline-primary");
+            btn.addEventListener("click", () => loadProducts(i));
+            pagination.appendChild(btn);
+        }
+    }
+
     // ================= LOAD PRODUCTS =================
     function loadProducts(page = 0, url = null) {
         currentPage = page;
@@ -62,6 +76,8 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 const products = data.content || data;
                 renderProducts(products);
+                // ✅ thêm phân trang
+                if (data.totalPages !== undefined) renderPagination(data.totalPages, data.number);
             })
             .catch(err => console.error("Lỗi tải danh sách sản phẩm:", err));
     }
@@ -88,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
     categorySelect?.addEventListener("change", () => {
         const cateId = categorySelect.value;
         if (cateId)
-            loadProducts(0, `/api/admin/products?categoryId=${cateId}`);
+            loadProducts(0, `/api/admin/products?categoryId=${cateId}&page=0&size=${pageSize}`);
         else loadProducts();
     });
 
@@ -157,6 +173,5 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(err => console.error("Lỗi tải danh mục:", err));
     }
 
-    // ✅ GỌI HÀM SAU KHI DOM READY
     loadCategories();
 });

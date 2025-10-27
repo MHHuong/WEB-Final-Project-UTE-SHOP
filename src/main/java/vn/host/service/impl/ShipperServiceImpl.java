@@ -17,6 +17,9 @@ import vn.host.service.ShipperService;
 import vn.host.util.sharedenum.OrderStatus;
 import vn.host.util.sharedenum.UserRole;
 
+
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ShipperServiceImpl implements ShipperService {
@@ -98,30 +101,4 @@ public class ShipperServiceImpl implements ShipperService {
         shipperRepository.delete(existing);
     }
 
-    @Override
-    public Page<Order> getUnassignedOrders(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return orderRepository.findUnassignedOrders(pageable);
-    }
-
-    @Override
-    public Order assignOrderToShipper(Long orderId, Long shipperId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found with ID: " + orderId));
-        Shipper shipper = shipperRepository.findById(shipperId)
-                .orElseThrow(() -> new RuntimeException("Shipper not found with ID: " + shipperId));
-
-        // 🔸 Không cho phép gán nếu đơn đã có shipper
-        if (order.getShipper() != null)
-            throw new RuntimeException("This order has already been assigned to another shipper!");
-
-        // 🔸 Chỉ cho phép assign nếu trạng thái đang là CONFIRMED (đã xác nhận, chờ giao)
-        if (order.getStatus() != OrderStatus.CONFIRMED)
-            throw new RuntimeException("Only confirmed orders can be assigned to a shipper!");
-
-        // 🔸 Gán shipper và cập nhật trạng thái
-        order.setShipper(shipper);
-        order.setStatus(OrderStatus.SHIPPING);
-        return orderRepository.save(order);
-    }
 }

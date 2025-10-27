@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector("#tblCategories");
+    const pagination = document.querySelector("#pagination"); // ✅ thêm dòng này
     const searchBtn = document.querySelector("#btnSearch");
     const searchInput = document.querySelector("#searchCategory");
     const reloadBtn = document.querySelector("#btnReload");
@@ -42,6 +43,20 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // ============ RENDER PAGINATION ============ ✅ thêm phần này
+    function renderPagination(totalPages, currentPage) {
+        pagination.innerHTML = "";
+        if (totalPages <= 1) return;
+
+        for (let i = 0; i < totalPages; i++) {
+            const btn = document.createElement("button");
+            btn.textContent = i + 1;
+            btn.className = "btn btn-sm " + (i === currentPage ? "btn-primary" : "btn-outline-primary");
+            btn.addEventListener("click", () => loadCategories(i));
+            pagination.appendChild(btn);
+        }
+    }
+
     // ============ LOAD CATEGORIES ============
     function loadCategories(page = 0, url = null) {
         currentPage = page;
@@ -51,6 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 const categories = data.content || data;
                 renderCategories(categories);
+                if (data.totalPages !== undefined) renderPagination(data.totalPages, data.number);
             })
             .catch(err => console.error("Lỗi tải danh sách danh mục:", err));
     }
@@ -99,6 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
 // ==================== FORM ADD / EDIT CATEGORY ====================
 document.addEventListener("DOMContentLoaded", function () {
     const categoryForm = document.getElementById("categoryForm");

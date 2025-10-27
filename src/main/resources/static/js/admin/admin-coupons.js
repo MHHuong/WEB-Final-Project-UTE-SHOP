@@ -1,10 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector("#tblCoupons");
+    const pagination = document.querySelector("#pagination"); // ✅ thêm
     const searchBtn = document.querySelector("#btnSearch");
     const searchInput = document.querySelector("#searchCode");
     const reloadBtn = document.querySelector("#btnReload");
     const saveBtn = document.querySelector("#btnSaveCoupon");
     const couponForm = document.querySelector("#couponForm");
+
+    let currentPage = 0;
+    const pageSize = 10;
 
     // ============ RENDER COUPON LIST ============
     function renderCoupons(coupons) {
@@ -37,13 +41,30 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ============ LOAD COUPONS ============
-    function loadCoupons(url = `/api/admin/coupons/app`) {
-        fetch(url)
+    // ============ RENDER PAGINATION ============ ✅ thêm
+    function renderPagination(totalPages, currentPage) {
+        pagination.innerHTML = "";
+        if (totalPages <= 1) return;
+
+        for (let i = 0; i < totalPages; i++) {
+            const btn = document.createElement("button");
+            btn.textContent = i + 1;
+            btn.className = "btn btn-sm " + (i === currentPage ? "btn-primary" : "btn-outline-primary");
+            btn.addEventListener("click", () => loadCouponsPage(i));
+            pagination.appendChild(btn);
+        }
+    }
+
+    // ============ LOAD COUPONS ============ (phân trang)
+    function loadCouponsPage(page = 0, url = null) {
+        currentPage = page;
+        const apiUrl = url || `/api/admin/coupons/app?page=${page}&size=${pageSize}`;
+        fetch(apiUrl)
             .then(res => res.json())
             .then(data => {
                 const coupons = data.content || data;
                 renderCoupons(coupons);
+                if (data.totalPages !== undefined) renderPagination(data.totalPages, data.number);
             })
             .catch(err => console.error("Lỗi tải danh sách coupon:", err));
     }
@@ -79,7 +100,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 couponForm?.reset();
                 window.location.href = "/admin/coupons";
             } else {
-                // 👇 xử lý lỗi trả về từ backend (như IllegalArgumentException)
                 alert("❌ " + (msg || "Không thể lưu coupon!"));
             }
         } catch (err) {
@@ -103,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (res.ok) {
                     alert("✅ " + (msg || "Xóa thành công!"));
-                    loadCoupons();
+                    loadCouponsPage(currentPage);
                 } else {
                     alert("❌ " + (msg || "Không thể xóa coupon này!"));
                 }
@@ -118,16 +138,16 @@ document.addEventListener("DOMContentLoaded", function () {
     searchBtn?.addEventListener("click", () => {
         const keyword = searchInput.value.trim();
         if (keyword)
-            loadCoupons(`/api/admin/coupons/search?code=${encodeURIComponent(keyword)}`);
-        else loadCoupons();
+            loadCouponsPage(0, `/api/admin/coupons/search?code=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
+        else loadCouponsPage();
     });
 
     // ============ RELOAD ============
     reloadBtn?.addEventListener("click", () => {
         searchInput.value = "";
-        loadCoupons();
+        loadCouponsPage();
     });
 
     // INIT
-    loadCoupons();
+    loadCouponsPage();
 });
