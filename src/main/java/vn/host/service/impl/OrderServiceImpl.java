@@ -3,6 +3,7 @@ package vn.host.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import vn.host.entity.Order;
 import vn.host.repository.OrderRepository;
@@ -26,6 +27,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void save(Order order) {
         orderRepository.save(order);
+    }
+
+    @Override
+    public Page<Order> findAll(Specification<Order> spec, Pageable pageable) {
+        return orderRepository.findAll(spec, pageable);
     }
 
 

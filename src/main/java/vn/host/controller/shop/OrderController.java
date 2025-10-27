@@ -18,7 +18,7 @@ import vn.host.entity.Order;
 import vn.host.entity.OrderItem;
 import vn.host.entity.Shop;
 import vn.host.entity.User;
-import vn.host.repository.OrderRepository;
+import vn.host.service.OrderService;
 import vn.host.service.ShopService;
 import vn.host.service.UserService;
 import vn.host.util.sharedenum.DiscountType;
@@ -36,7 +36,7 @@ public class OrderController {
 
     private final UserService userService;
     private final ShopService shopService;
-    private final OrderRepository orderRepo;
+    private final OrderService orderService;
 
     private User authedUser(Authentication auth) {
         if (auth == null) throw new SecurityException("Unauthenticated");
@@ -81,7 +81,7 @@ public class OrderController {
             return cb.and(ps.toArray(new Predicate[0]));
         };
 
-        Page<Order> pageData = orderRepo.findAll(spec, pageable);
+        Page<Order> pageData = orderService.findAll(spec, pageable);
         List<OrderRowVM> rows = pageData.map(OrderRowVM::of).getContent();
 
         PageResult<OrderRowVM> result = PageResult.<OrderRowVM>builder()
@@ -101,8 +101,7 @@ public class OrderController {
         User u = authedUser(auth);
         Shop s = myShopOr403(u);
 
-        Order o = orderRepo.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        Order o = orderService.findById(orderId);
 
         // chặn truy cập chéo shop
         if (o.getShop() == null || !o.getShop().getShopId().equals(s.getShopId())) {
@@ -187,8 +186,7 @@ public class OrderController {
         User u = authedUser(auth);
         Shop s = myShopOr403(u);
 
-        Order o = orderRepo.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        Order o = orderService.findById(orderId);
         if (o.getShop() == null || !o.getShop().getShopId().equals(s.getShopId())) {
             return ResponseEntity.notFound().build();
         }
@@ -204,7 +202,7 @@ public class OrderController {
             throw new IllegalArgumentException("Only CONFIRMED or CANCELLED is allowed for NEW orders");
         }
         o.setStatus(next);
-        orderRepo.save(o);
+        orderService.save(o);
         return ResponseEntity.noContent().build();
     }
 
