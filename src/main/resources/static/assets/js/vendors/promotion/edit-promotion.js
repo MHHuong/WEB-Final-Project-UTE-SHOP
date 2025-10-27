@@ -55,7 +55,7 @@
     }
 
     async function loadDetail() {
-        const r = await authFetch(`${BASE}/shop/promotions/${id}`);
+        const r = await authFetch(`${BASE}/api/shop/promotions/${id}`);
         if (!r.ok) throw new Error(await r.text());
         const vm = await r.json();
 
@@ -92,7 +92,7 @@
         btn.textContent = 'Saving...';
 
         try {
-            const res = await authFetch(`${BASE}/shop/promotions/${id}`, {
+            const res = await authFetch(`${BASE}/api/shop/promotions/${id}`, {
                 method: 'PUT',
                 body: JSON.stringify(payload)
             });

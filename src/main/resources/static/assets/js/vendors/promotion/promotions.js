@@ -8,10 +8,18 @@
 
     // DOM giống products
     const tbody = document.getElementById('promotionsTbody');
-    const searchInput = document.getElementById('searchInput'); // <-- thêm id ở HTML
+    const searchInput = document.getElementById('searchInput');
     const statusFilter = document.getElementById('statusFilter');
     const pagerUl = document.querySelector('.pagination.mb-0');
     const showingText = document.querySelector('.border-top span');
+
+    const createBtn = document.getElementById('createPromoBtn');
+    if (createBtn) {
+        createBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = `${BASE}/shop/promotion/add-promotion`;
+        });
+    }
 
     let page = 0, size = 10, sort = 'startDate,desc';
     let inflight;
@@ -35,7 +43,7 @@
 
         try {
             // API server-side giống products: /api/shop/promotions
-            const res = await fetch(`${BASE}/shop/promotions?` + params.toString(), {
+            const res = await fetch(`${BASE}/api/shop/promotions?` + params.toString(), {
                 headers: {'Authorization': 'Bearer ' + token},
                 signal: inflight.signal
             });
@@ -241,7 +249,7 @@
         if (!id) return;
         if (!confirm('Delete this promotion?')) return;
         try {
-            const res = await fetch(`${BASE}/shop/promotions/${id}`, {
+            const res = await fetch(`${BASE}/api/shop/promotions/${id}`, {
                 method: 'DELETE',
                 headers: {'Authorization': 'Bearer ' + token}
             });
@@ -256,7 +264,6 @@
             alert('Có lỗi khi xoá promotion.');
         }
     });
-
     // Kick off
     load();
 })();

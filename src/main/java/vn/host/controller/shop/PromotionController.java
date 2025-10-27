@@ -24,7 +24,7 @@ import java.time.LocalDate;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/shop/promotions")
+@RequestMapping("/api/shop/promotions")
 @RequiredArgsConstructor
 public class PromotionController {
     private final PromotionService promotionService;
@@ -48,26 +48,6 @@ public class PromotionController {
         if (s == null) throw new SecurityException("Shop not registered");
         return s;
     }
-
-    // LIST (phân trang) — cho trang promotions.html
-//    @GetMapping
-//    public ResponseEntity<PageResult<PromotionVM>> list(Authentication auth,
-//                                                        @RequestParam(defaultValue = "0") int page,
-//                                                        @RequestParam(defaultValue = "10") int size) {
-//        User u = authedUser(auth);
-//        Shop s = myShopOr403(u);
-//
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startDate"));
-//        Page<Promotion> p = promotionService.findByShop_ShopId(s.getShopId(), pageable);
-//
-//        var rs = new PageResult<PromotionVM>();
-//        rs.setContent(p.getContent().stream().map(PromotionVM::of).collect(Collectors.toList()));
-//        rs.setPage(p.getNumber());
-//        rs.setSize(p.getSize());
-//        rs.setTotalElements(p.getTotalElements());
-//        rs.setTotalPages(p.getTotalPages());
-//        return ResponseEntity.ok(rs);
-//    }
 
     @GetMapping
     public ResponseEntity<PageResult<PromotionVM>> search(

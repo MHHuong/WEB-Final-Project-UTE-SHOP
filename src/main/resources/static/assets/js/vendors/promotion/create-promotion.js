@@ -70,7 +70,7 @@
         btn.textContent = 'Creating...';
 
         try {
-            const res = await authFetch(`${BASE}/shop/promotions`, {
+            const res = await authFetch(`${BASE}/api/shop/promotions`, {
                 method: 'POST',
                 body: JSON.stringify(payload)
             });
