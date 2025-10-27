@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="form">
+    <div class="row">
+        <div class="col-12 col-lg-8">
+            <div class="card">
+                <div class="card-header border-bottom-0">
+                    <h5 class="mb-0">Thông tin coupon</h5>
+                </div>
+                <div class="card-body">
+                    <form id="couponForm" class="needs-validation" novalidate>
+                        <!-- CODE -->
+                        <div class="mb-3">
+                            <label for="code" class="form-label fw-semibold">Mã coupon <span
+                                    class="text-danger">*</span></label>
+                            <input id="code" name="code" type="text" class="form-control" placeholder="e.g. HELLO10"
+                                   required/>
+                            <div class="form-text">Không để trống và không được trùng mã đã tồn tại.</div>
+                        </div>
+
+                        <!-- TYPE + VALUE -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="discountType" class="form-label fw-semibold">Loại giảm giá <span
+                                        class="text-danger">*</span></label>
+                                <select id="discountType" name="discountType" class="form-select" required>
+                                    <option value="PERCENT">PERCENT</option>
+                                    <option value="AMOUNT">AMOUNT</option>
+                                </select>
+                                <div class="form-text">PERCENT: 1–100 &nbsp;•&nbsp; AMOUNT: &gt; 0</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="value" class="form-label fw-semibold">Giá trị giảm <span
+                                        class="text-danger">*</span></label>
+                                <input id="value" name="value" type="number" class="form-control" step="1" min="1"
+                                       placeholder="VD: 10 hoặc 20000" required/>
+                                <div class="form-text">Nếu PERCENT → 1–100. Nếu AMOUNT → &gt; 0.</div>
+                            </div>
+                        </div>
+
+                        <!-- MIN ORDER + EXPIRED -->
+                        <div class="row g-3 mt-1">
+                            <div class="col-md-6">
+                                <label for="minOrderAmount" class="form-label fw-semibold">Giá trị đơn tối thiểu</label>
+                                <input id="minOrderAmount" name="minOrderAmount" type="number" class="form-control"
+                                       step="1000" min="0" placeholder="0 (không bắt buộc)"/>
+                                <div class="form-text">Không nhỏ hơn 0.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="expiredAt" class="form-label fw-semibold">Ngày hết hạn <span
+                                        class="text-danger">*</span></label>
+                                <input id="expiredAt" name="expiredAt" type="datetime-local" class="form-control"
+                                       required/>
+                                <div class="form-text">Phải sau thời điểm hiện tại.</div>
+                            </div>
+                        </div>
+
+                        <!-- ACTIONS -->
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="feather-icon icon-save me-1"></i> Lưu
+                            </button>
+                            <a href="/UTE_SHOP/shop/coupon/coupons" class="btn btn-outline-secondary">Hủy</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIDE NOTES giống promotion -->
+        <div class="col-12 col-lg-4">
+            <div class="card">
+                <div class="card-header border-bottom-0">
+                    <h6 class="mb-0">Điều kiện hợp lệ</h6>
+                </div>
+                <div class="card-body small">
+                    <ol class="ps-3 mb-0">
+                        <li class="mb-2"><b>Code</b>: không trống, không trùng.</li>
+                        <li class="mb-2"><b>Value</b>:
+                            <ul class="mb-0">
+                                <li>PERCENT: 1–100</li>
+                                <li>AMOUNT: &gt; 0</li>
+                            </ul>
+                        </li>
+                        <li class="mb-2"><b>expiredAt</b>: phải lớn hơn “hiện tại”.</li>
+                        <li class="mb-0"><b>minOrderAmount</b>: ≥ 0.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>

@@ -79,4 +79,14 @@ public class PageController {
     public String coupons() {
         return "shop/coupon/coupons";
     }
+
+    @GetMapping("shop/coupon/add-coupon")
+    public String addCoupon() {
+        return "shop/coupon/add-coupon";
+    }
+
+    @GetMapping("shop/coupon/edit-coupon")
+    public String editCoupon() {
+        return "shop/coupon/edit-coupon";
+    }
 }

@@ -20,9 +20,6 @@ import vn.host.service.PromotionService;
 import vn.host.service.ShopService;
 import vn.host.service.UserService;
 
-import java.time.LocalDate;
-import java.util.stream.Collectors;
-
 @RestController
 @RequestMapping("/api/shop/promotions")
 @RequiredArgsConstructor

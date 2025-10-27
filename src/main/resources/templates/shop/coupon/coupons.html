@@ -11,7 +11,7 @@
             <div class="col-md-12">
                 <div class="d-md-flex justify-content-between align-items-center">
                     <div>
-                        <h2>Promotions</h2>
+                        <h2>Coupons</h2>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb mb-0">
                                 <li class="breadcrumb-item"><a th:href="@{/shop}" class="text-inherit">Dashboard</a>
@@ -37,14 +37,13 @@
                     <div class="col-lg-4 col-md-6 col-12 mb-2 mb-lg-0">
                         <form class="d-flex" role="search" th:action="@{/shop/coupon/coupons}" method="get">
                             <input id="searchInput" class="form-control" type="search" name="q" th:value="${param.q}"
-                                   placeholder="Search promotions" aria-label="Search"/>
+                                   placeholder="Search coupons" aria-label="Search"/>
                         </form>
                     </div>
                     <div class="col-lg-2 col-md-4 col-12">
                         <select id="statusFilter" class="form-select" style="max-width: 220px;">
                             <option value="">All statuses</option>
                             <option value="active">Active</option>
-                            <option value="upcoming">Upcoming</option>
                             <option value="expired">Expired</option>
                         </select>
                     </div>
@@ -59,18 +58,15 @@
                     <table class="table table-centered table-hover text-nowrap table-borderless mb-0">
                         <thead class="bg-light">
                         <tr>
-                            <th style="width: 36px;">#</th>
                             <th>Code</th>
                             <th>Discount Type</th>
-                            <th>Expire At</th>
                             <th>Min Order Amount</th>
-                            <th>End</th>
                             <th>Value</th>
-                            <th>Status</th>
+                            <th>Expire At</th>
                             <th style="width: 120px;">Actions</th>
                         </tr>
                         </thead>
-                        <tbody id="promotionsTbody"></tbody>
+                        <tbody id="couponsTbody"></tbody>
                     </table>
                 </div>
             </div>
@@ -88,6 +84,7 @@
             </div>
         </div>
     </div>
+    <script th:src="@{/assets/js/vendors/coupon/coupons.js}"></script>
 </main>
 </body>
 </html>
