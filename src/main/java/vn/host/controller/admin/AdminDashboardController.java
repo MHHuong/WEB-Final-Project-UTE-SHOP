@@ -107,4 +107,20 @@ public class AdminDashboardController {
         return "admin/shipping-provider/edit-shipping-provider";
     }
 
+    //SHIPPING-PROVIDER
+    @GetMapping("/shippers")
+    public String shipperPage() {
+        return "admin/shippers/shippers";
+    }
+
+    @GetMapping("/shippers/add")
+    public String addShipperPage() {
+        return "admin/shippers/add-shipper";
+    }
+
+    @GetMapping("/shippers/edit")
+    public String editShipperPage() {
+        return "admin/shippers/edit-shipper";
+    }
+
 }

@@ -1,6 +1,7 @@
 package vn.host.service;
 
 import org.springframework.data.domain.Page;
+import vn.host.entity.Order;
 import vn.host.entity.Shipper;
 
 import java.util.List;
@@ -11,4 +12,6 @@ public interface ShipperService {
     Shipper save(Shipper shipper);
     Shipper update(Long id, Shipper shipper);
     void delete(Long id);
+    Page<Order> getUnassignedOrders(int page, int size);
+    Order assignOrderToShipper(Long orderId, Long shipperId);
 }

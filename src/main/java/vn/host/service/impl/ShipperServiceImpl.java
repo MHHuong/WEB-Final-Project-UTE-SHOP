@@ -5,13 +5,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import vn.host.entity.Order;
 import vn.host.entity.Shipper;
 import vn.host.entity.ShippingProvider;
 import vn.host.entity.User;
+import vn.host.repository.OrderRepository;
 import vn.host.repository.ShipperRepository;
 import vn.host.repository.ShippingProviderRepository;
 import vn.host.repository.UserRepository;
 import vn.host.service.ShipperService;
+import vn.host.util.sharedenum.OrderStatus;
 import vn.host.util.sharedenum.UserRole;
 
 @Service
@@ -21,7 +24,7 @@ public class ShipperServiceImpl implements ShipperService {
     private final ShipperRepository shipperRepository;
     private final UserRepository userRepository;
     private final ShippingProviderRepository shippingProviderRepository;
-
+    private final OrderRepository orderRepository;
     @Override
     public Page<Shipper> getAll(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -93,5 +96,32 @@ public class ShipperServiceImpl implements ShipperService {
             throw new RuntimeException("Cannot delete shipper because they have assigned orders!");
         }
         shipperRepository.delete(existing);
+    }
+
+    @Override
+    public Page<Order> getUnassignedOrders(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return orderRepository.findUnassignedOrders(pageable);
+    }
+
+    @Override
+    public Order assignOrderToShipper(Long orderId, Long shipperId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found with ID: " + orderId));
+        Shipper shipper = shipperRepository.findById(shipperId)
+                .orElseThrow(() -> new RuntimeException("Shipper not found with ID: " + shipperId));
+
+        // 🔸 Không cho phép gán nếu đơn đã có shipper
+        if (order.getShipper() != null)
+            throw new RuntimeException("This order has already been assigned to another shipper!");
+
+        // 🔸 Chỉ cho phép assign nếu trạng thái đang là CONFIRMED (đã xác nhận, chờ giao)
+        if (order.getStatus() != OrderStatus.CONFIRMED)
+            throw new RuntimeException("Only confirmed orders can be assigned to a shipper!");
+
+        // 🔸 Gán shipper và cập nhật trạng thái
+        order.setShipper(shipper);
+        order.setStatus(OrderStatus.SHIPPING);
+        return orderRepository.save(order);
     }
 }
