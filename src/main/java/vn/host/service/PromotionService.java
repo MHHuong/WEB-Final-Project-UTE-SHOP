@@ -2,6 +2,9 @@ package vn.host.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import vn.host.dto.common.PageResult;
+import vn.host.dto.promotion.PromotionVM;
 import vn.host.entity.Promotion;
 
 import java.time.LocalDate;
@@ -19,4 +22,6 @@ public interface PromotionService {
     boolean existsOverlappingGlobal(Long shopId, LocalDate startDate, LocalDate endDate, Long ignoreId);
 
     boolean existsOverlappingForCategory(Long shopId, Long categoryId, LocalDate startDate, LocalDate endDate, Long ignoreId);
+
+    PageResult<PromotionVM> searchOwnerPromotions(String userEmail, String q, String status, int page, int size, Sort sort);
 }

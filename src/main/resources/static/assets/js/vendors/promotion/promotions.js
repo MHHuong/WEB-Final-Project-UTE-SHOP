@@ -2,192 +2,261 @@
     const BASE = '/UTE_SHOP';
     const token = localStorage.getItem('authToken');
     if (!token) {
-        alert('Login to continue');
         window.location.href = BASE + '/login';
         return;
     }
 
+    // DOM giống products
     const tbody = document.getElementById('promotionsTbody');
-    const pager = document.getElementById('promoPagination');
-    const statusFilterEl = document.getElementById('statusFilter');
-    const createBtn = document.getElementById('createPromoBtn');
+    const searchInput = document.getElementById('searchInput'); // <-- thêm id ở HTML
+    const statusFilter = document.getElementById('statusFilter');
+    const pagerUl = document.querySelector('.pagination.mb-0');
+    const showingText = document.querySelector('.border-top span');
 
-    if (createBtn) {
-        createBtn.addEventListener('click', () => {
-            window.location.href = BASE + '/shop/promotion/add-promotion';
-        });
+    let page = 0, size = 10, sort = 'startDate,desc';
+    let inflight;
+
+    async function load() {
+        if (inflight) inflight.abort();
+        inflight = new AbortController();
+
+        const params = new URLSearchParams();
+        const q = (searchInput?.value || '').trim();
+        if (q) params.set('q', q);
+
+        const stRaw = statusFilter?.value;
+        if (stRaw !== undefined && stRaw !== null && stRaw !== '') {
+            params.set('status', stRaw); // active | upcoming | expired
+        }
+
+        params.set('page', page);
+        params.set('size', size);
+        params.set('sort', sort);
+
+        try {
+            // API server-side giống products: /api/shop/promotions
+            const res = await fetch(`${BASE}/shop/promotions?` + params.toString(), {
+                headers: {'Authorization': 'Bearer ' + token},
+                signal: inflight.signal
+            });
+            if (!res.ok) {
+                const t = await res.text();
+                console.error(t);
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Load promotions failed</td></tr>`;
+                return;
+            }
+            const data = await res.json();
+            renderRows(data.content || []);
+            renderShowing(data);
+            renderPager(data.page, data.totalPages);
+        } catch (e) {
+            if (e.name !== 'AbortError') {
+                console.error(e);
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Load promotions failed</td></tr>`;
+            }
+        }
     }
 
-    // State
-    let page = 0;
-    let size = 10;
-    let totalPages = 0;
-    let statusFilter = '';
-
-    // Helpers
-    function fmtDate(isoOrLocal) {
-        if (!isoOrLocal) return '';
-        const d = new Date(isoOrLocal);
-        if (isNaN(d)) {
-            // LocalDate (yyyy-MM-dd) => add 'T00:00:00'
-            const parts = (isoOrLocal + 'T00:00:00');
-            const d2 = new Date(parts);
-            if (isNaN(d2)) return isoOrLocal;
-            return d2.toLocaleDateString();
+    function renderRows(items) {
+        if (!items.length) {
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No promotions found.</td></tr>`;
+            return;
         }
-        return d.toLocaleDateString();
+        const frag = document.createDocumentFragment();
+        let idx = 0;
+        for (const it of items) {
+            const tr = document.createElement('tr');
+
+            // #
+            const tdIndex = document.createElement('td');
+            tdIndex.textContent = String(page * size + (++idx));
+            tr.appendChild(tdIndex);
+
+            // Title (link tới edit)
+            const tdTitle = document.createElement('td');
+            tdTitle.innerHTML = `<a class="text-reset" href="${BASE}/shop/promotion/edit-promotion?id=${it.promotionId}">${escapeHtml(it.title || '')}</a>`;
+            tr.appendChild(tdTitle);
+
+            // Category
+            const tdCat = document.createElement('td');
+            tdCat.textContent = it.applyCategoryName || 'All categories';
+            tr.appendChild(tdCat);
+
+            // Discount
+            const tdDisc = document.createElement('td');
+            tdDisc.textContent = (it.discountPercent != null ? it.discountPercent + '%' : '');
+            tr.appendChild(tdDisc);
+
+            // Dates
+            const tdStart = document.createElement('td');
+            tdStart.textContent = formatDate(it.startDate);
+            tr.appendChild(tdStart);
+
+            const tdEnd = document.createElement('td');
+            tdEnd.textContent = formatDate(it.endDate);
+            tr.appendChild(tdEnd);
+
+            // Status badge (Active/Upcoming/Expired) — hiển thị giống filter
+            const tdStatus = document.createElement('td');
+            const st = statusOf(it.startDate, it.endDate);
+            tdStatus.innerHTML = statusBadge(st);
+            tr.appendChild(tdStatus);
+
+            // Actions: dropdown “...“ giống products
+            const tdAct = document.createElement('td');
+            tdAct.innerHTML = `
+        <div class="dropdown">
+          <a href="#" class="text-reset" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="feather-icon icon-more-vertical fs-5"></i>
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="${BASE}/shop/promotion/edit-promotion?id=${it.promotionId}">
+                <i class="bi bi-pencil-square me-3"></i>Edit
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item text-danger btn-delete" href="#" data-id="${it.promotionId}">
+                <i class="bi bi-trash me-3"></i>Delete
+              </a>
+            </li>
+          </ul>
+        </div>`;
+            tr.appendChild(tdAct);
+
+            frag.appendChild(tr);
+        }
+        tbody.innerHTML = '';
+        tbody.appendChild(frag);
+    }
+
+    function renderShowing(data) {
+        if (!showingText) return;
+        const start = data.totalElements === 0 ? 0 : (data.page * data.size + 1);
+        const end = Math.min((data.page + 1) * data.size, data.totalElements);
+        showingText.textContent = `Showing ${start} to ${end} of ${data.totalElements} entries`;
+    }
+
+    function renderPager(p, totalPages) {
+        if (!pagerUl) return;
+        pagerUl.innerHTML = '';
+
+        const mkItem = (label, target, disabled = false, active = false) => {
+            const li = document.createElement('li');
+            li.className = `page-item ${disabled ? 'disabled' : ''} ${active ? 'active' : ''}`;
+            const a = document.createElement('a');
+            a.className = `page-link ${active ? 'active' : ''}`;
+            a.href = '#!';
+            a.textContent = label;
+            a.onclick = (e) => {
+                e.preventDefault();
+                if (disabled || active) return;
+                page = target;
+                load();
+            };
+            li.appendChild(a);
+            return li;
+        };
+
+        pagerUl.appendChild(mkItem('Previous', Math.max(0, p - 1), p === 0));
+        const start = Math.max(0, p - 2);
+        const end = Math.min(totalPages - 1, p + 2);
+        for (let i = start; i <= end; i++) {
+            pagerUl.appendChild(mkItem(String(i + 1), i, false, i === p));
+        }
+        pagerUl.appendChild(mkItem('Next', Math.min(totalPages - 1, p + 1), p >= totalPages - 1));
+    }
+
+    // Helpers (đồng bộ style với products)
+    function escapeHtml(s) {
+        return (s ?? '').replace(/[&<>"']/g, c => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+    }
+
+    function formatDate(iso) {
+        if (!iso) return '';
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return iso;
+        return d.toLocaleDateString('en-US', {day: '2-digit', month: 'short', year: 'numeric'});
     }
 
     function statusOf(startDate, endDate) {
-        const today = new Date();
-        const s = new Date(startDate + 'T00:00:00');
-        const e = new Date(endDate + 'T23:59:59');
-        if (today < s) return 'Upcoming';
-        if (today > e) return 'Expired';
-        return 'Active';
+        const now = new Date();
+        const s = new Date(`${startDate}T00:00:00`);
+        const e = new Date(`${endDate}T23:59:59`);
+        if (now < s) return 'upcoming';
+        if (now > e) return 'expired';
+        return 'active';
     }
 
-    function authFetch(url, opt = {}) {
-        return fetch(url, {
-            ...opt,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token,
-                ...(opt.headers || {})
-            }
-        }).then(r => {
-            if (r.status === 401 || r.status === 403) {
-                alert('Expired session');
-                window.location.href = BASE + '/login';
-                return Promise.reject(new Error('unauth'));
-            }
-            return r;
-        });
+    function statusBadge(s) {
+        const st = (s || '').toLowerCase();
+        if (st === 'active') return `<span class="badge bg-light-success text-dark-success">Active</span>`;
+        if (st === 'upcoming') return `<span class="badge bg-light-warning text-dark-warning">Upcoming</span>`;
+        if (st === 'expired') return `<span class="badge bg-light text-dark">Expired</span>`;
+        return `<span class="badge bg-light text-dark">Unknown</span>`;
     }
 
-    function loadPage(p = 0) {
-        authFetch(`${BASE}/shop/promotions?page=${p}&size=${size}`)
-            .then(r => r.json())
-            .then(showData)
-            .catch(console.error);
+    // ====== Search & filter giống products (debounce + Enter + IME safe) ======
+    function debounce(fn, delay = 100) {
+        let t;
+        return (...args) => {
+            clearTimeout(t);
+            t = setTimeout(() => fn(...args), delay);
+        };
     }
 
-    function showData(pg) {
-        // pg: PageResult<PromotionVM>
-        tbody.innerHTML = '';
-        const content = Array.isArray(pg.content) ? pg.content : [];
-        totalPages = pg.totalPages ?? 0;
-        page = pg.page ?? 0;
-
-        // Filter client-side theo status nếu có
-        const filtered = content.filter(it => {
-            if (!statusFilter) return true;
-            const st = statusOf(it.startDate, it.endDate).toLowerCase();
-            return st === statusFilter;
-        });
-
-        if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No promotions found</td></tr>`;
-        } else {
-            filtered.forEach((it, idx) => {
-                const st = statusOf(it.startDate, it.endDate);
-                const tr = document.createElement('tr');
-
-                tr.innerHTML = `
-          <td>${page * size + idx + 1}</td>
-          <td class="fw-semibold">${escapeHtml(it.title || '')}</td>
-          <td>${escapeHtml(it.applyCategoryName || 'All categories')}</td>
-          <td>${it.discountPercent ?? ''}</td>
-          <td>${fmtDate(it.startDate)}</td>
-          <td>${fmtDate(it.endDate)}</td>
-          <td>
-            <span class="badge ${badgeClass(st)}">${st}</span>
-          </td>
-          <td>
-            <div class="btn-group btn-group-sm" role="group">
-              <button class="btn btn-outline-secondary" data-act="edit" data-id="${it.promotionId}">Edit</button>
-              <button class="btn btn-outline-danger" data-act="del" data-id="${it.promotionId}">Delete</button>
-            </div>
-          </td>
-        `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        renderPager();
-    }
-
-    function badgeClass(st) {
-        const s = (st || '').toLowerCase();
-        if (s === 'active') return 'bg-success';
-        if (s === 'upcoming') return 'bg-info';
-        return 'bg-secondary';
-    }
-
-    function renderPager() {
-        pager.innerHTML = '';
-        if (totalPages <= 1) return;
-
-        function pageItem(label, p, active = false, disabled = false) {
-            const li = document.createElement('li');
-            li.className = `page-item ${active ? 'active' : ''} ${disabled ? 'disabled' : ''}`;
-            const a = document.createElement('a');
-            a.className = 'page-link';
-            a.href = 'javascript:void(0)';
-            a.textContent = label;
-            if (!disabled) {
-                a.onclick = () => loadPage(p);
-            }
-            li.appendChild(a);
-            return li;
-        }
-
-        pager.appendChild(pageItem('«', Math.max(0, page - 1), false, page === 0));
-        for (let i = 0; i < totalPages; i++) {
-            pager.appendChild(pageItem(String(i + 1), i, page === i, false));
-        }
-        pager.appendChild(pageItem('»', Math.min(totalPages - 1, page + 1), false, page === totalPages - 1));
-    }
-
-    tbody.addEventListener('click', (e) => {
-        const btn = e.target.closest('button[data-act]');
-        if (!btn) return;
-        const id = btn.getAttribute('data-id');
-        const act = btn.getAttribute('data-act');
-
-        if (act === 'edit') {
-            window.location.href = `${BASE}/shop/promotion/edit-promotion?id=${id}`;
-        } else if (act === 'del') {
-            if (confirm('Xác nhận xóa promotion này?')) {
-                authFetch(`${BASE}/shop/promotions/${id}`, {method: 'DELETE'})
-                    .then(r => {
-                        if (r.ok) {
-                            loadPage(page);
-                        } else {
-                            return r.text().then(t => {
-                                throw new Error(t || 'Delete failed');
-                            });
-                        }
-                    })
-                    .catch(err => alert(err.message));
-            }
+    let composing = false;
+    searchInput?.addEventListener('compositionstart', () => composing = true);
+    searchInput?.addEventListener('compositionend', () => {
+        composing = false;
+        page = 0;
+        load();
+    });
+    searchInput?.addEventListener('input', debounce(() => {
+        if (composing) return;
+        page = 0;
+        load();
+    }, 300));
+    searchInput?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            page = 0;
+            load();
         }
     });
 
-    if (statusFilterEl) {
-        statusFilterEl.addEventListener('change', () => {
-            statusFilter = (statusFilterEl.value || '').toLowerCase();
-            // reload current cached page (không call API lại)
-            loadPage(page);
-        });
-    }
+    statusFilter?.addEventListener('change', () => {
+        page = 0;
+        load();
+    });
 
-    function escapeHtml(s) {
-        return (s || '').replace(/[&<>"']/g, m => ({
-            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-        })[m]);
-    }
+    // Delete (event delegation)
+    tbody?.addEventListener('click', async (e) => {
+        const a = e.target.closest('.btn-delete');
+        if (!a) return;
+        e.preventDefault();
+        const id = a.getAttribute('data-id');
+        if (!id) return;
+        if (!confirm('Delete this promotion?')) return;
+        try {
+            const res = await fetch(`${BASE}/shop/promotions/${id}`, {
+                method: 'DELETE',
+                headers: {'Authorization': 'Bearer ' + token}
+            });
+            if (res.status === 204) {
+                load();
+            } else {
+                const msg = await res.text();
+                alert('Delete failed: ' + (msg || ''));
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Có lỗi khi xoá promotion.');
+        }
+    });
 
-    // First load
-    loadPage(0);
+    // Kick off
+    load();
 })();

@@ -9,6 +9,7 @@ import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import vn.host.dto.common.PageResult;
 import vn.host.dto.promotion.PromotionReq;
@@ -49,23 +50,47 @@ public class PromotionController {
     }
 
     // LIST (phân trang) — cho trang promotions.html
+//    @GetMapping
+//    public ResponseEntity<PageResult<PromotionVM>> list(Authentication auth,
+//                                                        @RequestParam(defaultValue = "0") int page,
+//                                                        @RequestParam(defaultValue = "10") int size) {
+//        User u = authedUser(auth);
+//        Shop s = myShopOr403(u);
+//
+//        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startDate"));
+//        Page<Promotion> p = promotionService.findByShop_ShopId(s.getShopId(), pageable);
+//
+//        var rs = new PageResult<PromotionVM>();
+//        rs.setContent(p.getContent().stream().map(PromotionVM::of).collect(Collectors.toList()));
+//        rs.setPage(p.getNumber());
+//        rs.setSize(p.getSize());
+//        rs.setTotalElements(p.getTotalElements());
+//        rs.setTotalPages(p.getTotalPages());
+//        return ResponseEntity.ok(rs);
+//    }
+
     @GetMapping
-    public ResponseEntity<PageResult<PromotionVM>> list(Authentication auth,
-                                                        @RequestParam(defaultValue = "0") int page,
-                                                        @RequestParam(defaultValue = "10") int size) {
-        User u = authedUser(auth);
-        Shop s = myShopOr403(u);
+    public ResponseEntity<PageResult<PromotionVM>> search(
+            Authentication auth,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String sort
+    ) {
+        if (auth == null || auth.getName() == null) throw new SecurityException("Unauthenticated");
+        Sort sortObj = parseSort(sort);
+        var result = promotionService.searchOwnerPromotions(auth.getName(), q, status, page, size, sortObj);
+        return ResponseEntity.ok(result);
+    }
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "startDate"));
-        Page<Promotion> p = promotionService.findByShop_ShopId(s.getShopId(), pageable);
-
-        var rs = new PageResult<PromotionVM>();
-        rs.setContent(p.getContent().stream().map(PromotionVM::of).collect(Collectors.toList()));
-        rs.setPage(p.getNumber());
-        rs.setSize(p.getSize());
-        rs.setTotalElements(p.getTotalElements());
-        rs.setTotalPages(p.getTotalPages());
-        return ResponseEntity.ok(rs);
+    private Sort parseSort(String sort) {
+        if (!StringUtils.hasText(sort)) return Sort.by(Sort.Direction.DESC, "startDate");
+        String[] parts = sort.split(",", 2);
+        String field = parts[0].trim();
+        Sort.Direction dir = (parts.length > 1 && "asc".equalsIgnoreCase(parts[1].trim()))
+                ? Sort.Direction.ASC : Sort.Direction.DESC;
+        return Sort.by(dir, field);
     }
 
     // DETAIL — cho trang edit-promotions.html load dữ liệu
