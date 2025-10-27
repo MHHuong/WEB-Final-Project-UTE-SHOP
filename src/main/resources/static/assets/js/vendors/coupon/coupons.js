@@ -88,6 +88,14 @@
             tdExpired.textContent = new Date(it.expiredAt).toLocaleString();
             tr.appendChild(tdExpired);
 
+            const tdStatus = document.createElement('td');
+            const ts = Date.parse(it.expiredAt);
+            const isExpired = Number.isFinite(ts) ? ts <= Date.now() : false;
+            tdStatus.innerHTML = `<span class="badge ${isExpired ? 'bg-danger' : 'bg-success'}">
+                                  ${isExpired ? 'Expired' : 'Active'}
+                                </span>`;
+            tr.appendChild(tdStatus);
+
             const tdAction = document.createElement('td');
             tdAction.className = 'text-muted';
             tdAction.innerHTML = `
