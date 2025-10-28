@@ -14,6 +14,8 @@
     const itemsTbody = document.getElementById('itemsTbody');
     const priceBox = document.getElementById('priceBox');
     const actionBox = document.getElementById('actionBox');
+    const shippingBlock = document.getElementById('shippingBlock');
+    const orderMeta = document.getElementById('orderMeta');
 
     const fmt = v => (v ?? 0).toLocaleString('vi-VN') + ' VND';
     const d = iso => iso ? new Date(iso).toLocaleString() : '';
@@ -61,8 +63,6 @@
         buyerBlock.innerHTML = `
       <div class="fw-semibold">${o.customerName || ''}</div>
       <div class="text-muted small">${o.customerEmail || ''}</div>
-      ${o.shippingAddress ? `<div>${o.shippingAddress}</div>` : ''}
-      ${o.couponCode ? `<div class="mt-1">Coupon: <span class="badge bg-primary">${o.couponCode}</span></div>` : ''}
     `;
 
         itemsTbody.innerHTML = (o.items || []).map(it => {
@@ -108,13 +108,30 @@
       </tr>`;
         }).join('');
 
+        const recipientName = o.receiverName || '';
+        const recipientPhone = o.receiverPhone || '';
+        const address = o.shippingAddress || o.address || '';
+
+        // đổ vào Shipping Address
+        shippingBlock.innerHTML = `
+            ${recipientName ? `<div class="fw-semibold">${recipientName}</div>` : ''}
+            ${recipientPhone ? `<div class="text-muted small">${recipientPhone}</div>` : ''}
+            ${address ? `<div>${address}</div>` : ''}
+        `;
+
+        // đổ vào Order Details
+        orderMeta.innerHTML = `
+            <div>Order ID: <span class="text-dark">#${o.orderId}</span></div>
+            <div>Order Date: <span class="text-dark">${d(o.createdAt)}</span></div>
+            <div>Grand Total: <span class="text-dark">${fmt(o.totalAmount)}</span></div>
+        `;
         priceBox.innerHTML = `
-      <div>Subtotal (original): <span class="float-end">${fmt(o.subtotalOriginal)}</span></div>
-      <div>Promotion discount: <span class="float-end text-danger">- ${fmt(o.promotionDiscount)}</span></div>
-      <div>Coupon discount: <span class="float-end text-success">- ${fmt(o.couponDiscount)}</span></div>
-      <div>Shipping fee: <span class="float-end">${fmt(o.shippingFee)}</span></div>
-      <hr class="my-2">
-      <div class="fw-bold">Total: <span class="float-end">${fmt(o.totalAmount)}</span></div>
+          <div>Subtotal (original): <span class="float-end">${fmt(o.subtotalOriginal)}</span></div>
+          <div>Promotion discount: <span class="float-end text-danger">- ${fmt(o.promotionDiscount)}</span></div>
+          <div>Coupon discount: <span class="float-end text-success">- ${fmt(o.couponDiscount)}</span></div>
+          <div>Shipping fee: <span class="float-end">${fmt(o.shippingFee)}</span></div>
+          <hr class="my-2">
+          <div class="fw-bold">Total: <span class="float-end">${fmt(o.totalAmount)}</span></div>
     `;
 
         if (o.status === 'NEW') {

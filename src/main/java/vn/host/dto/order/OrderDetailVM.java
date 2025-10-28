@@ -20,6 +20,8 @@ public class OrderDetailVM {
     private String paymentMethod;
     private String customerName;
     private String customerEmail;
+    private String receiverPhone;
+    private String receiverName;
     private String shippingAddress; // gộp từ Address
 
     // Chỉ còn flag & code để hiển thị
@@ -47,11 +49,15 @@ public class OrderDetailVM {
 
         // Address dùng đúng field Address của bạn (ví dụ: addressDetail, ward, district, province)
         String addressStr = null;
+        String phone = null;
+        String name = null;
         if (o.getAddress() != null) {
             String detail = o.getAddress().getAddressDetail();
             String ward = o.getAddress().getWard();
             String district = o.getAddress().getDistrict();
             String province = o.getAddress().getProvince();
+            phone = o.getAddress().getPhone();
+            name = o.getAddress().getReceiverName();
 
             StringBuilder sb = new StringBuilder();
             if (detail != null && !detail.isBlank()) sb.append(detail);
@@ -68,6 +74,8 @@ public class OrderDetailVM {
                 .paymentMethod(o.getPaymentMethod() != null ? o.getPaymentMethod().name() : null)
                 .customerName(o.getUser() != null ? o.getUser().getFullName() : null)
                 .customerEmail(o.getUser() != null ? o.getUser().getEmail() : null)
+                .receiverPhone(phone)
+                .receiverName(name)
                 .shippingAddress(addressStr)
                 .hasCoupon(c != null)
                 .couponCode(c != null ? c.getCode() : null)
