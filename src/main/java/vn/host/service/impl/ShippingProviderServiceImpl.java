@@ -10,6 +10,7 @@ import vn.host.repository.ShippingProviderRepository;
 import vn.host.service.ShippingProviderService;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -66,5 +67,15 @@ public class ShippingProviderServiceImpl implements ShippingProviderService {
         if (provider.getName() == null || provider.getName().trim().length() < 3) {
             throw new IllegalArgumentException("Provider name must be at least 3 characters!");
         }
+    }
+
+    @Override
+    public ShippingProvider findById(long id) {
+        return repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Shipping provider not found!"));
+    }
+
+    @Override
+    public List<ShippingProvider> listAll() {
+        return repo.findAllByOrderByNameAsc();
     }
 }

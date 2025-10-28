@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{shop/common/main}">
+<body>
+<main layout:fragment="content">
+    <div class="container">
+
+        <div class="row mb-8">
+            <div class="col-md-12">
+                <div class="d-md-flex justify-content-between align-items-center">
+                    <div>
+                        <h2>Coupons</h2>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a th:href="@{/shop}" class="text-inherit">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">Coupons</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div>
+                        <button id="createCouponBtn" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#promoModal">
+                            <i class="bi bi-plus-circle me-2"></i>Create Coupon
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter & search -->
+        <div class="card card-lg mb-6">
+            <div class="px-6 py-6">
+                <div class="row justify-content-between">
+                    <div class="col-lg-4 col-md-6 col-12 mb-2 mb-lg-0">
+                        <form class="d-flex" role="search" th:action="@{/shop/coupon/coupons}" method="get">
+                            <input id="searchInput" class="form-control" type="search" name="q" th:value="${param.q}"
+                                   placeholder="Search coupons" aria-label="Search"/>
+                        </form>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-12">
+                        <select id="statusFilter" class="form-select" style="max-width: 220px;">
+                            <option value="">All statuses</option>
+                            <option value="active">Active</option>
+                            <option value="expired">Expired</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card card-lg">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-centered table-hover text-nowrap table-borderless mb-0">
+                        <thead class="bg-light">
+                        <tr>
+                            <th>Code</th>
+                            <th>Discount Type</th>
+                            <th>Min Order Amount</th>
+                            <th>Value</th>
+                            <th>Expire At</th>
+                            <th>Status</th>
+                            <th style="width: 120px;">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="couponsTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="border-top d-md-flex justify-content-between align-items-center px-6 py-6">
+                <span>Showing 1 to 8 of 12 entries</span>
+                <nav class="mt-2 mt-md-0">
+                    <ul class="pagination mb-0">
+                        <li class="page-item disabled"><a class="page-link" href="#!">Previous</a></li>
+                        <li class="page-item"><a class="page-link active" href="#!">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#!">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#!">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#!">Next</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/assets/js/vendors/coupon/coupons.js}"></script>
+</main>
+</body>
+</html>

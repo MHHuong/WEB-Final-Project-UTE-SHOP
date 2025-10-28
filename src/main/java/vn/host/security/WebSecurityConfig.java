@@ -40,8 +40,13 @@ public class WebSecurityConfig {
                                 "/shop-grid",
                                 "/shop-grid/**",
                                 "/api/admin/**",
-                                "/admin/**"
+                                "/admin/**",
+                                "/shop/**",
+                                "/api/**"
                         ).permitAll()
+                        .requestMatchers("/api/locations/**").permitAll()
+                        .requestMatchers("/uploads/**", "/shop/account/shop-register").permitAll()
+                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)

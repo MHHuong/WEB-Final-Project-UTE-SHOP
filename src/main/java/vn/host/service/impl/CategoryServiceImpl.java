@@ -30,6 +30,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public List<Category> findAll() {
+        return categoryRepository.findAll();
+    }
+
+    @Override
+    public List<Category> findByParent_CategoryId(Long parentId) {
+        return categoryRepository.findByParent_CategoryId(parentId);
+    }
+
+    @Override
     public Page<Category> searchByName(String keyword, Pageable pageable) {
         return categoryRepository.findByNameContainingIgnoreCase(keyword, pageable);
     }
@@ -105,6 +115,7 @@ public class CategoryServiceImpl implements CategoryService {
                 new ArrayList<>()
         );
     }
+
     @Override
     @Transactional(readOnly = true)
     public Set<Long> getCategoryAndDescendantIds(Long categoryId) {
@@ -128,6 +139,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
         return ids;
     }
+
     @Override
     @Transactional(readOnly = true)
     public String getCategoryNameById(Long categoryId) {

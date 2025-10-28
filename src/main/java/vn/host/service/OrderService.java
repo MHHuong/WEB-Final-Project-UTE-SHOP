@@ -1,15 +1,19 @@
 package vn.host.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import vn.host.entity.Order;
 import vn.host.entity.OrderItem;
 
 import java.util.List;
 
 public interface OrderService {
+    Page<Order> findByShop_ShopId(Long shopId, Pageable pageable);
+
+    Order findById(Long id);
+
     void save(Order order);
-    void delete(long id);
-    List<Order> findAll();
-    List<OrderItem> findByOrderId(long orderId);
-    List<Order> findByUserId(long userId);
-    Order findById(long id);
+
+    Page<Order> findAll(Specification<Order> spec, Pageable pageable);
 }
