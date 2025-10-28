@@ -150,17 +150,11 @@ public class ShipperServiceImpl implements ShipperService {
         if (o.getStatus() != OrderStatus.CONFIRMED) {
             throw new IllegalStateException("Order not in CONFIRMED state");
         }
-        Area a = resolveAreaFromAddress(me.getAddress());
-        String province = a.province(), district = a.district();
-
-        // Lấy địa chỉ SHOP
-        var shop = o.getShop();
-        var sa = (shop != null) ? shop.getAddress() : null;
-        Area ashop = resolveAreaFromAddress(sa);
-        String shopProvince = ashop.province(), shopDistrict = ashop.district();
-
-        if (org.springframework.util.StringUtils.hasText(province) && org.springframework.util.StringUtils.hasText(district)) {
-            if (!province.equals(shopProvince) || !district.equals(shopDistrict)) {
+        Area shipperArea = resolveAreaFromAddress(me.getAddress());
+        String shopAddrStr = (o.getShop() != null) ? o.getShop().getAddress() : null;
+        Area shopArea = resolveAreaFromAddress(shopAddrStr);
+        if (StringUtils.hasText(shipperArea.province()) && StringUtils.hasText(shipperArea.district())) {
+            if (!shipperArea.province().equals(shopArea.province()) || !shipperArea.district().equals(shopArea.district())) {
                 throw new SecurityException("Order outside your pickup area (shop)");
             }
         }
@@ -188,7 +182,7 @@ public class ShipperServiceImpl implements ShipperService {
         String recvProvince = (oa != null) ? oa.getProvince() : null;
         String recvDistrict = (oa != null) ? oa.getDistrict() : null;
 
-        if (org.springframework.util.StringUtils.hasText(province) && org.springframework.util.StringUtils.hasText(district)) {
+        if (StringUtils.hasText(province) && StringUtils.hasText(district)) {
             if (!province.equals(recvProvince) || !district.equals(recvDistrict)) {
                 throw new SecurityException("Order outside your delivery area (receiver)");
             }
