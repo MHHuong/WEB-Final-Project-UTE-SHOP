@@ -332,8 +332,8 @@ public class ProductController {
 
         var media = mediaService.findByProduct_ProductId(productId);
         var rs = reviewService.getRatingSummaryByProductId(productId);
-        Double avg = rs != null ? rs.getAvg() : 0.0;
-        Long total = rs != null ? rs.getTotal() : 0L;
+        Double avg = (rs != null && rs.getAvg() != null) ? rs.getAvg() : 0.0;
+        Long total = (rs != null && rs.getTotal() != null) ? rs.getTotal() : 0L;
 
         var vm = vn.host.dto.product.ProductDetailVM.of(p, media, avg, total);
         return ResponseEntity.ok(vm);
