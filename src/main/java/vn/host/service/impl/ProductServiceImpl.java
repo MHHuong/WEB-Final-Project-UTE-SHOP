@@ -39,7 +39,7 @@ public class ProductServiceImpl implements ProductService {
             throw new RuntimeException("Sản phẩm không tồn tại");
         }
         productRepository.deleteById(id);
-    }   
+    }
     @Override
     public void updateStatus(Long id, Integer status) {
         Product product = findById(id);

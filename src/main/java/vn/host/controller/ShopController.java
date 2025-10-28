@@ -43,9 +43,9 @@ public class ShopController {
         model.addAttribute("expandedCategoryIds", expandedCategoryIds);
         model.addAttribute("currentCategoryId", currentCategoryId);
         model.addAttribute("currentCategoryName", currentCategoryName);
-        return "shop/common/shop-grid";
+        return "/common/shop-grid";
     }
-    @GetMapping("/shop/category/{id}")
+    @GetMapping("/shop-grid/category/{id}")
     public String showShopCategoryPage(@PathVariable("id") Long categoryId,
                                        Model model,
                                        @RequestParam(defaultValue = "0") int page,
@@ -63,6 +63,6 @@ public class ShopController {
         model.addAttribute("expandedCategoryIds", expandedCategoryIds);
         model.addAttribute("currentCategoryId", currentCategoryId);
         model.addAttribute("currentCategoryName", currentCategoryName);
-        return "shop/common/shop-grid";
+        return "/common/shop-grid";
     }
 }

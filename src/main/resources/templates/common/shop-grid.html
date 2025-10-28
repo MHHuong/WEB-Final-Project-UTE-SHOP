@@ -31,7 +31,7 @@
                                 <ul class="nav nav-category" id="categoryCollapseMenu">
 
                                     <li class="nav-item border-bottom w-100">
-                                        <a th:href="@{/shop}"
+                                        <a th:href="@{/shop-grid}"
                                            class="nav-link"
                                            th:classappend="${currentCategoryId == null} ? 'fw-bold text-primary'">
                                             All Products
@@ -40,7 +40,7 @@
 
                                     <th:block th:each="category : ${categoryTree}">
                                         <li class="nav-item border-bottom w-100">
-                                            <a th:href="@{/shop/category/{id}(id=${category.id})}"
+                                            <a th:href="@{/shop-grid/category/{id}(id=${category.id})}"
                                                class="nav-link"
                                                th:text="${category.name}"
                                                th:classappend="${category.id == currentCategoryId} ? 'fw-bold text-primary' : (${!category.children.isEmpty()} ? (${expandedCategoryIds != null && expandedCategoryIds.contains(category.id)} ? '' : 'collapsed') : '')"
@@ -58,7 +58,7 @@
                                                 <div>
                                                     <ul class="nav flex-column ms-3">
                                                         <li class="nav-item" th:each="child : ${category.children}">
-                                                            <a th:href="@{/shop/category/{id}(id=${child.id})}"
+                                                            <a th:href="@{/shop-grid/category/{id}(id=${child.id})}"
                                                                class="nav-link"
                                                                th:text="${child.name}"
                                                                th:classappend="${child.id == currentCategoryId} ? 'fw-bold text-primary'">
@@ -74,7 +74,7 @@
                             </div>
                             <div class="mb-8">
                                 <h5 class="mb-3">Price</h5>
-                                <form th:action="@{${currentCategoryId == null ? '/shop' : '/shop/category/' + currentCategoryId}}" method="GET">
+                                <form th:action="@{${currentCategoryId == null ? '/shop-grid' : '/shop-grid/category/' + currentCategoryId}}" method="GET">
                                     <div class="row g-2">
                                         <div class="col">
                                             <label for="minPrice" class="form-label visually-hidden">Min price</label>
@@ -203,7 +203,7 @@
 
                                     <li class="page-item" th:classappend="${productsPage.first} ? 'disabled'">
                                         <a class="page-link mx-1"
-                                           th:href="@{${currentCategoryId == null ? '/shop' : '/shop/category/' + currentCategoryId}(page=${productsPage.number - 1})}"
+                                           th:href="@{${currentCategoryId == null ? '/shop-grid' : '/shop-grid/category/' + currentCategoryId}(page=${productsPage.number - 1})}"
                                            aria-label="Previous">
                                             <i class="feather-icon icon-chevron-left"></i>
                                         </a>
@@ -218,7 +218,7 @@
                                             showNextEllipsis=${endPage < (productsPage.totalPages - 2)}
                                         ">
                                         <li class="page-item" th:if="${showFirst}">
-                                            <a class="page-link mx-1" th:href="@{${currentCategoryId == null ? '/shop' : '/shop/category/' + currentCategoryId}(page=0)}">1</a>
+                                            <a class="page-link mx-1" th:href="@{${currentCategoryId == null ? '/shop-grid' : '/shop-grid/category/' + currentCategoryId}(page=0)}">1</a>
                                         </li>
                                         <li class="page-item disabled" th:if="${showPrevEllipsis}">
                                             <a class="page-link mx-1" href="#">...</a>
@@ -226,7 +226,7 @@
 
                                         <li class="page-item" th:each="i : ${#numbers.sequence(startPage, endPage)}"
                                             th:classappend="${i == productsPage.number} ? 'active'">
-                                            <a class="page-link mx-1" th:href="@{${currentCategoryId == null ? '/shop' : '/shop/category/' + currentCategoryId}(page=${i})}" th:text="${i + 1}">1</a>
+                                            <a class="page-link mx-1" th:href="@{${currentCategoryId == null ? '/shop-grid' : '/shop-grid/category/' + currentCategoryId}(page=${i})}" th:text="${i + 1}">1</a>
                                         </li>
 
                                         <li class="page-item disabled" th:if="${showNextEllipsis}">
@@ -234,14 +234,14 @@
                                         </li>
                                         <li class="page-item" th:if="${showLast}">
                                             <a class="page-link mx-1"
-                                               th:href="@{${currentCategoryId == null ? '/shop' : '/shop/category/' + currentCategoryId}(page=${productsPage.totalPages - 1})}"
+                                               th:href="@{${currentCategoryId == null ? '/shop-grid' : '/shop-grid/category/' + currentCategoryId}(page=${productsPage.totalPages - 1})}"
                                                th:text="${productsPage.totalPages}">12</a>
                                         </li>
                                     </th:block>
 
                                     <li class="page-item" th:classappend="${productsPage.last} ? 'disabled'">
                                         <a class="page-link mx-1"
-                                           th:href="@{${currentCategoryId == null ? '/shop' : '/shop/category/' + currentCategoryId}(page=${productsPage.number + 1})}"
+                                           th:href="@{${currentCategoryId == null ? '/shop-grid' : '/shop-grid/category/' + currentCategoryId}(page=${productsPage.number + 1})}"
                                            aria-label="Next">
                                             <i class="feather-icon icon-chevron-right"></i>
                                         </a>
