@@ -9,4 +9,5 @@ public interface CategoryService {
     void delete(long id);
     List<Category> findAll();
     Category findById(long id);
+    List<String> getAllCategoryNames();
 }

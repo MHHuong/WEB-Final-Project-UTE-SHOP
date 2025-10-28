@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <th:block th:replace="~{fragments/layout :: head}"></th:block>
+
+    <link th:href="@{/assets/libs/nouislider/dist/nouislider.min.css}" rel="stylesheet" />
+
+    <title th:text="${currentCategory != null ? currentCategory : 'Shop All Products'} + ' - FreshCart'">Shop Grid</title>
+</head>
+
+<body>
+
+<div th:replace="~{fragments/layout :: navbar}"></div>
+
+<main>
+    <div class="mt-8 mb-lg-14 mb-8">
+        <div class="container">
+            <div class="row gx-10">
+
+                <aside class="col-lg-3 col-md-4 mb-6 mb-md-0">
+                    <div class="offcanvas offcanvas-start offcanvas-collapse w-md-50" tabindex="-1" id="offcanvasCategory" aria-labelledby="offcanvasCategoryLabel">
+                        <div class="offcanvas-header d-lg-none">
+                            <h5 class="offcanvas-title" id="offcanvasCategoryLabel">Filter</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body ps-lg-2 pt-lg-0">
+
+                            <div class="mb-8">
+                                <h5 class="mb-3">Categories</h5>
+                                <ul class="nav nav-category" id="categoryCollapseMenu">
+
+                                    <li class="nav-item border-bottom w-100">
+                                        <a th:href="@{/shop}"
+                                           class="nav-link"
+                                           th:classappend="${currentCategory == null} ? 'fw-bold text-primary'">
+                                            All Products
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item border-bottom w-100" th:each="catName : ${categoryNames}">
+                                        <a th:href="@{/shop/category/{name}(name=${catName})}"
+                                           class="nav-link"
+                                           th:text="${catName}"
+                                           th:classappend="${catName == currentCategory} ? 'fw-bold text-primary'">
+                                            Category Name
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="mb-8">
+                                <h5 class="mb-3">Stores</h5>
+                                <div class="my-4">
+                                    <input type="search" class="form-control" placeholder="Search by store" />
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" value="" id="eGrocery" checked />
+                                    <label class="form-check-label" for="eGrocery">E-Grocery</label>
+                                </div>
+                            </div>
+                            <div class="mb-8">
+                                <h5 class="mb-3">Price</h5>
+                                <div>
+                                    <div id="priceRange" class="mb-3"></div>
+                                    <small class="text-muted">Price:</small>
+                                    <span id="priceRange-value" class="small"></span>
+                                </div>
+                            </div>
+                            <div class="mb-8">
+                                <h5 class="mb-3">Rating</h5>
+                                <div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" value="" id="ratingFive" />
+                                        <label class="form-check-label" for="ratingFive">
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-8 position-relative">
+                                <div class="position-absolute p-5 py-8">
+                                    <h3 class="mb-0">Fresh Fruits</h3>
+                                    <p>Get Upto 25% Off</p>
+                                    <a href="#" class="btn btn-dark">
+                                        Shop Now
+                                        <i class="feather-icon icon-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                                <img th:src="@{/assets/images/banner/assortment-citrus-fruits.png}" alt="" class="img-fluid rounded" />
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+                <section class="col-lg-9 col-md-12">
+                    <div class="card mb-4 bg-light border-0">
+                        <div class="card-body p-9">
+                            <h2 class="mb-0 fs-1" th:text="${currentCategory != null ? currentCategory : 'All Products'}">Snacks & Munchies</h2>
+                        </div>
+                    </div>
+
+                    <div class="d-lg-flex justify-content-between align-items-center">
+                        <div class="mb-3 mb-lg-0">
+                            <p class="mb-0">
+                                <span class="text-dark" th:text="${productsPage.totalElements}">24</span>
+                                Products found
+                            </p>
+                        </div>
+
+                        <div class="d-md-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <a th:href="@{/shop-list}" class="text-muted me-3"><i class="bi bi-list-ul"></i></a>
+                                    <a th:href="@{/shop}" class="me-3 active"><i class="bi bi-grid"></i></a>
+                                    <a th:href="@{/shop-grid-3-column}" class="me-3 text-muted"><i class="bi bi-grid-3x3-gap"></i></a>
+                                </div>
+                                <div class="ms-2 d-lg-none">
+                                    <a class="btn btn-outline-gray-400 text-muted" data-bs-toggle="offcanvas" href="#offcanvasCategory" role="button" aria-controls="offcanvasCategory">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-filter me-2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                                        Filters
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="d-flex mt-2 mt-lg-0">
+                                <div class="me-2 flex-grow-1">
+                                    <select class="form-select">
+                                        <option selected>Show: 50</option>
+                                        <option value="10">10</option>
+                                        <option value="20">20</option>
+                                        <option value="30">30</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <select class="form-select">
+                                        <option selected>Sort by: Featured</option>
+                                        <option value="Low to High">Price: Low to High</option>
+                                        <option value="High to Low">Price: High to Low</option>
+                                        <option value="Release Date">Release Date</option>
+                                        <option value="Avg. Rating">Avg. Rating</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${productsPage.empty}" class="row mt-4">
+                        <div class="col">
+                            <div class="alert alert-info" role="alert">
+                                Không tìm thấy sản phẩm nào phù hợp.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 row-cols-xl-4 row-cols-lg-3 row-cols-2 row-cols-md-2 mt-2">
+
+                        <div class="col" th:each="product : ${productsPage.content}">
+
+                            <div th:replace="~{fragments/product-card :: product-card(${product})}">
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <th:block th:with="baseUrl = (${currentCategory == null}
+                                                    ? @{/shop}
+                                                    : @{/shop/category/{name}(name=${currentCategory})})">
+
+                        <div class="row mt-8" th:if="${productsPage.totalPages > 1}">
+                            <div class="col">
+                                <nav>
+                                    <ul class="pagination">
+
+                                        <li class="page-item" th:classappend="${productsPage.first} ? 'disabled'">
+                                            <a class="page-link mx-1"
+                                               th:href="@{${baseUrl}(page=${productsPage.number - 1})}"
+                                               aria-label="Previous">
+                                                <i class="feather-icon icon-chevron-left"></i>
+                                            </a>
+                                        </li>
+
+                                        <th:block th:with="
+                                                startPage=${T(Math).max(0, productsPage.number - 2)},
+                                                endPage=${T(Math).min(productsPage.totalPages - 1, productsPage.number + 2)},
+                                                showFirst=${startPage > 0},
+                                                showLast=${endPage < (productsPage.totalPages - 1)},
+                                                showPrevEllipsis=${startPage > 1},
+                                                showNextEllipsis=${endPage < (productsPage.totalPages - 2)}
+                                            ">
+                                            <li class="page-item" th:if="${showFirst}">
+                                                <a class="page-link mx-1" th:href="@{${baseUrl}(page=0)}">1</a>
+                                            </li>
+                                            <li class="page-item disabled" th:if="${showPrevEllipsis}">
+                                                <a class="page-link mx-1" href="#">...</a>
+                                            </li>
+
+                                            <li class="page-item" th:each="i : ${#numbers.sequence(startPage, endPage)}"
+                                                th:classappend="${i == productsPage.number} ? 'active'">
+                                                <a class="page-link mx-1" th:href="@{${baseUrl}(page=${i})}" th:text="${i + 1}">1</a>
+                                            </li>
+
+                                            <li class="page-item disabled" th:if="${showNextEllipsis}">
+                                                <a class="page-link mx-1" href="#">...</a>
+                                            </li>
+                                            <li class="page-item" th:if="${showLast}">
+                                                <a class="page-link mx-1"
+                                                   th:href="@{${baseUrl}(page=${productsPage.totalPages - 1})}"
+                                                   th:text="${productsPage.totalPages}">12</a>
+                                            </li>
+                                        </th:block>
+
+                                        <li class="page-item" th:classappend="${productsPage.last} ? 'disabled'">
+                                            <a class="page-link mx-1"
+                                               th:href="@{${baseUrl}(page=${productsPage.number + 1})}"
+                                               aria-label="Next">
+                                                <i class="feather-icon icon-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </th:block>
+                </section>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<div th:replace="~{fragments/layout :: modals}"></div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+<script th:src="@{/assets/libs/nouislider/dist/nouislider.min.js}"></script>
+<script th:src="@{/assets/libs/wnumb/wNumb.min.js}"></script>
+<script th:src="@{/assets/libs/tiny-slider/dist/min/tiny-slider.js}"></script>
+<script th:src="@{/assets/js/vendors/tns-slider.js}"></script>
+<script th:src="@{/assets/js/vendors/zoom.js}"></script>
+
+</body>
+</html>

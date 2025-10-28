@@ -43,4 +43,10 @@ public interface ProductRepository extends JpaRepository<Product,Long>, JpaSpeci
             "LEFT JOIN FETCH p.shop " +
             "WHERE p.category.categoryId = :categoryId")
     List<Product> findByCategoryIdWithDetails(@Param("categoryId") long categoryId);
+    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category LEFT JOIN FETCH p.reviews",
+            countQuery = "SELECT count(p) FROM Product p")
+    Page<Product> findAll(Pageable pageable);
+    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c LEFT JOIN FETCH p.reviews WHERE c.name = :categoryName",
+            countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c WHERE c.name = :categoryName")
+    Page<Product> findByCategoryName(String categoryName, Pageable pageable);
 }

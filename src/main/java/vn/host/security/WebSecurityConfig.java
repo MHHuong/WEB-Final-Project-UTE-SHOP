@@ -34,7 +34,9 @@ public class WebSecurityConfig {
                                 "/api/auth/**",
                                 "/login",
                                 "/register",
-                                "/forgot-password"
+                                "/forgot-password",
+                                "/shop",
+                                "/shop/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

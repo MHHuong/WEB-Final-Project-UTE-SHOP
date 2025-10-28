@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import vn.host.dto.ProductDTO;
 import vn.host.entity.Product; // <-- Import Product
 import vn.host.service.ProductService;
 
@@ -19,9 +20,9 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model) {
-        List<Product> allProducts = productService.findAll();
-        model.addAttribute("popularProducts", allProducts);
-        model.addAttribute("bestSellsProducts", allProducts);
+        List<ProductDTO> allProductsDTO = productService.findAllProductsAsDTO();
+        model.addAttribute("popularProducts", allProductsDTO);
+        model.addAttribute("bestSellsProducts", allProductsDTO);
         return "index";
     }
 }
