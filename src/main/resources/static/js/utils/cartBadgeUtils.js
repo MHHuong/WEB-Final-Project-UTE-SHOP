@@ -17,8 +17,7 @@ const CartBadgeUtils = {
         try {
             const response = await fetch(`/api/carts/${userId}`);
             const result = await response.json();
-
-            if (result.status === 'true' && result.data) {
+            if (result.status === 'Success' && result.data) {
                 const totalQuantity = result.data.length;
                 this.updateCartBadge(totalQuantity);
             } else {

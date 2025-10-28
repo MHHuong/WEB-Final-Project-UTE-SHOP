@@ -1,9 +1,9 @@
-import cartService from "/js/services/cartService.js";
+import cartService from "/js/services/api/cartService.js";
 import { showSuccessToast, showErrorToast, showWarningToast, showInfoToast } from "/js/utils/toastUtils.js";
 import addresses from "/addresses.json" with { type: "json" };
-import addressService from "/js/services/addressService.js";
-import orderService from "/js/services/orderService.js";
-import couponService from "/js/services/couponService.js";
+import addressService from "/js/services/api/addressService.js";
+import orderService from "/js/services/api/orderService.js";
+import couponService from "/js/services/api/couponService.js";
 
 const USER_ID = 1;
 let selectedProducts = [];
@@ -29,7 +29,7 @@ async function loadSavedAddresses() {
     try {
         const result = await addressService.getAddressesByUserId(USER_ID);
 
-        if (result.status === 'true' && result.data && result.data.length > 0) {
+        if (result.status === 'Success' && result.data && result.data.length > 0) {
             savedAddresses = result.data;
             renderSavedAddresses();
 
@@ -63,7 +63,7 @@ function renderSavedAddresses() {
         const fullAddress = `${address.addressDetail}, ${address.ward}, ${address.district}, ${address.province}`;
 
         html += `
-                    <div class="address-card ${selectedAddressId === address.addressId ? 'selected' : ''}"
+                    <div class="address-card border border-2 border-secondary-subtle rounded-3 p-3 mb-3 position-relative user-select-none ${selectedAddressId === address.addressId ? 'selected' : ''}"
                          data-address-id="${address.addressId}"
                          onclick="selectAddressById(${address.addressId})">
                         <div class="check-icon"></div>
@@ -252,12 +252,12 @@ function loadWards(districtId) {
 // Load selected products from sessionStorage
 async function loadSelectedProducts() {
     const result = await cartService.getSelectedCartItem()
-    if (result.status === 'true') {
+    if (result.status === 'Success') {
         selectedProducts = result.data;
         if (!selectedProducts) {
             showWarningToast('Vui lòng chọn sản phẩm từ giỏ hàng!');
             setTimeout(() => {
-                window.location.href = '/shop-cart';
+                window.location.href = '/user/shop-cart';
             }, 2000);
             return;
         }
@@ -293,14 +293,14 @@ function renderProducts() {
         html += `
                     <div class="product-item-checkout">
                         <div class="d-flex align-items-start">
-                            <img src="${item.productModel.image}" class="product-img-checkout me-3"
-                                 alt="${item.productModel.productName}">
+                            <img src="${item.productResponse.image}" class="product-img-checkout me-3"
+                                 alt="${item.productResponse.productName}">
                             <div class="flex-grow-1">
-                                <h6 class="mb-1">${item.productModel.productName}</h6>
+                                <h6 class="mb-1">${item.productResponse.productName}</h6>
                                 <small class="text-muted">SL: ${item.quantity}</small>
                                 <div class="d-flex justify-content-between mt-2">
-                                    <span class="text-muted">${formatCurrency(item.productModel.price)}</span>
-                                    <span class="fw-bold text-primary">${formatCurrency(item.productModel.price * item.quantity)}</span>
+                                    <span class="text-muted">${formatCurrency(item.productResponse.price)}</span>
+                                    <span class="fw-bold text-primary">${formatCurrency(item.productResponse.price * item.quantity)}</span>
                                 </div>
                             </div>
                         </div>
@@ -315,7 +315,7 @@ function renderProducts() {
 function updateOrderSummary() {
     const itemCount = selectedProducts.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = selectedProducts.reduce((sum, item) =>
-        sum + (item.productModel.price * item.quantity), 0);
+        sum + (item.productResponse.price * item.quantity), 0);
     const discount = selectedProducts[0]?.discount || 0;
 
     document.getElementById('item-count').textContent = itemCount;
@@ -341,19 +341,15 @@ async function placeOrder() {
         return;
     }
 
-    // Check if this is a new address (not from saved addresses)
     const isNewAddress = !selectedAddressId;
 
     if (isNewAddress) {
-        // Show confirmation modal for new address
         showSaveAddressModal();
     } else {
-        // Process order directly if using saved address
         processOrder(false);
     }
 }
 
-// Show save address confirmation modal
 function showSaveAddressModal() {
     // Populate preview data
     const receiverName = document.getElementById('receiver-name').value;
@@ -372,7 +368,7 @@ function showSaveAddressModal() {
     modal.show();
 }
 
-// Process order
+
 async function processOrder(shouldSaveAddress = false) {
     const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
     const ewalletType = paymentMethod === 'E_WALLET' ? document.querySelector('input[name="ewallet-type"]:checked')?.value : null;
@@ -394,15 +390,14 @@ async function processOrder(shouldSaveAddress = false) {
         },
         note: document.getElementById('order-note').value,
         orders: selectedProducts.map(item => ({
-            productId: item.productModel.productId,
-            shopId: item.productModel.shopId,
+            productId: item.productResponse.productId,
+            shopId: item.productResponse.shopId,
             quantity: item.quantity,
-            price: item.productModel.price,
+            price: item.productResponse.price,
             discountAmount: item.discountValue || 0
         })),
     };
 
-    // Save address if requested
     if (shouldSaveAddress) {
         const isDefault = document.getElementById('set-as-default-address').checked;
         const addressData = {
@@ -418,7 +413,7 @@ async function processOrder(shouldSaveAddress = false) {
 
         try {
             const result = await addressService.createAddress(addressData);
-            if (result.status === 'true') {
+            if (result.status === 'Success') {
                 showSuccessToast('Đã lưu địa chỉ thành công!');
             }
         } catch (error) {
@@ -427,8 +422,8 @@ async function processOrder(shouldSaveAddress = false) {
     }
 
     console.log('Order data:', orderData);
-    await handleNavigation();
     const result = await orderService.saveOrder(orderData);
+    console.log(result);
     if (result.status === 'Success') {
         showSuccessToast('Đặt hàng thành công!');
         await handleNavigation()
@@ -468,12 +463,12 @@ async function handleNavigation() {
             addressDetail: document.getElementById('address-detail').value,
         },
         orders: selectedProducts.map(item => ({
-            productId: item.productModel.productId,
+            productId: item.productResponse.productId,
             quantity: item.quantity,
-            image: item.productModel.image,
-            productName: item.productModel.productName,
-            price: item.productModel.price,
-            shopId: item.productModel.shopId,
+            image: item.productResponse.image,
+            productName: item.productResponse.productName,
+            price: item.productResponse.price,
+            shopId: item.productResponse.shopId,
             discountAmount: item.discountValue || 0
         })),
         orderTime: new Date().toLocaleString('vi-VN'),
@@ -482,9 +477,9 @@ async function handleNavigation() {
     await orderService.setDisplayTempOrder(displayOrderData);
     setTimeout(() => {
         if (paymentMethod === 'E_WALLET' && ewalletType) {
-            window.location.href = `/status/${displayOrderData.orderCode}?status=pending`;
+            window.location.href = `/user/order/${displayOrderData.orderCode}?status=pending`;
         }
-        else window.location.href = `/status/${displayOrderData.orderCode}?status=success`;
+        else window.location.href = `/user/order/${displayOrderData.orderCode}?status=success`;
     }, 2000);
 }
 
@@ -495,7 +490,7 @@ async function calcShippingFee() {
         district: document.getElementById('district').selectedOptions[0].text,
         ward: document.getElementById('ward').selectedOptions[0].text,
         addressDetail: document.getElementById('address-detail').value,
-        shopIds: selectedProducts.map(item => item.productModel.shopId),
+        shopIds: selectedProducts.map(item => item.productResponse.shopId),
         shippingService: shippingMethod
     }
     const result = await orderService.calculateShippingFee(shippingData);
@@ -577,13 +572,13 @@ async function renderVouchers() {
         const voucherCard = document.createElement('div');
         voucherCard.className = `voucher-card border border-secondary-subtle rounded p-3 mb-3 bg-white position-relative cursor-pointer d-flex gap-3 ${isDisabled ? 'disabled' : ''}`;
         voucherCard.innerHTML = `
-            <div class="voucher-left">
-                <div class="discount-value">${discountValue}</div>
-                <div class="discount-label">${discountLabel}</div>
+            <div class="voucher-left d-flex flex-column align-items-center justify-content-center rounded-2 p-2 flex-shrink-0 text-white">
+                <div class="discount-value text-white fw-bold lh-sm">${discountValue}</div>
+                <div class="discount-label text-white text-uppercase">${discountLabel}</div>
             </div>
             <div class="voucher-content d-flex flex-column justify-content-center flex-fill">
-                <div class="voucher-code">${voucher.code}</div>
-                <div class="voucher-description">${description}</div>
+                <div class="voucher-code fw-semibold text-dark mb-1">${voucher.code}</div>
+                <div class="voucher-description text-secondary mb-1 lh-sm">${description}</div>
                 <div class="voucher-expiry">HSD: ${new Date(voucher.expiredAt).toLocaleDateString('vi-VN')}</div>
             </div>
             <div class="voucher-action d-flex align-items-center justify-content-center flex-shrink-0">

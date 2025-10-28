@@ -7,13 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.host.entity.Address;
-import vn.host.model.ResponseModel;
 import vn.host.model.request.AddressRequest;
-import vn.host.model.response.AddressResponse;
+import vn.host.model.response.ApiResponse;
 import vn.host.service.AddressService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/addresses")
@@ -27,16 +25,16 @@ public class AddressController {
         try {
             List<Address> addresses = addressService.findAllByUserId(userId);
             return new ResponseEntity<>(
-                    new ResponseModel (
-                            "true",
+                    new ApiResponse(
+                            "Success",
                             "Get user addresses successfully",
                             addresses
                 ), HttpStatus.OK
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "false",
+                    new ApiResponse(
+                            "Error",
                             "Error: " + e.getMessage(),
                             null
                     ), HttpStatus.INTERNAL_SERVER_ERROR
@@ -51,24 +49,24 @@ public class AddressController {
 
             if (address == null) {
                 return new ResponseEntity<>(
-                        new ResponseModel(
-                                "false",
+                        new ApiResponse(
+                                "Error",
                                 "No default address found for user",
                                 null
                         ), HttpStatus.NOT_FOUND
                 );
             }
             return new ResponseEntity<>(
-                    new ResponseModel (
-                            "true",
+                    new ApiResponse (
+                            "Success",
                             "Get default address successfully",
                             address
                     ), HttpStatus.OK
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "false",
+                    new ApiResponse(
+                            "Error",
                             "Error: " + e.getMessage(),
                             null
                     ), HttpStatus.INTERNAL_SERVER_ERROR
@@ -81,16 +79,16 @@ public class AddressController {
         try {
             addressService.saveUserAddress(address, userId);
             return new ResponseEntity<>(
-                    new ResponseModel (
-                            "true",
+                    new ApiResponse (
+                            "Success",
                             "Add address successfully",
                             null
                     ), HttpStatus.CREATED
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "false",
+                    new ApiResponse(
+                            "Error",
                             "Error: " + e.getMessage(),
                             null
                     ), HttpStatus.INTERNAL_SERVER_ERROR
@@ -103,16 +101,16 @@ public class AddressController {
         try {
             addressService.deleteUserAddress(addressId, userId);
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "true",
+                    new ApiResponse(
+                            "Success",
                             "Delete address successfully",
                             null
                     ), HttpStatus.OK
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "false",
+                    new ApiResponse(
+                            "Error",
                             "Error: " + e.getMessage(),
                             null
                     ), HttpStatus.INTERNAL_SERVER_ERROR
@@ -125,16 +123,16 @@ public class AddressController {
         try {
             addressService.updateUserAddress(address, userId);
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "true",
+                    new ApiResponse(
+                            "Success",
                             "Update address successfully",
                             null
                     ), HttpStatus.OK
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "false",
+                    new ApiResponse(
+                            "Error",
                             "Error: " + e.getMessage(),
                             null
                     ), HttpStatus.INTERNAL_SERVER_ERROR
@@ -150,15 +148,15 @@ public class AddressController {
             Pageable pageable = Pageable.ofSize(size).withPage(page);
             Page<Address> addresses = addressService.findAllByUserId(userId, pageable);
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "true",
+                    new ApiResponse(
+                            "Success",
                             "Get paginated addresses successfully",
                             addresses
                     ), HttpStatus.OK
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "failed",
                             "Error: " + e.getMessage(),
                             null

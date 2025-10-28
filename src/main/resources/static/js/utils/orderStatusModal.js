@@ -1,4 +1,4 @@
-import orderService from '/js/services/orderService.js';
+import orderService from '/js/services/api/orderService.js';
 import { showErrorToast, showSuccessToast } from '/js/utils/toastUtils.js';
 
 // Map trạng thái tiếng Việt

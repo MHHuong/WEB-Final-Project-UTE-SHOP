@@ -324,7 +324,7 @@
                                     <button class="btn btn-primary btn-lg" id="place-order-btn" disabled>
                                         <i class="bi bi-check-circle me-2"></i>Đặt hàng
                                     </button>
-                                    <a href="/shop-cart" class="btn btn-outline-secondary">
+                                    <a href="/user/shop-cart" class="btn btn-outline-secondary">
                                         <i class="bi bi-arrow-left me-2"></i>Quay lại giỏ hàng
                                     </a>
                                 </div>
@@ -398,11 +398,6 @@
         .address-card {
             cursor: pointer;
             transition: all 0.3s;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 12px;
-            position: relative;
         }
 
         .address-card:hover {
@@ -473,56 +468,27 @@
         .voucher-left {
             width: 80px;
             background: #0aad0a;
-            border-radius: 4px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 8px;
-            flex-shrink: 0;
         }
 
         .voucher-left .discount-value {
-            color: white;
             font-size: 15px;
-            font-weight: bold;
-            line-height: 1.2;
         }
 
         .voucher-left .discount-label {
-            color: white;
             font-size: 11px;
-            text-transform: uppercase;
         }
-
 
         .voucher-code {
             font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 4px;
         }
 
         .voucher-description {
             font-size: 13px;
-            color: #666;
-            margin-bottom: 4px;
-            line-height: 1.4;
         }
 
         .voucher-expiry {
             font-size: 12px;
             color: #999;
-        }
-
-        .voucher-condition {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 2px;
-            font-weight: 500;
         }
 
         .voucher-condition.available {
@@ -554,6 +520,6 @@
             pointer-events: none;
         }
     </style>
-    <script type="module" src="/js/services/checkOutService.js"></script>
+    <script type="module" src="/js/services/view/checkOutService.js"></script>
 </main>
 </html>

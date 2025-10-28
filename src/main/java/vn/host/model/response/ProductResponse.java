@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ProductModel {
+public class ProductResponse {
     Long productId;
     Long shopId;
     String shopName;

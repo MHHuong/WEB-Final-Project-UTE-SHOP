@@ -19,7 +19,7 @@ public interface CartItemRespository extends JpaRepository<CartItem, Long> {
         c.cartId,
         u.userId,
         c.quantity,
-        new vn.host.model.response.ProductModel(
+        new vn.host.model.response.ProductResponse(
             p.productId,
             s.shopId,
             s.shopName,

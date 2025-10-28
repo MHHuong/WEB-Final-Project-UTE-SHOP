@@ -7,12 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.host.entity.Payment;
-import vn.host.entity.User;
-import vn.host.model.request.AddressRequest;
 import vn.host.model.request.OrderRequest;
 import vn.host.model.request.ShippingFeeRequest;
 import vn.host.model.response.*;
-import vn.host.repository.OrderRepository;
 import vn.host.service.OrderItemService;
 import vn.host.service.OrderService;
 
@@ -34,7 +31,7 @@ public class OrderController {
         try {
             List<OrderResponse> orders = orderService.getOrdersByUserId(id);
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Success",
                             "Orders retrieved successfully",
                             orders
@@ -42,7 +39,7 @@ public class OrderController {
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Error",
                             "Failed to retrieve orders: " + e.getMessage(),
                             null
@@ -56,7 +53,7 @@ public class OrderController {
         try {
             orderService.saveOrder(orderRequest);
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Success",
                             "Order saved successfully",
                             null
@@ -64,7 +61,7 @@ public class OrderController {
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Error",
                             "Failed to save order: " + e.getMessage(),
                             null
@@ -81,7 +78,7 @@ public class OrderController {
         try {
             orderService.updateStatus(id, status, reason);
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Success",
                             "Order status updated successfully",
                             null
@@ -89,7 +86,7 @@ public class OrderController {
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Error",
                             "Failed to update order status: " + e.getMessage(),
                             null
@@ -106,7 +103,7 @@ public class OrderController {
                 orderService.updateStatus(Long.parseLong(orderId.trim()), status, null);
             }
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Success",
                             "Order statuses updated successfully",
                             null
@@ -114,7 +111,7 @@ public class OrderController {
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Error",
                             "Failed to update order statuses: " + e.getMessage(),
                             null
@@ -128,7 +125,7 @@ public class OrderController {
         try {
             List<OrderItemResponse> orderDetails = orderItemService.getOrderDetailsByOrderIdAndUserId(userId, orderId);
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Success",
                             "Order detail retrieved successfully",
                             null
@@ -136,7 +133,7 @@ public class OrderController {
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Error",
                             "Failed to retrieve order detail: " + e.getMessage(),
                             null
@@ -150,7 +147,7 @@ public class OrderController {
         try {
             orderService.updatePayment(id, payment);
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Success",
                             "Order status updated successfully",
                             null
@@ -158,7 +155,7 @@ public class OrderController {
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Error",
                             "Failed to update order payment: " + e.getMessage(),
                             null
@@ -172,7 +169,7 @@ public class OrderController {
         try {
             ShippingFeeResponse fee = orderService.calculateShippingFee(shippingFeeRequest);
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Success",
                             "Shipping fee calculated successfully",
                             fee
@@ -180,7 +177,7 @@ public class OrderController {
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Error",
                             "Failed to calculate shipping fee: " + e.getMessage(),
                             null
@@ -201,7 +198,7 @@ public class OrderController {
             orderMap.put("orderCode", orderId);
             session.setAttribute("tempOrder", order);
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Success",
                             "Orders saved successfully",
                             order
@@ -209,7 +206,7 @@ public class OrderController {
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Error",
                             "Failed to saved orders: " + e.getMessage(),
                             null
@@ -223,7 +220,7 @@ public class OrderController {
         try {
             Map<String, Object> order = (Map<String, Object>) session.getAttribute("tempOrder");
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Success",
                             "Orders retrieved successfully",
                             order
@@ -231,7 +228,7 @@ public class OrderController {
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Error",
                             "Failed to retrieve orders: " + e.getMessage(),
                             null
@@ -245,7 +242,7 @@ public class OrderController {
         try {
             OrderResponse orderResponse = orderService.getOrderByOrderId(orderId);
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Success",
                             "Order detail retrieved successfully",
                             orderResponse
@@ -253,7 +250,7 @@ public class OrderController {
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
+                    new ApiResponse(
                             "Error",
                             "Failed to retrieve order detail: " + e.getMessage(),
                             null

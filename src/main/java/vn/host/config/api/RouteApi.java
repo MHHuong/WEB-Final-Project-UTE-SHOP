@@ -2,14 +2,12 @@ package vn.host.config.api;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Map;
 
 @FeignClient(name = "hereRouteClient", url = "https://router.hereapi.com")
-public interface RouteConfig {
+public interface RouteApi {
     @GetMapping(value = "/v8/routes", consumes = "application/json")
     Map<String, Object> getRoute(
             @RequestParam("transportMode") String transportMode,

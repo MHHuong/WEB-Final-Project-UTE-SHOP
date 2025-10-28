@@ -7,8 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import vn.host.config.api.GeoCodeConfig;
-import vn.host.config.api.RouteConfig;
+import vn.host.config.api.GeoCodeApi;
+import vn.host.config.api.RouteApi;
 import vn.host.entity.*;
 import vn.host.model.request.OrderItemRequest;
 import vn.host.model.request.OrderRequest;
@@ -18,6 +18,7 @@ import vn.host.model.websocket.OrderStatusMessage;
 import vn.host.repository.*;
 import vn.host.service.AddressService;
 import vn.host.service.CartItemService;
+import vn.host.service.EmailService;
 import vn.host.service.OrderService;
 import vn.host.util.sharedenum.OrderStatus;
 import vn.host.util.sharedenum.PaymentMethod;
@@ -33,10 +34,10 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
-    private GeoCodeConfig geoCodeConfig;
+    private GeoCodeApi geoCodeApi;
 
     @Autowired
-    private RouteConfig routeConfig;
+    private RouteApi routeConfig;
 
     @Autowired
     OrderRepository orderRepository;
@@ -73,6 +74,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Value("${here.api.key}")
     private String hereApiKey;
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public List<Order> findAll() {
@@ -219,6 +222,7 @@ public class OrderServiceImpl implements OrderService {
         Long userId = order.getUser().getUserId();
         OrderStatusMessage message = new OrderStatusMessage(order.getOrderId(), userId, order.getStatus().name());
         messagingTemplate.convertAndSendToUser(String.valueOf(userId), "/queue/orders", message);
+        emailService.sendOrderStatusEmail(order, order.getUser(), order.getStatus());
     }
 
     @Override
@@ -263,7 +267,7 @@ public class OrderServiceImpl implements OrderService {
             ShippingFeeResponse distanceFee = calDistanceFee(shippingFeeRequest.getShippingService());
             double sum = 0;
             String source = shippingFeeRequest.getWard() + ", " + shippingFeeRequest.getDistrict() + ", " + shippingFeeRequest.getProvince();
-            Map<String, Object> originData = geoCodeConfig.getGeocode(source, hereApiKey);
+            Map<String, Object> originData = geoCodeApi.getGeocode(source, hereApiKey);
             for (Long id : shippingFeeRequest.getShopIds()) {
                 Shop shop = shopRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Shop not found"));
@@ -272,7 +276,7 @@ public class OrderServiceImpl implements OrderService {
                     throw new RuntimeException("Shop address not found");
                 }
                 String destination = shopAddress.getWard() + ", " + shopAddress.getDistrict() + ", " + shopAddress.getProvince();
-                Map<String, Object> destData = geoCodeConfig.getGeocode(destination, hereApiKey);
+                Map<String, Object> destData = geoCodeApi.getGeocode(destination, hereApiKey);
 
                 Map<String, Object> originPos = (Map<String, Object>) ((List<?>) originData.get("items")).get(0);
                 Map<String, Object> destPos = (Map<String, Object>) ((List<?>) destData.get("items")).get(0);
@@ -301,10 +305,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public String findTopOrderByUser(TempOrderResponse tempOrderResponse) {
-        List<ProductModel> products = tempOrderResponse.getOrders();
+        List<ProductResponse> products = tempOrderResponse.getOrders();
         Long userId = tempOrderResponse.getUserId();
         List<Long> shopIds = products.stream()
-                .map(ProductModel::getShopId)
+                .map(ProductResponse::getShopId)
                 .distinct()
                 .toList();
         return shopIds.stream().map(shopId -> {

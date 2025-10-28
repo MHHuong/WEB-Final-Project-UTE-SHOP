@@ -22,14 +22,14 @@
 
             <!-- btn -->
             <div class="d-flex justify-content-between mt-4">
-                <a href="#" class="btn btn-primary" onclick="{handleContinue()}">Continue Shopping</a>
-                <a href="#" class="btn btn-dark" onclick="{handleNavigation()}">Watch Cart Detail</a>
+                <a href="#" class="btn btn-primary" onclick="{handleContinue()}">Tiếp tục mua sắm</a>
+                <a href="#" class="btn btn-dark" onclick="{handleNavigation()}">Xem chi tiết giỏ hàng</a>
             </div>
         </div>
     </div>
 
     <script  type="module">
-        import cartService from "/js/services/cartService.js";
+        import cartService from "/js/services/api/cartService.js";
         import { showSuccessToast, showErrorToast, showWarningToast, showInfoToast } from "/js/utils/toastUtils.js";
         import cartBadgeUtils from "/js/utils/cartBadgeUtils.js";
 
@@ -42,7 +42,8 @@
 
         async function loadCartItems() {
             const result = await cartService.getCartItemByUserIdPaginated(USER_ID, currentPage, itemsPerPage);
-            if (result.status === 'true') {
+            if (result.status === 'Success') {
+                console.log(result.data);
                 const pageData = result.data;
                 cartItems = pageData.content;
                 currentPage = pageData.currentPage;
@@ -224,10 +225,10 @@
                     <div class="row align-items-center">
                         <div class="col-6 col-md-6 col-lg-7">
                             <div class="d-flex">
-                                <img src="${item.productModel.image}" alt="Ecommerce" class="icon-shape icon-xxl" />
+                                <img src="${item.productResponse.image}" alt="Ecommerce" class="icon-shape icon-xxl" />
                                 <div class="ms-3">
                                     <a href="pages/shop-single.html" class="text-inherit">
-                                        <h6 class="mb-0">${item.productModel.productName}</h6>
+                                        <h6 class="mb-0">${item.productResponse.productName}</h6>
                                     </a>
                                     <div class="mt-2 small lh-1">
                                         <a href="#" class="text-decoration-none text-inherit remove-item-btn" data-cart-item-id="${item.cartId}">
@@ -248,7 +249,7 @@
                             </div>
                         </div>
                         <div class="col-2 text-lg-end text-start text-md-end col-md-2">
-                            <span class="fw-bold">${formatCurrency(item.productModel.price*item.quantity)}</span>
+                            <span class="fw-bold">${formatCurrency(item.productResponse.price*item.quantity)}</span>
                         </div>
                     </div>
                 `;
@@ -334,7 +335,7 @@
         }
 
         const handleNavigation = () => {
-            window.location.href = `/shop-cart`;
+            window.location.href = `/user/shop-cart`;
         };
 
         const handleContinue = () => {

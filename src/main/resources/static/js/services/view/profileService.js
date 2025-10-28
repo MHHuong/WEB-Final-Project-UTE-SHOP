@@ -1,6 +1,6 @@
 import {showErrorToast, showSuccessToast} from "/js/utils/toastUtils.js";
-import addressService from "/js/services/addressService.js";
-import orderService from "/js/services/orderService.js";
+import addressService from "/js/services/api/addressService.js";
+import orderService from "/js/services/api/orderService.js";
 import {renderPagination, showPageInfo} from "/js/utils/paginationUtils.js";
 import {loadProvinces, loadDistricts, loadWards} from "/js/utils/locationUtils.js";
 import {showOrderStatusModal} from "/js/utils/orderStatusModal.js";
@@ -49,7 +49,7 @@ async function loadAddresses(page = 0, size = 4) {
     try {
         let addresses = [];
         const result = await addressService.getAddressesPaginationByUserId(USER_ID, size, page);
-        if (result.status === "true") {
+        if (result.status === "Success") {
             addresses = result.data.content;
             addressPagination = {
                 currentPage: result.data.pageable.pageNumber,
@@ -170,7 +170,7 @@ document.addEventListener("click", async function(e) {
         const id = e.target.getAttribute("th:data-id");
         try {
             const result = await addressService.removeAddress(id, USER_ID);
-            if (result.status === "true") {
+            if (result.status === "Success") {
                 showSuccessToast('Xóa địa chỉ thành công!');
                 await loadAddresses();
             } else {
@@ -264,7 +264,7 @@ document.getElementById('save-address-btn').addEventListener('click', async func
             result = await addressService.createAddress(addressData, USER_ID);
         }
 
-        if (result.status === "true") {
+        if (result.status === "Success") {
             showSuccessToast(isEditingAddress ? 'Cập nhật địa chỉ thành công!' : 'Thêm địa chỉ thành công!');
             await loadAddresses();
             await resetAddressForm();

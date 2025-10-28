@@ -5,11 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import vn.host.entity.CartItem;
 import vn.host.model.request.CartRequest;
 import vn.host.model.response.CartResponse;
 import vn.host.model.response.PageResponse;
-import vn.host.model.response.ResponseModel;
+import vn.host.model.response.ApiResponse;
 import vn.host.service.CartItemService;
 
 import java.util.List;
@@ -26,16 +25,16 @@ public class CartController {
         try {
             List<CartResponse> userCart = cartItemService.findUserCartItems(id);
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "true",
+                    new ApiResponse(
+                            "Success",
                             "Get user cart successfully",
                             userCart
                     ), HttpStatus.OK
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "false",
+                    new ApiResponse(
+                            "Error",
                             "Error: " + e.getMessage(),
                             null
                     ), HttpStatus.BAD_REQUEST
@@ -51,16 +50,16 @@ public class CartController {
         try {
             PageResponse<CartResponse> userCart = cartItemService.findUserCartItemsPaginated(id, page, size);
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "true",
+                    new ApiResponse(
+                            "Success",
                             "Get user cart successfully",
                             userCart
                     ), HttpStatus.OK
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "false",
+                    new ApiResponse(
+                            "Error",
                             "Error: " + e.getMessage(),
                             null
                     ), HttpStatus.BAD_REQUEST
@@ -73,16 +72,16 @@ public class CartController {
         try {
             cartItemService.saveCart(cartRequest);
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "true",
+                    new ApiResponse(
+                            "Success",
                             "Add product to cart successfully",
                             null
                     ), HttpStatus.OK
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "false",
+                    new ApiResponse(
+                            "Error",
                             "Error: " + e.getMessage(),
                             null
                     ), HttpStatus.INTERNAL_SERVER_ERROR
@@ -95,16 +94,16 @@ public class CartController {
         try {
             cartItemService.updateCartItemQuantity(id, quantity);
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "true",
+                    new ApiResponse(
+                            "Success",
                             "Update product quantity in cart successfully",
                             null
                     ), HttpStatus.OK
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "false",
+                    new ApiResponse(
+                            "Error",
                             "Error: " + e.getMessage(),
                             null
                     ), HttpStatus.INTERNAL_SERVER_ERROR
@@ -117,16 +116,16 @@ public class CartController {
         try {
             cartItemService.deleteById(cartItemId);
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "true",
+                    new ApiResponse(
+                            "Success",
                             "Delete product from cart successfully",
                             null
                     ), HttpStatus.OK
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "false",
+                    new ApiResponse(
+                            "Error",
                             "Error: " + e.getMessage(),
                             null
                     ), HttpStatus.INTERNAL_SERVER_ERROR
@@ -139,16 +138,16 @@ public class CartController {
         try {
             session.setAttribute("selectedProducts", productItems);
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "true",
+                    new ApiResponse(
+                            "Success",
                             "Selected products from cart successfully",
                             null
                     ), HttpStatus.OK
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "false",
+                    new ApiResponse(
+                            "Error",
                             "Error: " + e.getMessage(),
                             null
                     ), HttpStatus.INTERNAL_SERVER_ERROR
@@ -161,16 +160,16 @@ public class CartController {
         try {
             Object selectedProducts = session.getAttribute("selectedProducts");
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "true",
+                    new ApiResponse(
+                            "Success",
                             "Get selected products from cart successfully",
                             selectedProducts
                     ), HttpStatus.OK
             );
         } catch (Exception e) {
             return new ResponseEntity<>(
-                    new ResponseModel(
-                            "false",
+                    new ApiResponse(
+                            "Error",
                             "Error: " + e.getMessage(),
                             null
                     ), HttpStatus.INTERNAL_SERVER_ERROR

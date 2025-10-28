@@ -11,7 +11,7 @@ import vn.host.model.response.OrderResponse;
 import vn.host.service.OrderService;
 
 @Controller
-@RequestMapping()
+@RequestMapping("/user")
 public class HomeController {
     @Autowired
     OrderService orderService;
@@ -33,20 +33,20 @@ public class HomeController {
 
     @GetMapping("/checkout")
     public String checkout() {
-        return "user/order/checkout";
+        return "user/order/check-out";
     }
 
-    @GetMapping("/status/{orderCode}")
+    @GetMapping("/order/{orderCode}")
     public String success(@PathVariable String orderCode, @RequestParam String status) {
-        return "user/order/success";
+        return "user/order/order-detail";
     }
 
     @GetMapping("/profile")
     public String profile() {
-        return "user/profile";
+        return "user/profile/profile";
     }
 
-    @GetMapping("/user/order/detail")
+    @GetMapping("/order/detail")
     public String orders(@RequestParam Long orderId, Model model) {
         OrderResponse order = orderService.getOrderByOrderId(orderId);
         model.addAttribute("order", order);

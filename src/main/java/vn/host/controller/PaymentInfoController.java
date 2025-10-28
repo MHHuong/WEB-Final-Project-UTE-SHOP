@@ -25,9 +25,9 @@ public class PaymentInfoController {
     ) throws IOException {
         try {
             orderService.updateOrderPaymentVnPay(orderId, responseCode, transactionNo, amount);
-            return "redirect:/status/" + orderId + "?status=success";
+            return "redirect:/user/order/" + orderId + "?status=success";
         } catch (Exception e) {
-            return "redirect:/status/" + orderId + "?status=failed";
+            return "redirect:/user/order/" + orderId + "?status=failed";
         }
     }
 
@@ -40,9 +40,9 @@ public class PaymentInfoController {
     ) throws IOException {
         try {
             orderService.updateOrderPaymentMomo(orderId, resultCode, transactionNo, amount);
-            return "redirect:/status/" + orderId + "?status=success";
+            return "redirect:/user/order/" + orderId + "?status=success";
         } catch (Exception e) {
-            return "redirect:/status/" + orderId + "?status=failed";
+            return "redirect:/user/order/" + orderId + "?status=failed";
         }
     }
 }

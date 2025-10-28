@@ -1,4 +1,4 @@
-import apiClient from '/js/services/apiClient.js';
+import apiClient from '/js/utils/apiClient.js';
 
 const orderService = {
     getOrderByUserId: async function (userId) {

@@ -1,7 +1,7 @@
 import {showErrorToast, showSuccessToast, showWarningToast, showInfoToast} from "/js/utils/toastUtils.js";
-import orderService from "/js/services/orderService.js";
-import {urlParams} from "/js/services/apiClient.js";
-import paymentService from "/js/services/paymentService.js";
+import orderService from "/js/services/api/orderService.js";
+import {urlParams} from "/js/utils/apiClient.js";
+import paymentService from "/js/services/api/paymentService.js";
 
 
 let paymentData = {};
@@ -35,10 +35,12 @@ function getPaymentMethodText(method) {
 
 async function loadOrderData() {
     const status = urlParams.get('status'); // success, pending, failed
-   const result = await orderService.getDisplayTempOrder();
+    if (!status) {
+        return;
+    }
+    const result = await orderService.getDisplayTempOrder();
     if (result.status === "Success") {
         try {
-            console.log(result.data);
             document.getElementById('order-code').textContent = result.orderCode || 'N/A';
             displayOrderData(result.data);
             paymentData = {
@@ -59,7 +61,7 @@ async function loadOrderData() {
             showErrorToast('Không thể tải thông tin đơn hàng');
         }
     } else {
-        document.getElementById('order-code').textContent = result.orderCode || 'N/A';
+        document.getElementById('order-code').textContent = `#${result.orderCode}` || 'N/A';
         populateDefaultData();
         if (status) {
             setPaymentState(status);
@@ -72,8 +74,11 @@ async function loadOrderData() {
 // Display order data
 function displayOrderData(orderData) {
     // Order code
+    if (!orderData) {
+        return;
+    }
     if (orderData.orderCode) {
-        document.getElementById('order-code').textContent = orderData.orderCode;
+        document.getElementById('order-code').textContent = `#${orderData.orderCode}`;
     }
 
     if (orderData.orders && orderData.orders.length > 0) {
@@ -174,6 +179,7 @@ function setPaymentState(state) {
     document.getElementById('success-state').style.display = 'none';
     document.getElementById('pending-state').style.display = 'none';
     document.getElementById('failed-state').style.display = 'none';
+    document.getElementById('order-timeline-container').style.display = 'none';
 
     // Show appropriate state
     switch(state) {
@@ -302,7 +308,7 @@ function handleRetryPayment() {
     remainingSeconds = 900;
     setPaymentState(PAYMENT_STATE.PENDING);
     showWarningToast('Vui lòng hoàn tất thanh toán trong 15 phút');
-    const newUrl = window.location.pathname + '/' + paymentData.orderId + '&status=pending';
+    const newUrl = window.location.pathname + '/' + paymentData.orderId + '?status=pending';
     window.history.pushState({}, '', newUrl);
 }
 

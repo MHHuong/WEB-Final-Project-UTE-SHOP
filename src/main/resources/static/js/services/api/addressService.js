@@ -1,4 +1,4 @@
-import apiClient from '/js/services/apiClient.js';
+import apiClient from '/js/utils/apiClient.js';
 
 const addressService = {
     getAddressesByUserId : async function (userId ) {
@@ -54,8 +54,5 @@ const addressService = {
             throw error;
         }
     }
-
-
 }
-
 export default addressService

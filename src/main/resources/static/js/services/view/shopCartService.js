@@ -1,7 +1,7 @@
-import cartService from "/js/services/cartService.js";
+import cartService from "/js/services/api/cartService.js";
 import {showErrorToast, showInfoToast, showSuccessToast} from "/js/utils/toastUtils.js";
 import cartBadgeUtils from "/js/utils/cartBadgeUtils.js";
-import couponService from "/js/services/couponService.js";
+import couponService from "/js/services/api/couponService.js";
 
 const USER_ID = 1;
 let cartItems = [];
@@ -18,8 +18,8 @@ function formatCurrency(amount) {
 function groupByShop(items) {
     const grouped = {};
     items.forEach(item => {
-        const shopId = item.productModel.shopId || 0;
-        const shopName = item.productModel.shopName || 'Cửa hàng chưa xác định';
+        const shopId = item.productResponse.shopId || 0;
+        const shopName = item.productResponse.shopName || 'Cửa hàng chưa xác định';
 
         if (!grouped[shopId]) {
             grouped[shopId] = {
@@ -37,7 +37,7 @@ function groupByShop(items) {
 async function loadCartItems() {
     try {
         const result = await cartService.getCartItemByUserId(USER_ID);
-        if (result.status === 'true') {
+        if (result.status === 'Success') {
             cartItems = result.data;
             renderCartItems();
             updateTotalItems();
@@ -78,7 +78,7 @@ function renderEmptyCart() {
                     </svg>
                     <h5>Giỏ hàng trống</h5>
                     <p class="text-muted">Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm</p>
-                    <a href="/" class="btn btn-primary mt-3">Về trang chủ</a>
+                    <a href="/static" class="btn btn-primary mt-3">Về trang chủ</a>
                 </div>
             `;
 }
@@ -109,12 +109,13 @@ function renderCartItems() {
                                     </div>
                                 </div>
                                 <div class="col-11">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                        <div class="d-flex align-items-center mb-2 mb-md-0">
                                             <i class="bi bi-shop text-primary me-2"></i>
                                             <span class="fw-bold">${shop.shopName}</span>
                                         </div>
-                                        <button id = "view-vouchers-btn" class="btn btn-sm btn-outline-primary d-none d-md-inline-block"
+                                        <button id="view-vouchers-btn-${shop.shopId}" class="btn btn-sm btn-outline-primary" 
+                                                style="width: auto; min-width: 150px;"
                                                 onclick="selectVoucher(${shop.shopId})">
                                             <i class="bi bi-ticket-perforated me-1"></i>Chọn mã giảm giá
                                         </button>
@@ -128,7 +129,7 @@ function renderCartItems() {
                             <div class="d-flex align-items-center justify-content-between w-100">
                                 <div class="d-flex align-items-center">
                                     <i class="bi bi-ticket-perforated text-warning me-2"></i>
-                                    <span id="voucher-code-display-${shop.shopId}" class="voucher-badge me-2"></span>
+                                    <span id="voucher-code-display-${shop.shopId}" class="voucher-badge me-2 bg-warning-subtle text-warning fw-medium px-2 py-1 rounded"></span>
                                     <small id="voucher-desc-display-${shop.shopId}" class="text-muted"></small>
                                 </div>
                               <button type="button" class="btn-close" aria-label="Close"
@@ -153,7 +154,7 @@ function renderCartItems() {
 
     document.querySelectorAll('.shop-checkbox').forEach(cb => {
         const shopId = parseInt(cb.dataset.shopId);
-        const shopItems = cartItems.filter(i => i.productModel.shopId === shopId);
+        const shopItems = cartItems.filter(i => i.productResponse.shopId === shopId);
         const selectedShopItems = shopItems.filter(i => selectedItems.has(i.cartId));
 
         cb.checked = selectedShopItems.length === shopItems.length;
@@ -162,8 +163,8 @@ function renderCartItems() {
 
     groupedShops.forEach(shop => {
         const total = cartItems.reduce((sum, item) => {
-            if (selectedItems.has(item.cartId) && item.productModel.shopId === shop.shopId) {
-                return sum + item.productModel.price * item.quantity;
+            if (selectedItems.has(item.cartId) && item.productResponse.shopId === shop.shopId) {
+                return sum + item.productResponse.price * item.quantity;
             }
             return sum;
         }, 0);
@@ -183,9 +184,8 @@ function renderCartItems() {
 
 // Render single product item
 function renderProductItem(item) {
-    const total = item.productModel.price * item.quantity;
+    const total = item.productResponse.price * item.quantity;
     const isSelected = selectedItems.has(item.cartId);
-
     return `
                 <div class="product-item p-3 border-bottom ${isSelected ? 'selected' : ''}" data-cart-id="${item.cartId}">
                     <!-- Desktop Layout -->
@@ -194,21 +194,21 @@ function renderProductItem(item) {
                             <div class="form-check">
                                 <input class="form-check-input product-checkbox" type="checkbox"
                                        id="item-${item.cartId}" data-cart-id="${item.cartId}"
-                                       data-shop-id="${item.productModel.shopId}" ${isSelected ? 'checked' : ''}>
+                                       data-shop-id="${item.productResponse.shopId}" ${isSelected ? 'checked' : ''}>
                                 <label class="form-check-label" for="item-${item.cartId}"></label>
                             </div>
                         </div>
                         <div class="col-5">
                             <div class="d-flex align-items-center">
-                                <img src="${item.productModel.image}" class="product-img me-3" alt="${item.productModel.productName}">
+                                <img src="${item.productResponse.image}" class="product-img me-3" alt="${item.productResponse.productName}">
                                 <div>
-                                    <h6 class="mb-1">${item.productModel.productName}</h6>
-                                    <small class="text-muted">Mã SP: ${item.productModel.productId}</small>
+                                    <h6 class="mb-1">${item.productResponse.productName}</h6>
+                                    <small class="text-muted">Mã SP: ${item.productResponse.productId}</small>
                                 </div>
                             </div>
                         </div>
                         <div class="col-2 text-center">
-                            <span class="fw-bold">${formatCurrency(item.productModel.price)}</span>
+                            <span class="fw-bold">${formatCurrency(item.productResponse.price)}</span>
                         </div>
                         <div class="col-2 text-center">
                             <div class="input-group input-group-sm justify-content-center">
@@ -237,14 +237,14 @@ function renderProductItem(item) {
                             <div class="form-check me-3 mt-2">
                                 <input class="form-check-input product-checkbox" type="checkbox"
                                        id="item-mobile-${item.cartId}" data-cart-id="${item.cartId}"
-                                       data-shop-id="${item.productModel.shopId}" ${isSelected ? 'checked' : ''}>
+                                       data-shop-id="${item.productResponse.shopId}" ${isSelected ? 'checked' : ''}>
                                 <label class="form-check-label" for="item-mobile-${item.cartId}"></label>
                             </div>
-                            <img src="${item.productModel.image}" class="product-img me-3" alt="${item.productModel.productName}">
+                            <img src="${item.productResponse.image}" class="product-img me-3" alt="${item.productResponse.productName}">
                             <div class="flex-grow-1">
-                                <h6 class="mb-1">${item.productModel.productName}</h6>
-                                <small class="text-muted d-block mb-2">Mã SP: ${item.productModel.productId}</small>
-                                <div class="text-primary fw-bold">${formatCurrency(item.productModel.price)}</div>
+                                <h6 class="mb-1">${item.productResponse.productName}</h6>
+                                <small class="text-muted d-block mb-2">Mã SP: ${item.productResponse.productId}</small>
+                                <div class="text-primary fw-bold">${formatCurrency(item.productResponse.price)}</div>
                             </div>
                             <button class="btn btn-link text-muted delete-btn p-0 ms-2"
                                     onclick="removeItem(${item.cartId})">
@@ -308,7 +308,7 @@ function handleSelectAll(e) {
 function handleShopCheckbox(e) {
     const shopId = parseInt(e.target.dataset.shopId);
     const isChecked = e.target.checked;
-    const shopItems = cartItems.filter(item => item.productModel.shopId === shopId);
+    const shopItems = cartItems.filter(item => item.productResponse.shopId === shopId);
 
     console.log(shopId)
     shopItems.forEach(item => {
@@ -343,7 +343,7 @@ function handleProductCheckbox(e) {
 
 // Update shop checkbox state
 function updateShopCheckbox(shopId) {
-    const shopItems = cartItems.filter(item => item.productModel.shopId === shopId);
+    const shopItems = cartItems.filter(item => item.productResponse.shopId === shopId);
     const selectedShopItems = shopItems.filter(item => selectedItems.has(item.cartId));
     const shopCheckbox = document.querySelector(`#shop-${shopId}`);
 
@@ -370,8 +370,8 @@ function updateOrderSummary() {
         if (voucher.type === 'PERCENT') {
             let total = 0;
             selectedCartItems.forEach(item => {
-                if (item.productModel.shopId.toString() === shopId) {
-                    total += item.productModel.price * item.quantity;
+                if (item.productResponse.shopId.toString() === shopId) {
+                    total += item.productResponse.price * item.quantity;
                 }
             });
             discount = Math.floor(total * voucher.percentage / 100);
@@ -379,7 +379,7 @@ function updateOrderSummary() {
         discountedSubtotal += discount;
     });
     const subtotal = selectedCartItems.reduce((sum, item) =>
-        sum + (item.productModel.price * item.quantity), 0);
+        sum + (item.productResponse.price * item.quantity), 0);
 
     document.getElementById('selected-count').textContent = selectedCount;
     document.getElementById('checkout-count').textContent = selectedCount;
@@ -412,7 +412,7 @@ window.decreaseQuantity = async function(cartId) {
 async function updateQuantity(cartId, newQuantity) {
     try {
         const result = await cartService.updateCartItem(cartId, newQuantity);
-        if (result.status === 'true') {
+        if (result.status === 'Success') {
             showSuccessToast('Cập nhật số lượng thành công!');
             await loadCartItems();
             await cartBadgeUtils.refreshCartBadge(USER_ID);
@@ -432,7 +432,7 @@ window.removeItem = async function(cartId) {
 
     try {
         const result = await cartService.removeCartItem(cartId);
-        if (result.status === 'true') {
+        if (result.status === 'Success') {
             showSuccessToast('Đã xóa sản phẩm khỏi giỏ hàng!');
             selectedItems.delete(cartId);
             await loadCartItems();
@@ -476,18 +476,18 @@ window.handleNavigation = async () => {
         .map(item => ({
             ...item,
             discount: discountAmount,
-            discountValue: shopVouchers[item.productModel.shopId]?.type === 'PERCENT'
-                ? calculateItemPercentDiscount(shopVouchers[item.productModel.shopId]?.percentage, item)
-                : shopVouchers[item.productModel.shopId]?.value || 0
+            discountValue: shopVouchers[item.productResponse.shopId]?.type === 'PERCENT'
+                ? calculateItemPercentDiscount(shopVouchers[item.productResponse.shopId]?.percentage, item)
+                : shopVouchers[item.productResponse.shopId]?.value || 0
         }))
     const result = await cartService.saveSelectedCartItem(selectedCartItems);
-    if (result.status === 'true') {
-        window.location.href = `/checkout`;
+    if (result.status === 'Success') {
+        window.location.href = `/user/checkout`;
     }
 }
 
 function calculateItemPercentDiscount(percent, item) {
-    return Math.floor(item.productModel.price * item.quantity * percent / 100);
+    return Math.floor(item.productResponse.price * item.quantity * percent / 100);
 }
 
 async function renderVouchers(shopId) {
@@ -512,9 +512,9 @@ async function renderVouchers(shopId) {
 
     container.innerHTML = '';
     let total = 0;
-    const selectedCartItems = cartItems.filter(item => selectedItems.has(item.cartId) && item.productModel.shopId === shopId);
+    const selectedCartItems = cartItems.filter(item => selectedItems.has(item.cartId) && item.productResponse.shopId === shopId);
     selectedCartItems.forEach(item => {
-        total += item.productModel.price * item.quantity;
+        total += item.productResponse.price * item.quantity;
     });
     vouchers.forEach(voucher => {
         const isDisabled = Number(total) < Number(voucher.minOrderAmount);
@@ -527,13 +527,13 @@ async function renderVouchers(shopId) {
         const voucherCard = document.createElement('div');
         voucherCard.className = `voucher-card  border border-secondary-subtle rounded p-3 mb-3 bg-white position-relative cursor-pointer d-flex gap-3 ${isDisabled ? 'disabled' : ''}`;
         voucherCard.innerHTML = `
-            <div class="voucher-left">
-                <div class="discount-value">${discountValue}</div>
-                <div class="discount-label">${discountLabel}</div>
+            <div class="voucher-left d-flex flex-column align-items-center justify-content-center rounded p-2 flex-shrink-0 text-white">
+                <div class="discount-value text-white fw-bold lh-sm">${discountValue}</div>
+                <div class="discount-label text-white text-uppercase">${discountLabel}</div>
             </div>
             <div class="voucher-content d-flex flex-column justify-content-center flex-fill">
-                <div class="voucher-code">${voucher.code}</div>
-                <div class="voucher-description">${description}</div>
+                <div class="voucher-code fw-semibold text-dark mb-1">${voucher.code}</div>
+                <div class="voucher-description text-secondary mb-1 lh-sm">${description}</div>
                 <div class="voucher-expiry">HSD: ${new Date(voucher.expiredAt).toLocaleDateString('vi-VN')}</div>
             </div>
             <div class="voucher-action d-flex align-items-center justify-content-center flex-shrink-0">
@@ -598,9 +598,9 @@ window.removeVoucher = function(shopId) {
 
 function calculatePercentDiscount(percent, shopId) {
         let total = 0;
-        const selectedCartItems = cartItems.filter(item => selectedItems.has(item.cartId) && item.productModel.shopId === shopId);
+        const selectedCartItems = cartItems.filter(item => selectedItems.has(item.cartId) && item.productResponse.shopId === shopId);
         selectedCartItems.forEach(item => {
-            total += item.productModel.price * item.quantity;
+            total += item.productResponse.price * item.quantity;
         });
         return Math.floor(total * percent / 100);
     }

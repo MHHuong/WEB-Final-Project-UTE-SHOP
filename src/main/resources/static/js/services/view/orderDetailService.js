@@ -1,18 +1,13 @@
 import {showErrorToast, showSuccessToast} from "/js/utils/toastUtils.js";
-import orderService from "/js/services/orderService.js";
+import orderService from "/js/services/api/orderService.js";
 import {showOrderStatusModal} from "/js/utils/orderStatusModal.js";
+
 
 
 // Get order ID from URL
 const urlParams = new URLSearchParams(window.location.search);
 const orderId = urlParams.get('orderId');
 
-if (!orderId) {
-    showErrorToast('Không tìm thấy mã đơn hàng');
-    setTimeout(() => {
-        window.location.href = '/user/profile';
-    }, 2000);
-}
 
 // Order status mapping
 const STATUS_ORDER = ['NEW', 'CONFIRMED', 'SHIPPING', 'DELIVERED', 'RECEIVED'];
@@ -26,8 +21,38 @@ const STATUS_TEXT = {
     'RETURNED': 'Đã Trả Hàng'
 };
 
+
+let stompClient = null;
+function connect(USER_ID) {
+    const userId = USER_ID;
+    if (!userId) { alert('Enter userId first'); return; }
+    const sock = new SockJS('/ws?userId=' + encodeURIComponent(userId));
+    stompClient = Stomp.over(sock);
+    stompClient.connect({}, function(frame) {
+        console.log('Connected: ' + frame, 'ok');
+        stompClient.subscribe('/user/queue/orders', function (message) {
+            try {
+                const body = JSON.parse(message.body);
+                    updateOrderTimeline(body.status);
+                    if (Number(body.orderId) === Number(orderId) && Number(body.userId) === Number(userId)) {
+                        showSuccessToast(`Đơn hàng #${body.orderId} đã được cập nhật trạng thái: ${STATUS_TEXT[body.status] || body.status}`);
+                    }
+            } catch (e) {
+                console.log('Received (raw): ' + message.body, 'ok');
+            }
+        });
+    }, function(error) {
+        console.log('STOMP error: ' + error, 'err');
+    });
+}
+
+
 // Load order details
 async function loadOrderDetails() {
+    if (!orderId) {
+        return
+    }
+    document.getElementById('order-timeline-container').style.display = 'block';
     try {
         const result = await orderService.getOrderById(orderId);
         console.log('Order details:', result);
@@ -64,6 +89,13 @@ async function loadOrderDetails() {
 
         // Display action buttons based on status
         displayActionButtons(order);
+
+        const infoList = document.getElementById('info-list');
+        infoList.innerHTML = `
+                      <li>Bạn có thể theo dõi trạng thái đơn hàng trên trang này.</li>
+                      <li>Vui lòng kiểm tra thông tin đơn hàng và liên hệ với chúng tôi nếu có bất kỳ thắc mắc nào.</li>
+                      <li>Đơn hàng sẽ được giao trong thời gian dự kiến theo phương thức vận chuyển bạn đã chọn.</li>
+                `;
 
     } catch (error) {
         console.error('Error loading order details:', error);
@@ -267,11 +299,11 @@ function displayActionButtons(order) {
     const container = document.getElementById('order-actions');
 
     let buttonsHTML = `
-        <a href="/profile" class="btn btn-outline-primary btn-lg px-5">
+        <a href="/user/profile" class="btn btn-outline-primary btn-lg px-5">
             <i class="bi bi-list-ul me-2"></i>
             Xem Đơn Hàng Của Tôi
         </a>
-        <a href="/" class="btn btn-outline-secondary btn-lg px-5">
+        <a href="/user" class="btn btn-outline-secondary btn-lg px-5">
             <i class="bi bi-house me-2"></i>
             Tiếp Tục Mua Sắm
         </a>
@@ -356,5 +388,8 @@ function formatDateTime(dateString) {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadOrderDetails();
+    if (orderId) {
+        connect(1)
+    }
 });
 
