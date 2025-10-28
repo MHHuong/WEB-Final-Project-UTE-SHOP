@@ -25,9 +25,7 @@ public class WebSecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(reg -> reg
                         .requestMatchers(
-                                "/", "/index", "/index.html",
-                                "/assets/**",
-                                "/css/**", "/js/**", "/images/**", "/webjars/**", "/lib/**",
+                                "/", "/**",
                                 "/error", "/error/**",
                                 "/favicon.ico",
                                 "/dashboard/**",
@@ -49,6 +47,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
+
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(out -> out.permitAll())
                 .oauth2Login(oauth -> {
