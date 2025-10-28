@@ -25,7 +25,7 @@ public class ShopController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping("/shop")
+    @GetMapping("/shop-grid")
     public String showShopPage(Model model,
                                @RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "8") int size,
