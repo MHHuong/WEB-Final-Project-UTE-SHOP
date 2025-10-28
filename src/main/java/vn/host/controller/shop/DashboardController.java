@@ -33,10 +33,6 @@ public class DashboardController {
         return s;
     }
 
-    /**
-     * GET /api/shop/dashboard?from=...&to=...
-     * - from/to: epoch milli (tùy chọn). Nếu không truyền => mặc định 30 ngày gần nhất.
-     */
     @GetMapping
     public ResponseEntity<DashboardRes> getDashboard(Authentication auth,
                                                      @RequestParam(required = false) Long from,

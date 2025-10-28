@@ -88,4 +88,52 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
             @Param("fromTs") Instant fromTs,
             @Param("toTs") Instant toTs
     );
+
+    @Query("""
+                select cast(o.createdAt as date) as d, coalesce(sum(o.totalAmount),0)
+                from Order o
+                where o.shop.shopId = :shopId
+                  and o.status = vn.host.util.sharedenum.OrderStatus.RECEIVED
+                  and o.createdAt >= :fromTs and o.createdAt < :toTs
+                group by cast(o.createdAt as date)
+                order by cast(o.createdAt as date)
+            """)
+    List<Object[]> dailyGross(
+            @Param("shopId") Long shopId,
+            @Param("fromTs") Instant fromTs,
+            @Param("toTs") Instant toTs
+    );
+
+    @Query("""
+                select cast(o.createdAt as date) as d, coalesce(sum(o.totalAmount),0)
+                from Order o
+                where o.shop.shopId = :shopId
+                  and o.status = vn.host.util.sharedenum.OrderStatus.RETURNED
+                  and o.createdAt >= :fromTs and o.createdAt < :toTs
+                group by cast(o.createdAt as date)
+                order by cast(o.createdAt as date)
+            """)
+    List<Object[]> dailyReturns(
+            @Param("shopId") Long shopId,
+            @Param("fromTs") Instant fromTs,
+            @Param("toTs") Instant toTs
+    );
+
+    @Query("""
+                select o
+                from Order o
+                    left join fetch o.items it
+                    left join fetch it.product p
+                    left join fetch p.category c
+                    left join fetch o.coupon cp
+                where o.shop.shopId = :shopId
+                  and o.createdAt >= :fromTs and o.createdAt < :toTs
+                  and (o.status = vn.host.util.sharedenum.OrderStatus.RECEIVED
+                       or o.status = vn.host.util.sharedenum.OrderStatus.RETURNED)
+            """)
+    List<Order> findForDashboardCalc(
+            @Param("shopId") Long shopId,
+            @Param("fromTs") Instant fromTs,
+            @Param("toTs") Instant toTs
+    );
 }

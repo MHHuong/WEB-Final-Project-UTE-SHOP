@@ -12,5 +12,12 @@ import java.time.LocalDate;
 @Builder
 public class RevenuePoint {
     private LocalDate date;
-    private BigDecimal amount;
+
+    private BigDecimal gross;
+
+    private BigDecimal salesFee;
+
+    private BigDecimal returns;
+
+    private BigDecimal net;
 }

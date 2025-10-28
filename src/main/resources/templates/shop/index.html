@@ -9,10 +9,9 @@
         <!-- row -->
         <div class="row mb-8">
             <div class="col-md-12">
-                <!-- card -->
-                <div
-                        class="card bg-light border-0 rounded-4"
-                        style="background-image: url(/assets/images/slider/slider-image-1.jpg); background-repeat: no-repeat; background-size: cover; background-position: right">
+                <!-- hero card -->
+                <div class="card bg-light border-0 rounded-4"
+                     style="background-image: url(/UTE_SHOP/assets/images/slider/slider-image-1.jpg); background-repeat: no-repeat; background-size: cover; background-position: right">
                     <div class="card-body p-lg-12">
                         <h1>Welcome back! UTESHOP</h1>
                         <p>UTESHOP is the most reputable e-commerce in VietNam.</p>
@@ -21,24 +20,19 @@
                 </div>
             </div>
         </div>
-        <!-- table -->
+
+        <!-- KPI cards -->
         <div class="table-responsive-xl mb-6 mb-lg-0">
             <div class="row flex-nowrap pb-3 pb-lg-0">
                 <div class="col-lg-4 col-12 mb-6">
-                    <!-- card -->
                     <div class="card h-100 card-lg">
-                        <!-- card body -->
                         <div class="card-body p-6">
-                            <!-- heading -->
                             <div class="d-flex justify-content-between align-items-center mb-6">
-                                <div>
-                                    <h4 class="mb-0 fs-5">Earnings</h4>
-                                </div>
+                                <div><h4 class="mb-0 fs-5">Earnings</h4></div>
                                 <div class="icon-shape icon-md bg-light-danger text-dark-danger rounded-circle">
                                     <i class="bi bi-currency-dollar fs-5"></i>
                                 </div>
                             </div>
-                            <!-- project number -->
                             <div class="lh-1">
                                 <h1 class="mb-2 fw-bold fs-2" id="dashMonthlyRevenue">0</h1>
                                 <span>Monthly revenue</span>
@@ -47,49 +41,33 @@
                     </div>
                 </div>
                 <div class="col-lg-4 col-12 mb-6">
-                    <!-- card -->
                     <div class="card h-100 card-lg">
-                        <!-- card body -->
                         <div class="card-body p-6">
-                            <!-- heading -->
                             <div class="d-flex justify-content-between align-items-center mb-6">
-                                <div>
-                                    <h4 class="mb-0 fs-5">Orders</h4>
-                                </div>
+                                <div><h4 class="mb-0 fs-5">Orders</h4></div>
                                 <div class="icon-shape icon-md bg-light-warning text-dark-warning rounded-circle">
                                     <i class="bi bi-cart fs-5"></i>
                                 </div>
                             </div>
-                            <!-- project number -->
                             <div class="lh-1">
                                 <h1 class="mb-2 fw-bold fs-2" id="dashOrdersMonth">0</h1>
-                                <span>
-                               <span class="text-dark me-1"></span>
-                            </span>
+                                <span><span class="text-dark me-1"></span></span>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-4 col-12 mb-6">
-                    <!-- card -->
                     <div class="card h-100 card-lg">
-                        <!-- card body -->
                         <div class="card-body p-6">
-                            <!-- heading -->
                             <div class="d-flex justify-content-between align-items-center mb-6">
-                                <div>
-                                    <h4 class="mb-0 fs-5">Customer</h4>
-                                </div>
+                                <div><h4 class="mb-0 fs-5">Customer</h4></div>
                                 <div class="icon-shape icon-md bg-light-info text-dark-info rounded-circle">
                                     <i class="bi bi-people fs-5"></i>
                                 </div>
                             </div>
-                            <!-- project number -->
                             <div class="lh-1">
                                 <h1 class="mb-2 fw-bold fs-2" id="dashUniqueCustomers">0</h1>
-                                <span>
-                               <span class="text-dark me-1"></span>
-                            </span>
+                                <span><span class="text-dark me-1"></span></span>
                             </div>
                         </div>
                     </div>
@@ -97,66 +75,129 @@
             </div>
         </div>
 
-        <!-- row -->
+        <!-- charts row -->
         <div class="row">
             <div class="col-xl-8 col-lg-6 col-md-12 col-12 mb-6">
-                <!-- card -->
                 <div class="card h-100 card-lg">
                     <div class="card-body p-6">
-                        <!-- heading -->
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h3 class="mb-1 fs-5">Revenue</h3>
-                            </div>
-                            <div>
-                                <!-- select option -->
-                                <select class="form-select">
-                                    <option selected>2019</option>
-                                    <option value="2023">2020</option>
-                                    <option value="2024">2021</option>
-                                    <option value="2025">2022</option>
-                                    <option value="2025">2023</option>
-                                </select>
-                            </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3 class="mb-1 fs-5">Revenue</h3>
+                            <!-- 3 năm gần nhất sẽ được JS đổ vào -->
+                            <select id="yearFilter" class="form-select form-select-sm" style="width:auto"></select>
                         </div>
-                        <!-- chart -->
-                        <div id="revenueChart" class="mt-6"></div>
+                        <!-- line chart -->
+                        <div id="revenueChart" class="mt-6" style="height:320px"></div>
                     </div>
                 </div>
             </div>
             <div class="col-xl-4 col-lg-6 col-12 mb-6">
-                <!-- card -->
                 <div class="card h-100 card-lg">
-                    <!-- card body -->
                     <div class="card-body p-6">
-                        <!-- heading -->
                         <h3 class="mb-0 fs-5">Total Sales</h3>
-                        <div id="totalSale" class="mt-6 d-flex justify-content-center"></div>
+                        <!-- donut -->
+                        <div id="totalSale" class="mt-6 d-flex justify-content-center" style="min-height:300px"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- row -->
+
+        <!-- summary row -->
         <div class="row">
-            <div class="col-xl-6 col-lg-6 col-md-12 col-12 mb-6">
-                <!-- card -->
+            <div class="col-12 mb-6">
                 <div class="card h-100 card-lg">
-                    <!-- card body -->
+                    <div class="card-body p-6">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h3 class="mb-0 fs-5">Summary (Year)</h3>
+                            <small class="text-muted">Gross / Sales fee / Returns / Net</small>
+                        </div>
+                        <div class="row text-center">
+                            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                                <div class="fw-semibold text-muted">Gross</div>
+                                <div id="totalGross" class="fs-5 fw-bold">0</div>
+                            </div>
+                            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                                <div class="fw-semibold text-muted">Sales fee</div>
+                                <div id="totalSalesFee" class="fs-5 fw-bold">0</div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="fw-semibold text-muted">Returned</div>
+                                <div id="totalReturns" class="fs-5 fw-bold">0</div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="fw-semibold text-muted">Net</div>
+                                <div id="totalNet" class="fs-5 fw-bold text-success">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Overview (giữ nguyên id để JS cập nhật) -->
+            <div class="col-xl-6 col-lg-6 col-md-12 col-12 mb-6">
+                <div class="card h-100 card-lg">
                     <div class="card-body p-6">
                         <h3 class="mb-0 fs-5">Sales Overview</h3>
                         <div class="mt-6">
-                            <!-- text -->
-                            <!-- Total Income -->
-                            <div class="mb-5">
+
+                            <!-- Gross -->
+                            <div class="mb-4">
                                 <div class="d-flex align-items-center justify-content-between">
-                                    <h5 class="fs-6">Total Income</h5>
+                                    <h5 class="fs-6 mb-1">Gross</h5>
+                                    <span>
+                                      <span class="me-1 text-dark" id="soGross">—</span>
+                                      <span id="soGrossPct"></span>
+                                    </span>
+                                </div>
+                                <div class="progress bg-secondary-subtle" style="height:6px">
+                                    <div class="progress-bar" id="soGrossBar"
+                                         role="progressbar" style="width:0%" aria-valuenow="0"
+                                         aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+
+                            <!-- Sales Fee -->
+                            <div class="mb-4">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h5 class="fs-6 mb-1">Sales fee</h5>
+                                    <span>
+                                      <span class="me-1 text-dark" id="soSalesFee">—</span>
+                                      <span id="soSalesFeePct"></span>
+                                    </span>
+                                </div>
+                                <div class="progress bg-info-soft" style="height:6px">
+                                    <div class="progress-bar bg-info" id="soSalesFeeBar"
+                                         role="progressbar" style="width:0%" aria-valuenow="0"
+                                         aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+
+                            <!-- Returns -->
+                            <div class="mb-4">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h5 class="fs-6 mb-1">Returned</h5>
+                                    <span>
+                                      <span class="me-1 text-dark" id="soReturns">—</span>
+                                      <span id="soReturnsPct"></span>
+                                    </span>
+                                </div>
+                                <div class="progress bg-danger-subtle" style="height:6px">
+                                    <div class="progress-bar bg-danger" id="soReturnsBar"
+                                         role="progressbar" style="width:0%" aria-valuenow="0"
+                                         aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+
+                            <!-- Net (Total Income) -->
+                            <div class="mb-1">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h5 class="fs-6 mb-1">Total Income (Net)</h5>
                                     <span>
                                       <span class="me-1 text-dark" id="soIncome">—</span>
                                       <span id="soIncomePct"></span>
                                     </span>
                                 </div>
-                                <div class="progress bg-info-soft" style="height:6px">
-                                    <div class="progress-bar bg-info" id="soIncomeBar"
+                                <div class="progress bg-success-subtle" style="height:6px">
+                                    <div class="progress-bar bg-success" id="soIncomeBar"
                                          role="progressbar" style="width:0%" aria-valuenow="0"
                                          aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
@@ -166,11 +207,13 @@
                 </div>
             </div>
         </div>
+
     </section>
+
+    <!-- scripts -->
     <script th:src="@{/assets/libs/apexcharts/dist/apexcharts.min.js}"></script>
-    <script th:src="@{/assets/js/vendors/dashboard/dashboard.js}"></script>
+    <!-- dùng file JS mới thay vì shop-dashboard.js -->
+    <script th:src="@{/assets/js/vendors/dashboard/shop-dashboard.js}"></script>
 </main>
 </body>
-
-<!-- Mirrored from freshcart.codescandy.com/dashboard/main.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 14 Nov 2024 06:08:53 GMT -->
 </html>

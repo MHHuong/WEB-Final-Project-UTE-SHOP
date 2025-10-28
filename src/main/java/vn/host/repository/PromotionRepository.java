@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import vn.host.entity.Promotion;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Repository
 public interface PromotionRepository extends JpaRepository<Promotion, Long>, JpaSpecificationExecutor<Promotion> {
@@ -41,4 +42,14 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long>, Jpa
                                          @Param("startDate") LocalDate startDate,
                                          @Param("endDate") LocalDate endDate,
                                          @Param("ignoreId") Long ignoreId);
+
+    @Query("""
+                select p from Promotion p
+                where p.shop.shopId = :shopId
+                  and p.startDate <= :toDate
+                  and p.endDate   >= :fromDate
+            """)
+    List<Promotion> findActiveInRangeForShop(@Param("shopId") Long shopId,
+                                             @Param("fromDate") LocalDate fromDate,
+                                             @Param("toDate") LocalDate toDate);
 }
