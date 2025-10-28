@@ -1,8 +1,6 @@
 package vn.host.controller;
 
 
-import jakarta.servlet.http.HttpSession;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,11 +19,12 @@ public class PaymentInfoController {
     @GetMapping("/vn_pay/payment_info")
     public String getPaymentInfoVnPay(
             @RequestParam("vnp_ResponseCode") String responseCode,
+            @RequestParam("vnp_TransactionNo") String transactionNo,
             @RequestParam("vnp_TxnRef") String orderId,
             @RequestParam("vnp_Amount") Long amount
     ) throws IOException {
         try {
-            orderService.updateOrderPaymentVnPay(orderId, responseCode, amount);
+            orderService.updateOrderPaymentVnPay(orderId, responseCode, transactionNo, amount);
             return "redirect:/status/" + orderId + "?status=success";
         } catch (Exception e) {
             return "redirect:/status/" + orderId + "?status=failed";
@@ -36,10 +35,11 @@ public class PaymentInfoController {
     public String getPaymentInfoMomo(
             @RequestParam("amount") Long amount,
             @RequestParam("resultCode") Integer resultCode,
+            @RequestParam("transactionNo") String transactionNo,
             @RequestParam("orderId") String orderId
     ) throws IOException {
         try {
-            orderService.updateOrderPaymentMomo(orderId, resultCode, amount);
+            orderService.updateOrderPaymentMomo(orderId, resultCode, transactionNo, amount);
             return "redirect:/status/" + orderId + "?status=success";
         } catch (Exception e) {
             return "redirect:/status/" + orderId + "?status=failed";

@@ -46,7 +46,7 @@
                                 </div>
 
                                 <!-- Saved addresses list -->
-                                <div id="saved-addresses-list" style="display: none;"></div>
+                                <div id="saved-addresses-list" class="overflow-auto" style="display: none; max-height: 350px;"></div>
 
                                 <!-- No addresses message -->
                                 <div id="no-addresses-message" style="display: none;">
@@ -58,84 +58,8 @@
                             </div>
 
                             <hr class="my-4">
-
                             <!-- Address Form (Hidden by default when addresses exist) -->
-                            <div id="address-form-section">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h6 class="mb-0" id="form-title">Địa chỉ giao hàng</h6>
-                                    <button type="button" id="cancel-new-address-btn" class="btn-close" aria-label="Close" style="display: none;">
-
-                                        </button>
-                                </div>
-
-                                <form id="shipping-form">
-                                    <div class="row g-3">
-                                        <!-- Receiver Name -->
-                                        <div class="col-md-6">
-                                            <label for="receiver-name" class="form-label">
-                                                Họ và tên người nhận <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" class="form-control" id="receiver-name"
-                                                   placeholder="Nhập họ tên" required>
-                                            <div class="invalid-feedback">Vui lòng nhập họ tên người nhận</div>
-                                        </div>
-
-                                        <!-- Phone Number -->
-                                        <div class="col-md-6">
-                                            <label for="receiver-phone" class="form-label">
-                                                Số điện thoại <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="tel" class="form-control" id="receiver-phone"
-                                                   placeholder="Nhập số điện thoại" required pattern="[0-9]{10,11}">
-                                            <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ (10-11 số)</div>
-                                        </div>
-
-                                        <!-- Province/City -->
-                                        <div class="col-md-4">
-                                            <label for="province" class="form-label">
-                                                Tỉnh/Thành phố <span class="text-danger">*</span>
-                                            </label>
-                                            <select class="form-select" id="province" required>
-                                                <option value="" selected disabled>Chọn Tỉnh/Thành phố</option>
-                                            </select>
-                                            <div class="invalid-feedback">Vui lòng chọn tỉnh/thành phố</div>
-                                        </div>
-
-                                        <!-- District -->
-                                        <div class="col-md-4">
-                                            <label for="district" class="form-label">
-                                                Quận/Huyện <span class="text-danger">*</span>
-                                            </label>
-                                            <select class="form-select" id="district" required disabled>
-                                                <option value="" selected disabled>Chọn Quận/Huyện</option>
-                                            </select>
-                                            <div class="invalid-feedback">Vui lòng chọn quận/huyện</div>
-                                        </div>
-
-                                        <!-- Ward -->
-                                        <div class="col-md-4">
-                                            <label for="ward" class="form-label">
-                                                Phường/Xã <span class="text-danger">*</span>
-                                            </label>
-                                            <select class="form-select" id="ward" required disabled>
-                                                <option value="" selected disabled>Chọn Phường/Xã</option>
-                                            </select>
-                                            <div class="invalid-feedback">Vui lòng chọn phường/xã</div>
-                                        </div>
-
-                                        <!-- Detailed Address -->
-                                        <div class="col-12">
-                                            <label for="address-detail" class="form-label">
-                                                Địa chỉ chi tiết <span class="text-danger">*</span>
-                                            </label>
-                                            <textarea class="form-control" id="address-detail" rows="3"
-                                                      placeholder="Số nhà, tên đường..." required></textarea>
-                                            <div class="invalid-feedback">Vui lòng nhập địa chỉ chi tiết</div>
-                                        </div>
-                                    </div>
-                                </form>
-                                <hr class="my-4">
-                            </div>
+                            <div th:replace="~{fragments/user/profile/address::address-input}"></div>
                             <!-- Note -->
                             <div class="col-12 mt-2">
                                 <label for="order-note" class="form-label">Ghi chú đơn hàng (Tùy chọn)</label>
@@ -411,7 +335,7 @@
             </div>
         </div>
     </section>
-
+    <div th:replace="~{fragments/user/modal::save-address-modal}"></div>
     <style>
         .payment-option, .shipping-option {
             cursor: pointer;
@@ -529,19 +453,6 @@
         .address-content {
             margin-left: 32px;
         }
-
-        /*.voucher-card {*/
-        /*    border: 1px solid #e5e5e5;*/
-        /*    border-radius: 4px;*/
-        /*    padding: 12px;*/
-        /*    margin-bottom: 12px;*/
-        /*    background: white;*/
-        /*    position: relative;*/
-        /*    cursor: pointer;*/
-        /*    transition: all 0.2s;*/
-        /*    display: flex;*/
-        /*    gap: 12px;*/
-        /*}*/
 
         .voucher-card:hover {
             border-color: #0aad0a;

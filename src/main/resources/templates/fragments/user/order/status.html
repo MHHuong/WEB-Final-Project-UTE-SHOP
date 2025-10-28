@@ -58,4 +58,291 @@
     </div>
 </div>
 
+<!-- Order Status Timeline Fragment -->
+<div th:fragment="order-timeline" id="order-timeline-container">
+    <div class="order-status-timeline">
+        <div class="timeline-header mb-4">
+            <h4 class="mb-2">Trạng Thái Đơn Hàng</h4>
+            <p class="text-muted mb-0" id="current-status-text">Đang tải...</p>
+        </div>
+        <div class="timeline-wrapper-horizontal">
+            <!-- Timeline items will be rendered dynamically -->
+            <div class="timeline-item-horizontal" data-status="NEW">
+                <div class="timeline-dot-horizontal"></div>
+                <div class="timeline-content-horizontal">
+                    <div class="timeline-icon-horizontal">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                    <h6 class="timeline-title-horizontal">Đơn Hàng Mới</h6>
+                    <p class="timeline-desc-horizontal">Chờ xác nhận</p>
+                </div>
+            </div>
 
+            <div class="timeline-line-horizontal"></div>
+
+            <div class="timeline-item-horizontal" data-status="CONFIRMED">
+                <div class="timeline-dot-horizontal"></div>
+                <div class="timeline-content-horizontal">
+                    <div class="timeline-icon-horizontal">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <h6 class="timeline-title-horizontal">Đã Xác Nhận</h6>
+                    <p class="timeline-desc-horizontal">Đang chuẩn bị</p>
+                </div>
+            </div>
+
+            <div class="timeline-line-horizontal"></div>
+
+            <div class="timeline-item-horizontal" data-status="SHIPPING">
+                <div class="timeline-dot-horizontal"></div>
+                <div class="timeline-content-horizontal">
+                    <div class="timeline-icon-horizontal">
+                        <i class="bi bi-truck"></i>
+                    </div>
+                    <h6 class="timeline-title-horizontal">Đang Giao</h6>
+                    <p class="timeline-desc-horizontal">Trên đường giao</p>
+                </div>
+            </div>
+
+            <div class="timeline-line-horizontal"></div>
+
+            <div class="timeline-item-horizontal" data-status="DELIVERED">
+                <div class="timeline-dot-horizontal"></div>
+                <div class="timeline-content-horizontal">
+                    <div class="timeline-icon-horizontal">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                    <h6 class="timeline-title-horizontal">Đã Giao</h6>
+                    <p class="timeline-desc-horizontal">Hoàn thành</p>
+                </div>
+            </div>
+
+            <!-- Cancelled Status (shown if order is cancelled) -->
+            <div class="timeline-item-horizontal timeline-item-cancelled" data-status="CANCELLED" style="display: none;">
+                <div class="timeline-dot-horizontal"></div>
+                <div class="timeline-content-horizontal">
+                    <div class="timeline-icon-horizontal">
+                        <i class="bi bi-x-circle"></i>
+                    </div>
+                    <h6 class="timeline-title-horizontal">Đã Hủy</h6>
+                    <p class="timeline-desc-horizontal">Đơn hàng đã bị hủy</p>
+                </div>
+            </div>
+
+            <div class="timeline-item-horizontal timeline-item-returned" data-status="RETURNED" style="display: none;">
+                <div class="timeline-dot-horizontal"></div>
+                <div class="timeline-content-horizontal">
+                    <div class="timeline-icon-horizontal">
+                        <i class="bi bi-arrow-return-left"></i>
+                    </div>
+                    <h6 class="timeline-title-horizontal">Đã Trả</h6>
+                    <p class="timeline-desc-horizontal">Đã trả hàng</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        /* Horizontal Timeline Styles */
+        .order-status-timeline {
+            padding: 20px 0;
+        }
+
+        .timeline-header {
+            text-align: center;
+        }
+
+        .timeline-wrapper-horizontal {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 0;
+        }
+
+        .timeline-item-horizontal {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            min-width: 120px;
+            opacity: 0.4;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .timeline-item-horizontal.active,
+        .timeline-item-horizontal.completed {
+            opacity: 1;
+        }
+
+        .timeline-line-horizontal {
+            flex: 1;
+            height: 4px;
+            background-color: #e0e0e0;
+            margin: 30px 0 0 0;
+            min-width: 60px;
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+
+        .timeline-line-horizontal.completed {
+            background: linear-gradient(to right, #0aad0a, #0aad0a);
+        }
+
+        .timeline-dot-horizontal {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            border: 4px solid #fff;
+            box-shadow: 0 0 0 3px #e0e0e0;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .timeline-item-horizontal.active .timeline-dot-horizontal {
+            background-color: #0aad0a;
+            box-shadow: 0 0 0 3px rgba(10, 173, 10, 0.3);
+            animation: pulse-dot-horizontal 2s infinite;
+        }
+
+        .timeline-item-horizontal.completed .timeline-dot-horizontal {
+            background-color: #0aad0a;
+            box-shadow: 0 0 0 3px rgba(10, 173, 10, 0.2);
+        }
+
+        .timeline-item-cancelled .timeline-dot-horizontal,
+        .timeline-item-cancelled.active .timeline-dot-horizontal {
+            background-color: #dc3545;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
+        }
+
+        .timeline-item-returned .timeline-dot-horizontal,
+        .timeline-item-returned.active .timeline-dot-horizontal {
+            background-color: #fd7e14;
+            box-shadow: 0 0 0 3px rgba(253, 126, 20, 0.3);
+        }
+
+        @keyframes pulse-dot-horizontal {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        .timeline-content-horizontal {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .timeline-icon-horizontal {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .timeline-item-horizontal.active .timeline-icon-horizontal,
+        .timeline-item-horizontal.completed .timeline-icon-horizontal {
+            background-color: rgba(10, 173, 10, 0.1);
+            color: #0aad0a;
+        }
+
+        .timeline-item-cancelled .timeline-icon-horizontal,
+        .timeline-item-cancelled.active .timeline-icon-horizontal {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .timeline-item-returned .timeline-icon-horizontal,
+        .timeline-item-returned.active .timeline-icon-horizontal {
+            background-color: rgba(253, 126, 20, 0.1);
+            color: #fd7e14;
+        }
+
+        .timeline-title-horizontal {
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .timeline-item-horizontal.active .timeline-title-horizontal,
+        .timeline-item-horizontal.completed .timeline-title-horizontal {
+            color: #212529;
+        }
+
+        .timeline-desc-horizontal {
+            margin-bottom: 0;
+            font-size: 12px;
+            color: #999;
+            white-space: nowrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .timeline-wrapper-horizontal {
+                padding: 30px 10px;
+                gap: 0;
+            }
+
+            .timeline-item-horizontal {
+                min-width: 80px;
+            }
+
+            .timeline-line-horizontal {
+                min-width: 30px;
+            }
+
+            .timeline-icon-horizontal {
+                width: 45px;
+                height: 45px;
+                font-size: 22px;
+            }
+
+            .timeline-title-horizontal {
+                font-size: 12px;
+            }
+
+            .timeline-desc-horizontal {
+                font-size: 10px;
+            }
+
+            .timeline-dot-horizontal {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .timeline-wrapper-horizontal {
+                justify-content: flex-start;
+                padding: 20px 5px;
+            }
+
+            .timeline-item-horizontal {
+                min-width: 70px;
+            }
+
+            .timeline-line-horizontal {
+                min-width: 20px;
+            }
+        }
+    </style>
+</div>

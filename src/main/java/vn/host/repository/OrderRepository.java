@@ -18,25 +18,18 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order,Long> {
-//    Long userId;
-//    Long shopId;
-//    PaymentMethod paymentMethod;
-//    BigDecimal totalAmount;
-//    OrderStatus status;
-//    String receiverName;
-//    String phone;
-//    AddressRequest address;
-//    Instant createdAt;
     @Query
     (
             """
             SELECT new vn.host.model.response.OrderResponse(
+               o.orderId,
                o.user.userId,
-                o.shop.shopId,
+               o.shop.shopId,
                o.paymentMethod,
                o.totalAmount,
                o.status,
                new vn.host.model.request.AddressRequest(
+                   o.address.addressId,
                    o.address.province,
                    o.address.district,
                    o.address.ward,
@@ -45,7 +38,8 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
                    o.address.phone,
                    o.address.isDefault
                ),
-               o.createdAt
+                o.createdAt,
+                 o.shippingProvider.estimatedDays
             )
             FROM Order o
             WHERE o.user.userId = :userId
@@ -54,5 +48,37 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     )
     List<OrderResponse> findAllOrdersByUserId(Long userId);
 
+
+    @Query
+    (
+            """
+            SELECT new vn.host.model.response.OrderResponse(
+               o.orderId,
+               o.user.userId,
+               o.shop.shopId,
+               o.paymentMethod,
+               o.totalAmount,
+               o.status,
+               new vn.host.model.request.AddressRequest(
+                   o.address.addressId,
+                   o.address.province,
+                   o.address.district,
+                   o.address.ward,
+                   o.address.addressDetail,
+                   o.address.receiverName,
+                   o.address.phone,
+                   o.address.isDefault
+               ),
+                o.createdAt,
+                o.shippingProvider.estimatedDays
+            )
+            FROM Order o
+            WHERE o.orderId = :orderId
+           """
+    )
+    OrderResponse findOrderById(Long orderId);
+
     Order findTopByUser_UserIdAndShop_ShopIdOrderByOrderIdDesc(Long userId, Long shopId);
+
+    List<Order> findAllOrderByAddress_AddressId(Long addressId);
 }

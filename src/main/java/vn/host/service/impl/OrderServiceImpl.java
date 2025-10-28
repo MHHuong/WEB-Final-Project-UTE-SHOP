@@ -13,9 +13,7 @@ import vn.host.entity.*;
 import vn.host.model.request.OrderItemRequest;
 import vn.host.model.request.OrderRequest;
 import vn.host.model.request.ShippingFeeRequest;
-import vn.host.model.response.OrderResponse;
-import vn.host.model.response.ProductModel;
-import vn.host.model.response.TempOrderResponse;
+import vn.host.model.response.*;
 import vn.host.model.websocket.OrderStatusMessage;
 import vn.host.repository.*;
 import vn.host.service.AddressService;
@@ -23,10 +21,12 @@ import vn.host.service.CartItemService;
 import vn.host.service.OrderService;
 import vn.host.util.sharedenum.OrderStatus;
 import vn.host.util.sharedenum.PaymentMethod;
+import vn.host.util.sharedenum.PaymentStatus;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -109,11 +109,10 @@ public class OrderServiceImpl implements OrderService {
                     .address(address)
                     .paymentMethod(orderRequest.getPaymentMethod())
                     .shippingProvider(shippingProvider)
-                    .totalAmount(items.stream()
-                            .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                            .reduce(BigDecimal.ZERO, BigDecimal::add))
+                    .totalAmount(orderRequest.getTotalAmount())
                     .coupon(coupon)
                     .status(OrderStatus.NEW)
+                    .note(orderRequest.getNote())
                     .build();
 
             Order savedOrder = orderRepository.save(order);
@@ -145,16 +144,78 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponse> getOrdersByUserId(Long userId) {
-        return orderRepository.findAllOrdersByUserId(userId);
+        List<OrderResponse> orders  = orderRepository.findAllOrdersByUserId(userId);
+        for (OrderResponse order : orders) {
+            List<OrderItemResponse> items = orderItemRepository.findOrderByOrderIdAndUserId(order.getOrderId(), userId);
+            order.setOrderItem(items);
+            Order current_order = orderRepository.findById(order.getOrderId())
+                    .orElseThrow(() -> new RuntimeException("Order not found"));
+            if (current_order.getCoupon() != null) {
+                order.setCouponValue(current_order.getCoupon().getValue());
+            }
+            Optional<Payment> payment = current_order.getPayments()
+                    .stream()
+                    .findFirst();
+            if (payment.isPresent()) {
+                order.setPaymentStatus(payment.get().getStatus());
+            } else {
+                order.setPaymentStatus(PaymentStatus.PENDING);
+            }
+        }
+        return orders;
     }
 
     @Override
-    public void updateStatus(Long orderId, String status) {
+    public OrderResponse getOrderByOrderId(Long orderId) {
+        OrderResponse order  = orderRepository.findOrderById(orderId);
+        List<OrderItemResponse> items = orderItemRepository.findOrderByOrderIdAndUserId(order.getOrderId(), order.getUserId());
+        for (OrderItemResponse item : items) {
+            Optional<Product> product = productRepository.findById(item.getProductId());
+            product.ifPresent(value -> item.setImage(value.getMedia().stream().findFirst().map(ProductMedia::getUrl).orElse(null)));
+        }
+        Order current_order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        if (current_order.getCoupon() != null) {
+            order.setCouponValue(current_order.getCoupon().getValue());
+        }
+        Optional<Payment> payment = current_order.getPayments().stream().findFirst();
+        if (payment.isPresent()) {
+            order.setPaymentStatus(payment.get().getStatus());
+        } else {
+            order.setPaymentStatus(PaymentStatus.PENDING);
+        }
+
+        order.setOrderItem(items);
+        return order;
+    }
+
+    @Override
+    public void updateStatus(Long orderId, String status, String reason) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+        if (order.getStatus() != OrderStatus.NEW && OrderStatus.valueOf(status) == OrderStatus.CANCELLED) {
+            throw new RuntimeException("Only NEW orders can be cancelled");
+        }
         order.setStatus(Enum.valueOf(vn.host.util.sharedenum.OrderStatus.class, status));
+        if (order.getStatus().equals(OrderStatus.RECEIVED)) {
+            Payment payment = Payment.builder()
+                    .order(order)
+                    .amount(order.getTotalAmount())
+                    .method(order.getPaymentMethod())
+                    .status(PaymentStatus.SUCCESS)
+                    .transactionCode("AUTO-" + order.getOrderId() + "-" + System.currentTimeMillis())
+                    .build();
+            order.getPayments().add(paymentRepository.save(payment));
+        }
+
+
+        if (reason != null && !reason.trim().isEmpty()) {
+            String currentNotes = order.getNote() != null ? order.getNote() : "";
+            String newNotes = currentNotes + "\n[" + status + "] Lý do: " + reason;
+            order.setNote(newNotes.trim());
+        }
         orderRepository.save(order);
-        // Publish per-user notification to /user/queue/orders
+
         Long userId = order.getUser().getUserId();
         OrderStatusMessage message = new OrderStatusMessage(order.getOrderId(), userId, order.getStatus().name());
         messagingTemplate.convertAndSendToUser(String.valueOf(userId), "/queue/orders", message);
@@ -174,25 +235,32 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
     }
 
-    private Double calDistanceFee(String shippingService) {
+    private ShippingFeeResponse calDistanceFee(String shippingService) {
         int estimatedDays = 0;
         switch (shippingService) {
             case "STANDARD":
                 estimatedDays = 5;
+                break;
             case "FAST":
-                estimatedDays = 3;
+                estimatedDays = 2;
+                break;
             case "EXPRESS":
                 estimatedDays = 1;
+                break;
             default:
                 estimatedDays = 5;
         }
-        return shippingProviderRepository.findByMaxEstimatedDays(estimatedDays);
+        List<ShippingFeeResponse> shippingProviders = shippingProviderRepository.findTopByEstimatedDaysLessThanEqualOrderByFeeAsc(estimatedDays);
+        if (shippingProviders.isEmpty()) {
+            throw new RuntimeException("No shipping providers found for the given service");
+        }
+        return shippingProviders.get(0);
     }
 
     @Override
-    public Double calculateShippingFee(ShippingFeeRequest shippingFeeRequest) {
+    public ShippingFeeResponse calculateShippingFee(ShippingFeeRequest shippingFeeRequest) {
         try {
-            Double distanceFee = calDistanceFee(shippingFeeRequest.getShippingService());
+            ShippingFeeResponse distanceFee = calDistanceFee(shippingFeeRequest.getShippingService());
             double sum = 0;
             String source = shippingFeeRequest.getWard() + ", " + shippingFeeRequest.getDistrict() + ", " + shippingFeeRequest.getProvince();
             Map<String, Object> originData = geoCodeConfig.getGeocode(source, hereApiKey);
@@ -224,7 +292,8 @@ public class OrderServiceImpl implements OrderService {
                 Map<String, Object> summary = (Map<String, Object>) firstSection.get("summary");
                 sum += ((Number) summary.get("length")).doubleValue() / 100000;
             }
-            return sum * distanceFee;
+            distanceFee.setFee(BigDecimal.valueOf(sum * distanceFee.getFee().doubleValue()));
+            return distanceFee;
         } catch (Exception e) {
             throw new RuntimeException("Failed to calculate shipping fee: " + e.getMessage());
         }
@@ -246,7 +315,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updateOrderPaymentVnPay(String orderIdsStr, String responseCode, Long amount) {
+    public void updateOrderPaymentVnPay(String orderIdsStr, String responseCode, String transNo, Long amount) {
         String[] orderIds = orderIdsStr.split("-");
         for (String idStr : orderIds) {
             Long orderId = Long.parseLong(idStr);
@@ -254,7 +323,7 @@ public class OrderServiceImpl implements OrderService {
                     .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
             Payment payment = Payment.builder()
                     .order(order)
-                    .transactionCode(responseCode)
+                    .transactionCode(transNo)
                     .amount(BigDecimal.valueOf(amount))
                     .method(PaymentMethod.VNPAY)
                     .build();
@@ -272,7 +341,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updateOrderPaymentMomo(String orderIdsStr, Integer responseCode, Long amount) {
+    public void updateOrderPaymentMomo(String orderIdsStr, Integer responseCode, String transNo, Long amount) {
         String[] orderIds = orderIdsStr.split("-");
         for (String idStr : orderIds) {
             Long orderId = Long.parseLong(idStr);
@@ -280,7 +349,7 @@ public class OrderServiceImpl implements OrderService {
                     .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
             Payment payment = Payment.builder()
                     .order(order)
-                    .transactionCode(responseCode.toString())
+                    .transactionCode(transNo)
                     .amount(BigDecimal.valueOf(amount))
                     .method(PaymentMethod.MOMO)
                     .build();

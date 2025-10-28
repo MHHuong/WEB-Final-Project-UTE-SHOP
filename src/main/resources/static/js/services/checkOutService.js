@@ -12,6 +12,7 @@ let selectedAddressId = null;
 let shippingFee = 0
 let shippingFeePre = 0
 let shippingMethod = 'STANDARD';
+let shippingProviderId = 1;
 
 // Mock data for provinces and districts (Replace with actual API)
 const locationData = addresses;
@@ -108,30 +109,8 @@ async function selectAddress(addressId) {
     }
     // Enable place order button
     document.getElementById('place-order-btn').disabled = false
-    // await calcShippingFeeFist();
+    await displayShippingFeeFist();
 }
-
-async function calcShippingFeeFist() {
-    let shippingMethod = document.querySelector('input[name="shipping-method"]:checked').value;
-    let shippingData = {
-        province: document.getElementById('province').selectedOptions[0].text,
-        district: document.getElementById('district').selectedOptions[0].text,
-        ward: document.getElementById('ward').selectedOptions[0].text,
-        addressDetail: document.getElementById('address-detail').value,
-        shopIds: selectedProducts.map(item => item.productModel.shopId),
-        shippingService: shippingMethod
-    }
-    const result = await orderService.calculateShippingFee(shippingData);
-    if (result.status === 'Success') {
-        shippingFee = Math.floor(result.data);
-        shippingFeePre = shippingFee
-        document.getElementById("shipping-fee").innerText = formatCurrency(shippingFee);
-        const subtotalText = document.getElementById("subtotal").innerText.replace(/₫/g, '').replace(/\./g, '');
-        const subtotal = parseInt(subtotalText) || 0;
-        const total = subtotal + shippingFee;
-        document.getElementById("total").innerText = formatCurrency(total);
-    }
-    else showErrorToast(result.message);        }
 
 // Fill form with address data
 async function fillFormWithAddress(address) {
@@ -428,12 +407,12 @@ async function processOrder(shouldSaveAddress = false) {
         const isDefault = document.getElementById('set-as-default-address').checked;
         const addressData = {
             userId: USER_ID,
-            receiverName: orderData.receiverName,
-            phone: orderData.receiverPhone,
-            province: orderData.province,
-            district: orderData.district,
-            ward: orderData.ward,
-            addressDetail: orderData.addressDetail,
+            receiverName: orderData.address.receiverName,
+            phone: orderData.address.phone,
+            province: orderData.address.province,
+            district: orderData.address.district,
+            ward: orderData.address.ward,
+            addressDetail: orderData.address.addressDetail,
             isDefault: isDefault ? 1 : 0
         };
 
@@ -444,7 +423,6 @@ async function processOrder(shouldSaveAddress = false) {
             }
         } catch (error) {
             console.error('Error saving address:', error);
-            // Continue with order even if address save fails
         }
     }
 
@@ -510,9 +488,37 @@ async function handleNavigation() {
     }, 2000);
 }
 
-function addShippingServiceFee() {
+async function calcShippingFee() {
     let shippingMethod = document.querySelector('input[name="shipping-method"]:checked').value;
-    shippingFee = shippingFeePre
+    let shippingData = {
+        province: document.getElementById('province').selectedOptions[0].text,
+        district: document.getElementById('district').selectedOptions[0].text,
+        ward: document.getElementById('ward').selectedOptions[0].text,
+        addressDetail: document.getElementById('address-detail').value,
+        shopIds: selectedProducts.map(item => item.productModel.shopId),
+        shippingService: shippingMethod
+    }
+    const result = await orderService.calculateShippingFee(shippingData);
+    console.log(result)
+    if (result.status === 'Success') {
+        shippingFee = Math.floor(result.data.fee) || 0;
+        shippingProviderId = result.data.shippingProviderId || 0
+    }
+    else showErrorToast(result.message || 0);
+}
+
+async function displayShippingFeeFist() {
+    // await calcShippingFee()
+    document.getElementById("shipping-fee").innerText = formatCurrency(shippingFee);
+    const subtotalText = document.getElementById("subtotal").innerText.replace(/₫/g, '').replace(/\./g, '');
+    const subtotal = parseInt(subtotalText) || 0;
+    const total = subtotal + shippingFee;
+    document.getElementById("total").innerText = formatCurrency(total);
+}
+
+async function addShippingServiceFee() {
+    let shippingMethod = document.querySelector('input[name="shipping-method"]:checked').value;
+    // await calcShippingFee()
     switch (shippingMethod) {
         case 'STANDARD':
             shippingFee += 0;
@@ -702,9 +708,9 @@ document.addEventListener('DOMContentLoaded', () => {
         loadWards(e.target.value);
     });
 
-    // document.getElementById("ward").addEventListener('change', (e) => {
-    //     calcShippingFeeFist();
-    // })
+    document.getElementById("ward").addEventListener('change', (e) => {
+        displayShippingFeeFist();
+    })
 
     // Enable place order button when all required fields are filled
     const form = document.getElementById('shipping-form');

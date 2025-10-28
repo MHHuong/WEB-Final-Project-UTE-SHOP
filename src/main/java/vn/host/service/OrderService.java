@@ -7,6 +7,7 @@ import vn.host.entity.Payment;
 import vn.host.model.request.OrderRequest;
 import vn.host.model.request.ShippingFeeRequest;
 import vn.host.model.response.OrderResponse;
+import vn.host.model.response.ShippingFeeResponse;
 import vn.host.model.response.TempOrderResponse;
 
 import java.util.List;
@@ -20,17 +21,20 @@ public interface OrderService {
 
     List<OrderResponse> getOrdersByUserId(Long userId);
 
-    void updateStatus(Long orderId, String status);
+    OrderResponse getOrderByOrderId(Long orderId);
+
+    void updateStatus(Long orderId, String status, String reason);
 
     void updatePayment(Long orderId, Payment payment);
 
     Order findOrderById(long l);
 
-    Double calculateShippingFee(ShippingFeeRequest shippingFeeRequest);
+    ShippingFeeResponse calculateShippingFee(ShippingFeeRequest shippingFeeRequest);
 
     String findTopOrderByUser(TempOrderResponse tempOrderResponse);
 
-    void updateOrderPaymentVnPay(String orderIdsStr, String responseCode, Long amount);
 
-    void updateOrderPaymentMomo(String orderIdsStr, Integer responseCode, Long amount);
+    void updateOrderPaymentVnPay(String orderIdsStr, String responseCode, String transNo, Long amount);
+
+    void updateOrderPaymentMomo(String orderIdsStr, Integer responseCode, String transNo, Long amount);
 }

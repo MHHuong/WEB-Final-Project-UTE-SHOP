@@ -11,10 +11,7 @@ import vn.host.entity.User;
 import vn.host.model.request.AddressRequest;
 import vn.host.model.request.OrderRequest;
 import vn.host.model.request.ShippingFeeRequest;
-import vn.host.model.response.OrderItemResponse;
-import vn.host.model.response.OrderResponse;
-import vn.host.model.response.ResponseModel;
-import vn.host.model.response.TempOrderResponse;
+import vn.host.model.response.*;
 import vn.host.repository.OrderRepository;
 import vn.host.service.OrderItemService;
 import vn.host.service.OrderService;
@@ -33,7 +30,7 @@ public class OrderController {
     OrderItemService orderItemService;
 
     @GetMapping("{id}")
-    public ResponseEntity<?> getOrderByUserId(@PathVariable Long id){
+    public ResponseEntity<?> getOrderByUserId(@PathVariable Long id) {
         try {
             List<OrderResponse> orders = orderService.getOrdersByUserId(id);
             return new ResponseEntity<>(
@@ -55,7 +52,7 @@ public class OrderController {
     }
 
     @PostMapping()
-    public ResponseEntity<?> saveOrder(@RequestBody OrderRequest orderRequest){
+    public ResponseEntity<?> saveOrder(@RequestBody OrderRequest orderRequest) {
         try {
             orderService.saveOrder(orderRequest);
             return new ResponseEntity<>(
@@ -77,9 +74,12 @@ public class OrderController {
     }
 
     @PutMapping("status")
-    public ResponseEntity<?> updateStatus(@RequestParam("order") Long id, @RequestParam("status") String status){
+    public ResponseEntity<?> updateStatus(
+            @RequestParam("order") Long id,
+            @RequestParam("status") String status,
+            @RequestParam(value = "reason", required = false) String reason) {
         try {
-            orderService.updateStatus(id, status);
+            orderService.updateStatus(id, status, reason);
             return new ResponseEntity<>(
                     new ResponseModel(
                             "Success",
@@ -98,8 +98,33 @@ public class OrderController {
         }
     }
 
+    @PutMapping("status/batch")
+    public ResponseEntity<?> updateStatusBatch(@RequestParam String orderIdsStr, @RequestParam String status) {
+        try {
+            String[] orderIds = orderIdsStr.split(",");
+            for (String orderId : orderIds) {
+                orderService.updateStatus(Long.parseLong(orderId.trim()), status, null);
+            }
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "Success",
+                            "Order statuses updated successfully",
+                            null
+                    ), HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "Error",
+                            "Failed to update order statuses: " + e.getMessage(),
+                            null
+                    ), HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
     @GetMapping("{userId}/{orderId}")
-    public ResponseEntity<?> getOrderDetail(@PathVariable Long userId, @PathVariable Long orderId){
+    public ResponseEntity<?> getOrderDetail(@PathVariable Long userId, @PathVariable Long orderId) {
         try {
             List<OrderItemResponse> orderDetails = orderItemService.getOrderDetailsByOrderIdAndUserId(userId, orderId);
             return new ResponseEntity<>(
@@ -121,7 +146,7 @@ public class OrderController {
     }
 
     @PutMapping("payment")
-    public ResponseEntity<?> updatePayment(@RequestParam("order") Long id, @RequestBody Payment payment){
+    public ResponseEntity<?> updatePayment(@RequestParam("order") Long id, @RequestBody Payment payment) {
         try {
             orderService.updatePayment(id, payment);
             return new ResponseEntity<>(
@@ -143,9 +168,9 @@ public class OrderController {
     }
 
     @PostMapping("shipping-fee")
-    public ResponseEntity<?> calculateShippingFee(@RequestBody ShippingFeeRequest shippingFeeRequest){
+    public ResponseEntity<?> calculateShippingFee(@RequestBody ShippingFeeRequest shippingFeeRequest) {
         try {
-            Double fee = orderService.calculateShippingFee(shippingFeeRequest);
+            ShippingFeeResponse fee = orderService.calculateShippingFee(shippingFeeRequest);
             return new ResponseEntity<>(
                     new ResponseModel(
                             "Success",
@@ -166,7 +191,7 @@ public class OrderController {
     }
 
     @PostMapping("temp-order")
-    public ResponseEntity<?> saveTempOrder(@RequestBody Object order, HttpSession session){
+    public ResponseEntity<?> saveTempOrder(@RequestBody Object order, HttpSession session) {
         try {
             session.removeAttribute("selectedProducts");
             Map<String, Object> orderMap = (Map<String, Object>) order;
@@ -209,6 +234,28 @@ public class OrderController {
                     new ResponseModel(
                             "Error",
                             "Failed to retrieve orders: " + e.getMessage(),
+                            null
+                    ), HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    @GetMapping("detail/{orderId}")
+    public ResponseEntity<?> getOrderDetailByOrderId(@PathVariable Long orderId) {
+        try {
+            OrderResponse orderResponse = orderService.getOrderByOrderId(orderId);
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "Success",
+                            "Order detail retrieved successfully",
+                            orderResponse
+                    ), HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "Error",
+                            "Failed to retrieve order detail: " + e.getMessage(),
                             null
                     ), HttpStatus.INTERNAL_SERVER_ERROR
             );

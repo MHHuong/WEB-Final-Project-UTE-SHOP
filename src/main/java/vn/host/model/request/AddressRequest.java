@@ -13,6 +13,7 @@ import vn.host.entity.User;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddressRequest {
+    Long addressId;
     String province;
     String district;
     String ward;

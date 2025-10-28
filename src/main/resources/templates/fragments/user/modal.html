@@ -339,3 +339,71 @@
         </div>
     </div>
 </div>
+
+<div th:fragment="status-modal" class="modal fade" id="orderStatusConfirmModal" tabindex="-1" aria-labelledby="orderStatusConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="orderStatusConfirmModalLabel">
+                    <i class="bi bi-exclamation-circle text-warning me-2"></i>
+                    Xác nhận thay đổi trạng thái
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <p class="text-muted mb-2">Mã đơn hàng:</p>
+                    <p class="fw-bold" id="modal-order-id">#000000</p>
+                </div>
+
+                <div class="status-change-info mb-3">
+                    <div class="d-flex align-items-center justify-content-center gap-3">
+                        <div class="text-center">
+                            <small class="text-muted d-block mb-1">Trạng thái hiện tại</small>
+                            <span class="badge bg-secondary" id="modal-old-status">Đang xử lý</span>
+                        </div>
+                        <div>
+                            <i class="bi bi-arrow-right fs-4 text-primary"></i>
+                        </div>
+                        <div class="text-center">
+                            <small class="text-muted d-block mb-1">Trạng thái mới</small>
+                            <span class="badge bg-danger" id="modal-new-status">Đã hủy</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="reason-section" style="display: none;">
+                    <label for="cancel-reason" class="form-label">
+                        Lý do <span class="text-danger">*</span>
+                    </label>
+                    <textarea
+                            class="form-control"
+                            id="cancel-reason"
+                            rows="3"
+                            placeholder="Vui lòng nhập lý do..."
+                            maxlength="500"></textarea>
+                    <small class="text-muted">Tối đa 500 ký tự</small>
+                    <div class="invalid-feedback" id="reason-error">
+                        Vui lòng nhập lý do
+                    </div>
+                </div>
+
+                <div class="alert alert-warning mt-3 mb-0" id="warning-message">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <span id="warning-text">Bạn có chắc chắn muốn thay đổi trạng thái đơn hàng này không?</span>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>
+                    Hủy bỏ
+                </button>
+                <button type="button" class="btn btn-primary" id="confirm-status-change-btn">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Xác nhận
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+

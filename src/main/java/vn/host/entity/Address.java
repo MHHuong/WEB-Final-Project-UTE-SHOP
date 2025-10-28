@@ -21,7 +21,6 @@ public class Address {
     @JsonIgnore
     private User user;
 
-
     @Column(length = 50)
     private String province;
 
@@ -39,6 +38,9 @@ public class Address {
 
     @Column(length = 20)
     private String phone;
+
+    @Column(columnDefinition = "tinyint default 1")
+    private Integer status = 1;
 
     @Column(columnDefinition = "tinyint default 0")
     private Integer isDefault = 0;

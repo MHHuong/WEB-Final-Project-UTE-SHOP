@@ -1,5 +1,7 @@
 package vn.host.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -21,6 +23,7 @@ public interface AddressRepository extends JpaRepository<Address,Long> {
               AND a.receiverName = :receiverName
               AND a.phone = :phone
               AND a.user = :user
+              AND a.status = 1
             """)
     Optional<Address> findAddresses(String province, String district, String ward, String addressDetail, String receiverName, String phone, User user);
 
@@ -34,8 +37,19 @@ public interface AddressRepository extends JpaRepository<Address,Long> {
     @Query("""
             SELECT a
             FROM Address a
-            WHERE a.user.userId = :userId
+            WHERE a.user.userId = :userId AND a.status = 1
             ORDER BY a.isDefault DESC, a.addressId DESC
             """)
     List<Address> findAllByUserId(Long userId);
+
+
+    @Query("""
+            SELECT a
+            FROM Address a
+            WHERE a.user.userId = :userId AND a.status = 1
+            ORDER BY a.isDefault DESC, a.addressId DESC
+            """)
+    Page<Address> findAllByUserId(Long userId, Pageable pageable);
+
+    Optional<Address> findAddressByAddressIdAndUser_UserId(Long addressId, Long userId);
 }

@@ -12,9 +12,11 @@ import java.util.List;
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     @Query("""
             SELECT new vn.host.model.response.OrderItemResponse(
+                oi.product.productId,
                 oi.product.name,
                 oi.quantity,
-                oi.unitPrice
+                oi.unitPrice,
+                oi.discountAmount
             )
             FROM OrderItem oi
             WHERE oi.order.orderId = :orderId

@@ -13,14 +13,9 @@
     </div>
 </header>
 <body>
-<div th:replace="~{fragments/user/modal::user-modal}"></div>
-<div th:replace="~{fragments/user/shopCart::shop-cart}"></div>
-<div th:replace="~{fragments/user/modal::location-modal}"></div>
 <div th:replace="~{fragments/toast::toast-container}"></div>
-<main layout:fragment="content"></main>
-<div th:replace="~{fragments/user/modal::quick-view-modal}"></div>
 <div th:replace="~{fragments/user/modal::vocher-modal}"></div>
-<div th:replace="~{fragments/user/modal::save-address-modal}"></div>
+<main layout:fragment="content"></main>
 </body>
 <footer th:replace="~{fragments/user/footer::footer}"></footer>
 <!-- JavaScript Bundle with Popper -->

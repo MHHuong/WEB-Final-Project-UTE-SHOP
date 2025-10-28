@@ -26,7 +26,7 @@ public class StatusController {
     @PostMapping("/order-status")
     public ResponseEntity<?> updateOrderStatus(@RequestParam("orderId") Long orderId,
                                                @RequestParam("status") String status) {
-        orderService.updateStatus(orderId, status);
+        orderService.updateStatus(orderId, status, null);
         return ResponseEntity.ok().body("order status updated");
     }
 }

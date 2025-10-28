@@ -1,11 +1,15 @@
 package vn.host.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.host.entity.Address;
+import vn.host.entity.Order;
 import vn.host.entity.User;
 import vn.host.model.request.AddressRequest;
 import vn.host.repository.AddressRepository;
+import vn.host.repository.OrderRepository;
 import vn.host.repository.UserRepository;
 import vn.host.service.AddressService;
 
@@ -21,10 +25,49 @@ public class AddressServiceImpl implements AddressService {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    OrderRepository orderRepository;
+
     @Override
     public <S extends Address> S save(S entity) {
         return addressRepository.save(entity);
     }
+
+    @Override
+    public void deleteUserAddress(Long addressId, Long userId) {
+        Address address = addressRepository.findAddressByAddressIdAndUser_UserId(addressId, userId)
+                .orElseThrow(() -> new RuntimeException("Address not found or does not belong to user"));
+        List<Order> linkedOrders = orderRepository.findAllOrderByAddress_AddressId(addressId);
+        if (linkedOrders.isEmpty()) {
+            addressRepository.delete(address);
+        } else {
+            address.setStatus(0);
+            addressRepository.save(address);
+        }
+    }
+
+    @Override
+    public void updateUserAddress(AddressRequest address, Long userId) {
+        Address existingAddress = addressRepository.findAddressByAddressIdAndUser_UserId(address.getAddressId(), userId)
+                .orElseThrow(() -> new RuntimeException("Address not found or does not belong to user"));
+        if (address.getIsDefault() != null && address.getIsDefault() == 1) {
+            Optional<Address> currentDefaultAddress = addressRepository.findDefaultAddressByUserId(userId);
+            currentDefaultAddress.ifPresent(addr -> {
+                addr.setIsDefault(0);
+                addressRepository.save(addr);
+            });
+        }
+        existingAddress.setReceiverName(address.getReceiverName());
+        existingAddress.setPhone(address.getPhone());
+        existingAddress.setProvince(address.getProvince());
+        existingAddress.setDistrict(address.getDistrict());
+        existingAddress.setWard(address.getWard());
+        existingAddress.setAddressDetail(address.getAddressDetail());
+        existingAddress.setIsDefault(address.getIsDefault());
+        addressRepository.save(existingAddress);
+    }
+
+
 
     @Override
     public Optional<Address> findById(Long aLong) {
@@ -76,6 +119,7 @@ public class AddressServiceImpl implements AddressService {
                 .addressDetail(addressRequest.getAddressDetail())
                 .user(user)
                 .isDefault(0)
+                .status(1)
                 .build();
         return addressRepository.save(newAddress);
     }
@@ -100,6 +144,7 @@ public class AddressServiceImpl implements AddressService {
                 .addressDetail(address.getAddressDetail())
                 .user(user)
                 .isDefault(isDefault)
+                .status(1)
                 .build();
         addressRepository.save(newAddress);
         user.getAddresses().add(newAddress);
@@ -108,5 +153,10 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public List<Address> findAllByUserId(Long userId) {
         return addressRepository.findAllByUserId(userId);
+    }
+
+    @Override
+    public Page<Address> findAllByUserId(Long userId, Pageable pageable) {
+        return addressRepository.findAllByUserId(userId, pageable);
     }
 }

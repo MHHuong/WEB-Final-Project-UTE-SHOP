@@ -1,6 +1,8 @@
 package vn.host.controller.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -89,6 +91,75 @@ public class AddressController {
             return new ResponseEntity<>(
                     new ResponseModel(
                             "false",
+                            "Error: " + e.getMessage(),
+                            null
+                    ), HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    @DeleteMapping("{userId}/{addressId}")
+    public ResponseEntity<?> deleteAddress(@PathVariable Long userId, @PathVariable Long addressId) {
+        try {
+            addressService.deleteUserAddress(addressId, userId);
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "true",
+                            "Delete address successfully",
+                            null
+                    ), HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "false",
+                            "Error: " + e.getMessage(),
+                            null
+                    ), HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    @PutMapping("{userId}")
+    public ResponseEntity<?> updateAddress(@PathVariable Long userId, @RequestBody AddressRequest address) {
+        try {
+            addressService.updateUserAddress(address, userId);
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "true",
+                            "Update address successfully",
+                            null
+                    ), HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "false",
+                            "Error: " + e.getMessage(),
+                            null
+                    ), HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    @GetMapping("/{userId}/pagination")
+    public ResponseEntity<?> getPaginatedAddresses(@PathVariable Long userId,
+                                                   @RequestParam int page,
+                                                   @RequestParam int size) {
+        try {
+            Pageable pageable = Pageable.ofSize(size).withPage(page);
+            Page<Address> addresses = addressService.findAllByUserId(userId, pageable);
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "true",
+                            "Get paginated addresses successfully",
+                            addresses
+                    ), HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    new ResponseModel(
+                            "failed",
                             "Error: " + e.getMessage(),
                             null
                     ), HttpStatus.INTERNAL_SERVER_ERROR
