@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{shipper/common/main}">
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <div class="row mb-8">
+            <div class="col-md-12 d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>Đăng ký Shipper</h2>
+                    <p class="text-muted mb-0">Tài khoản user có thể đăng ký làm shipper (mỗi tài khoản 1 lần).</p>
+                </div>
+                <div>
+                    <a class="btn btn-outline-primary" th:href="@{/shipper/orders/confirmed}">Đơn chờ lấy</a>
+                    <a class="btn btn-outline-secondary" th:href="@{/shipper/orders/shipping}">Đơn đang giao</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Đơn vị vận chuyển</label>
+                        <select id="providerSelect" class="form-select"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Số điện thoại</label>
+                        <input id="phoneInput" class="form-control" placeholder="09xx xxx xxx">
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Tên công ty/đội nhóm (tuỳ chọn)</label>
+                        <input id="companyInput" class="form-control" placeholder="UTE Express">
+                    </div>
+
+                    <!-- Địa chỉ theo chuẩn shop -->
+                    <div class="col-md-12">
+                        <label class="form-label mb-2">Địa chỉ hoạt động</label>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <select id="provinceSelect" class="form-select">
+                                    <option value="">-- Tỉnh/TP --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select id="districtSelect" class="form-select" disabled>
+                                    <option value="">-- Quận/Huyện --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select id="wardSelect" class="form-select" disabled>
+                                    <option value="">-- Phường/Xã --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <input id="detailInput" class="form-control" placeholder="Số nhà, đường...">
+                            </div>
+                        </div>
+                        <div class="form-text mt-2">Sẽ lưu vào <code>Shipper.address</code> dạng “chi tiết, phường,
+                            quận, tỉnh”.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button id="registerBtn" class="btn btn-primary">Đăng ký</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- render-location.js dùng chung của shop (đã có trong dự án của bạn) -->
+    <script th:src="@{/assets/js/location/choose-location.js}"></script>
+    <script th:src="@{/assets/js/shipper/shipper-register.js}"></script>
+</main>
+</body>
+</html>

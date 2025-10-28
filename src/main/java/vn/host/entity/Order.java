@@ -9,6 +9,7 @@ import vn.host.util.sharedenum.PaymentMethod;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Getter
@@ -19,7 +20,8 @@ import java.util.Set;
 @Entity
 @Table(name = "orders")
 public class Order {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,6 +47,14 @@ public class Order {
     @JoinColumn(name = "ShipperId")
     private Shipper shipper;
 
+    @ManyToMany
+    @JoinTable(
+            name = "orders_shippers",
+            joinColumns = @JoinColumn(name = "order_id"),
+            inverseJoinColumns = @JoinColumn(name = "shipper_id")
+    )
+    private Set<Shipper> shippers = new LinkedHashSet<>();
+
     @Enumerated(EnumType.STRING)
     private OrderStatus status = OrderStatus.NEW;
 
@@ -63,4 +73,10 @@ public class Order {
 
     @OneToMany(mappedBy = "order")
     private Set<Payment> payments = new HashSet<>();
+
+    public void addShipper(Shipper s) {
+        if (s == null) return;
+        if (shippers == null) shippers = new LinkedHashSet<>();
+        shippers.add(s);
+    }
 }

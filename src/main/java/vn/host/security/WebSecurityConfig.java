@@ -25,9 +25,7 @@ public class WebSecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(reg -> reg
                         .requestMatchers(
-                                "/", "/index", "/index.html",
-                                "/assets/**",
-                                "/css/**", "/js/**", "/images/**", "/webjars/**", "/lib/**",
+                                "/", "/**",
                                 "/error", "/error/**",
                                 "/favicon.ico",
                                 "/dashboard/**",
@@ -40,10 +38,16 @@ public class WebSecurityConfig {
                                 "/shop-grid",
                                 "/shop-grid/**",
                                 "/api/admin/**",
-                                "/admin/**"
+                                "/admin/**",
+                                "/shop/**",
+                                "/api/**"
                         ).permitAll()
+                        .requestMatchers("/api/locations/**").permitAll()
+                        .requestMatchers("/uploads/**", "/shop/account/shop-register").permitAll()
+                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
+
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(out -> out.permitAll())
                 .oauth2Login(oauth -> {

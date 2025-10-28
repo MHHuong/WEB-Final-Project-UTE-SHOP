@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{shop/common/main}">
+<body>
+<main layout:fragment="content">
+    <div class="container">
+
+        <div class="row mb-8">
+            <div class="col-md-12">
+                <div class="d-md-flex justify-content-between align-items-center">
+                    <div>
+                        <h2>My Account</h2>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a th:href="@{/shop}" class="text-inherit">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">My Account</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div>
+                        <a th:href="@{/shop}" class="btn btn-light">Back to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Profile card -->
+            <div class="col-lg-4 col-12">
+                <div class="card card-lg mb-6">
+                    <div class="card-body p-6 text-center">
+                        <img id="shopLogoPreview"
+                             src=""
+                             data-fallback="/assets/images/avatar/avatar-1.jpg"
+                             class="rounded-circle mb-4" alt="avatar" width="96" height="96"/>
+                        <h5 class="mb-1" id="cardShopName">Shop Owner</h5>
+                        <p class="mb-3 text-muted small" id="cardUserEmail">
+                            owner@example.com</p>
+                        <ul class="avatar-actions list-unstyled my-3">
+                            <!-- Upload -->
+                            <li>
+                                <form id="avatarUploadForm" class="m-0" enctype="multipart/form-data">
+                                    <!-- file input ẩn, click vào link sẽ mở hộp chọn ảnh -->
+                                    <input id="avatarFile" type="file" name="file" accept="image/*" class="d-none"/>
+                                    <a href="#" class="text-primary d-inline-flex align-items-center gap-2"
+                                       onclick="document.getElementById('avatarFile').click(); return false;">
+                                        <i class="bi bi-image" aria-hidden="true"></i>
+                                        <span>Upload logo</span>
+                                    </a>
+                                </form>
+                            </li>
+
+                            <!-- Delete -->
+                            <li class="mt-2">
+                                <a href="#" class="text-primary d-inline-flex align-items-center gap-2"
+                                   onclick="return deleteAvatar(event);">
+                                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                                    <span>Delete logo</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <hr class="my-4"/>
+
+                        <div class="text-start small">
+                            <p class="mb-2"><i class="bi bi-shop me-2"></i><span id="cardShopShortName">UTE Shop</span>
+                            </p>
+                            <p class="mb-2"><i class="bi bi-geo-alt me-2"></i><span
+                                    id="cardShopAddress">Ho Chi Minh City</span></p>
+                            <p class="mb-0"><i class="bi bi-telephone me-2"></i><span
+                                    id="cardUserPhone">+84 90 000 0000</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit form -->
+            <div class="col-lg-8 col-12">
+                <div class="card card-lg">
+                    <div class="card-body p-6">
+                        <h5 class="mb-4">Account Information</h5>
+                        <form th:action="@{/shop/account/profile}" method="post">
+                            <div class="row">
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label">Shop name</label>
+                                    <input class="form-control" name="shopName" id="shopName"
+                                           placeholder="Shop name" required/>
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label">Email</label>
+                                    <input class="form-control" type="email" name="email" id="userEmail"
+                                           placeholder="you@example.com" required/>
+                                </div>
+                                <div class="mb-3 col-md-6">
+                                    <label class="form-label">Phone</label>
+                                    <input class="form-control" name="phone" id="userPhone"
+                                           placeholder="+84..."/>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Province</label>
+                                        <select id="provinceSelect" class="form-select">
+                                            <option value="">-- Choose Province --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">District</label>
+                                        <select id="districtSelect" class="form-select" disabled>
+                                            <option value="">-- Choose District --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Ward</label>
+                                        <select id="wardSelect" class="form-select" disabled>
+                                            <option value="">-- Choose Ward --</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label">Particular Address</label>
+                                        <input id="detailAddress" type="text" class="form-control"
+                                               placeholder="VD: Số 1 Võ Văn Ngân">
+                                    </div>
+
+                                    <!-- Input address thực tế gửi về BE (nếu form đã có sẵn input name="address" thì dùng chính nó, không cần hidden) -->
+                                    <input id="address" name="address" type="hidden"/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" id="shopDescription" rows="4"
+                                              placeholder="Short description..."></textarea>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-3">
+                                <button id="saveBtn" class="btn btn-primary" type="button">Save changes</button>
+                                <button id="resetBtn" class="btn btn-secondary" type="button">Reset</button>
+                            </div>
+                            <p id="profileStatus" class="small text-muted mt-2"></p>
+                        </form>
+                        <hr class="my-5"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:inline="javascript" th:src="@{/assets/js/location/choose-location.js}"></script>
+    <script th:inline="javascript" th:src="@{/assets/js/vendors/profile/shop-information.js}"></script>
+    <script th:inline="javascript" th:src="@{/assets/js/location/render-location.js}"></script>
+</main>
+</body>
+</html>

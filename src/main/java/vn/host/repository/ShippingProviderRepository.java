@@ -7,7 +7,11 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import vn.host.entity.ShippingProvider;
 
+import java.util.List;
+
 @Repository
 public interface ShippingProviderRepository extends JpaRepository<ShippingProvider, Long>, JpaSpecificationExecutor<ShippingProvider> {
     Page<ShippingProvider> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
+    List<ShippingProvider> findAllByOrderByNameAsc();
 }
