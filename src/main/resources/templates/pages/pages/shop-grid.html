@@ -171,22 +171,22 @@
 
                                         <li class="page-item" th:classappend="${productsPage.first} ? 'disabled'">
                                             <a class="page-link mx-1"
-                                               th:href="@{${baseUrl}(page=${productsPage.number - 1})}"
+                                               th:href="@{${currentCategory == null ? '/shop' : '/shop/category/' + currentCategory}(page=${productsPage.number - 1})}"
                                                aria-label="Previous">
                                                 <i class="feather-icon icon-chevron-left"></i>
                                             </a>
                                         </li>
 
                                         <th:block th:with="
-                                                startPage=${T(Math).max(0, productsPage.number - 2)},
-                                                endPage=${T(Math).min(productsPage.totalPages - 1, productsPage.number + 2)},
-                                                showFirst=${startPage > 0},
-                                                showLast=${endPage < (productsPage.totalPages - 1)},
-                                                showPrevEllipsis=${startPage > 1},
-                                                showNextEllipsis=${endPage < (productsPage.totalPages - 2)}
-                                            ">
+                        startPage=${T(java.lang.Math).max(0, productsPage.number - 2)},
+                        endPage=${T(java.lang.Math).min(productsPage.totalPages - 1, productsPage.number + 2)},
+                        showFirst=${startPage > 0},
+                        showLast=${endPage < (productsPage.totalPages - 1)},
+                        showPrevEllipsis=${startPage > 1},
+                        showNextEllipsis=${endPage < (productsPage.totalPages - 2)}
+                    ">
                                             <li class="page-item" th:if="${showFirst}">
-                                                <a class="page-link mx-1" th:href="@{${baseUrl}(page=0)}">1</a>
+                                                <a class="page-link mx-1" th:href="@{${currentCategory == null ? '/shop' : '/shop/category/' + currentCategory}(page=0)}">1</a>
                                             </li>
                                             <li class="page-item disabled" th:if="${showPrevEllipsis}">
                                                 <a class="page-link mx-1" href="#">...</a>
@@ -194,7 +194,7 @@
 
                                             <li class="page-item" th:each="i : ${#numbers.sequence(startPage, endPage)}"
                                                 th:classappend="${i == productsPage.number} ? 'active'">
-                                                <a class="page-link mx-1" th:href="@{${baseUrl}(page=${i})}" th:text="${i + 1}">1</a>
+                                                <a class="page-link mx-1" th:href="@{${currentCategory == null ? '/shop' : '/shop/category/' + currentCategory}(page=${i})}" th:text="${i + 1}">1</a>
                                             </li>
 
                                             <li class="page-item disabled" th:if="${showNextEllipsis}">
@@ -202,14 +202,14 @@
                                             </li>
                                             <li class="page-item" th:if="${showLast}">
                                                 <a class="page-link mx-1"
-                                                   th:href="@{${baseUrl}(page=${productsPage.totalPages - 1})}"
+                                                   th:href="@{${currentCategory == null ? '/shop' : '/shop/category/' + currentCategory}(page=${productsPage.totalPages - 1})}"
                                                    th:text="${productsPage.totalPages}">12</a>
                                             </li>
                                         </th:block>
 
                                         <li class="page-item" th:classappend="${productsPage.last} ? 'disabled'">
                                             <a class="page-link mx-1"
-                                               th:href="@{${baseUrl}(page=${productsPage.number + 1})}"
+                                               th:href="@{${currentCategory == null ? '/shop' : '/shop/category/' + currentCategory}(page=${productsPage.number + 1})}"
                                                aria-label="Next">
                                                 <i class="feather-icon icon-chevron-right"></i>
                                             </a>

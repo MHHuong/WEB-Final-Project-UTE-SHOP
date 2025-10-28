@@ -25,7 +25,7 @@ public class ShopController {
     @GetMapping("/shop")
     public String showShopPage(Model model,
                                @RequestParam(defaultValue = "0") int page,
-                               @RequestParam(defaultValue = "12") int size) {
+                               @RequestParam(defaultValue = "8") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<ProductDTO> productsPage = productService.findAllProducts(pageable);
         List<String> categoryNames = categoryService.getAllCategoryNames();
@@ -38,7 +38,7 @@ public class ShopController {
     public String showShopCategoryPage(@PathVariable("name") String categoryName,
                                        Model model,
                                        @RequestParam(defaultValue = "0") int page,
-                                       @RequestParam(defaultValue = "12") int size) {
+                                       @RequestParam(defaultValue = "8") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
 
