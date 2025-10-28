@@ -1,0 +1,171 @@
+<div th:fragment="toast-container">
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        <!-- Success Toast -->
+        <div id="successToast" class="toast align-items-center border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body text-dark">
+                    <div class="d-flex align-items-center">
+                        <div class="toast-icon success-icon me-3">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div>
+                            <div class="toast-title fw-bold">Thành công!</div>
+                            <div class="toast-message" id="successToastMessage">Cập nhật giỏ hàng thành công!</div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+
+        <!-- Error Toast -->
+        <div id="errorToast" class="toast align-items-center border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body text-dark">
+                    <div class="d-flex align-items-center">
+                        <div class="toast-icon error-icon me-3">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div>
+                            <div class="toast-title fw-bold">Lỗi!</div>
+                            <div class="toast-message" id="errorToastMessage">Có lỗi xảy ra, vui lòng thử lại!</div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+
+        <!-- Warning Toast -->
+        <div id="warningToast" class="toast align-items-center border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body text-dark">
+                    <div class="d-flex align-items-center">
+                        <div class="toast-icon warning-icon me-3">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+                        <div>
+                            <div class="toast-title fw-bold">Cảnh báo!</div>
+                            <div class="toast-message" id="warningToastMessage">Vui lòng kiểm tra lại thông tin!</div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+
+        <!-- Info Toast -->
+        <div id="infoToast" class="toast align-items-center border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body text-dark">
+                    <div class="d-flex align-items-center">
+                        <div class="toast-icon info-icon me-3">
+                            <i class="bi bi-info-circle-fill"></i>
+                        </div>
+                        <div>
+                            <div class="toast-title fw-bold">Thông tin</div>
+                            <div class="toast-message" id="infoToastMessage">Đây là thông tin quan trọng!</div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .toast {
+            min-width: 320px;
+            max-width: 400px;
+            background: white;
+            border-radius: 12px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            animation: slideInRight 0.4s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.hiding {
+            animation: slideOutRight 0.3s ease-in;
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .toast-body {
+            padding: 0.5rem;
+        }
+
+        .toast-icon {
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .success-icon {
+            color: #198754;
+            background: rgba(25, 135, 84, 0.1);
+        }
+
+        .error-icon {
+            color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        .warning-icon {
+            color: #ffc107;
+            background: rgba(255, 193, 7, 0.1);
+        }
+
+        .info-icon {
+            color: #0dcaf0;
+            background: rgba(13, 202, 240, 0.1);
+        }
+
+        .toast-title {
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+            color: #212529;
+        }
+
+        .toast-message {
+            font-size: 0.85rem;
+            color: #6c757d;
+            line-height: 1.4;
+        }
+
+        .toast .btn-close {
+            font-size: 0.75rem;
+        }
+
+        .toast:hover {
+            box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15) !important;
+            transform: translateY(-2px);
+            transition: all 0.2s ease;
+        }
+    </style>
+</div>

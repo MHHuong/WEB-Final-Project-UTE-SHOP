@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{shop/common/main}">
+<body>
+<!-- main -->
+<main layout:fragment="content">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row mb-8">
+            <div class="col-md-12">
+                <div class="d-md-flex justify-content-between align-items-center">
+                    <!-- page header -->
+                    <div>
+                        <h2>Add New Product</h2>
+                        <!-- breacrumb -->
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a th:href="@{/shop}" class="text-inherit">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item"><a th:href="@{/shop/product/products}" class="text-inherit">Products</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">Edit Product</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <!-- button -->
+                    <div>
+                        <a th:href="@{/shop/product/products}" class="btn btn-light">Back to Product</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="~{shop/product/common/input-form :: productForm('edit')}"></div>
+    </div>
+    <script th:src="@{/assets/js/vendors/editor.js}"></script>
+    <script th:src="@{/assets/js/vendors/dropzone.js}"></script>
+    <script th:src="@{/assets/js/vendors/product/input-form.js}" defer></script>
+    <script th:src="@{/assets/js/vendors/product/edit-product.js}" defer></script>
+</main>
+</body>
+
+<!-- Mirrored from freshcart.codescandy.com/dashboard/add-product.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 14 Nov 2024 06:10:02 GMT -->
+</html>

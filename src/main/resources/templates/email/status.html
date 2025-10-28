@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cập nhật trạng thái hóa đơn</title>
+</head>
+<body style="margin:0; padding:0; font-family:'Segoe UI', Arial, sans-serif; background:#f4f4f4;">
+<table role="presentation" style="width:100%; border-collapse:collapse;">
+    <tr>
+        <td align="center" style="padding:20px 0;">
+            <table role="presentation" style="width:600px; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+
+                <!-- Header -->
+                <tr>
+                    <td style="background:#0aad0a; color:#fff; text-align:center; padding:24px;">
+                        <h1 style="margin:0; font-size:26px;">UTE SHOP</h1>
+                        <p style="margin:4px 0 0; font-size:16px;">Thông báo trạng thái hóa đơn</p>
+                    </td>
+                </tr>
+
+                <!-- Nội dung chính -->
+                <tr>
+                    <td style="padding:30px;">
+                        <h2 style="margin-top:0; color:#0aad0a; font-size:20px;">
+                            Trạng thái: <span style="text-transform:uppercase;" th:text="${status}">PENDING</span>
+                        </h2>
+                        <p>Xin chào <b th:text="${customerName}">Tên khách hàng</b>,</p>
+                        <p>
+                            Hóa đơn của bạn vừa được cập nhật trạng thái:
+                            <b style="color:#0aad0a;" th:text="${status}">PENDING</b>.
+                        </p>
+                        <p><b>Tổng tiền:</b> <span th:text="${totalAmount}">500000</span> VND</p>
+                        <div style="text-align:center; margin:30px 0;">
+                            <a th:href="${orderUrl}"
+                               style="background:#0aad0a; color:#fff; text-decoration:none;
+                                padding:14px 28px; border-radius:8px; font-weight:600;
+                                display:inline-block;">
+                                Xem chi tiết hóa đơn
+                            </a>
+                        </div>
+                        <p style="color:#666;">Cảm ơn bạn đã mua hàng tại <b>UTE Shop</b></p>
+                        <p style="color:#999; font-size:13px;">Nếu bạn có thắc mắc, vui lòng liên hệ bộ phận hỗ trợ khách hàng của chúng tôi.</p>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="background:#f9f9f9; color:#888; text-align:center; padding:12px; font-size:12px;">
+                        © 2025 UTE Shop. All rights reserved.
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

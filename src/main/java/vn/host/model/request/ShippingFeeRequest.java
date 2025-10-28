@@ -1,0 +1,19 @@
+package vn.host.model.request;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ShippingFeeRequest {
+    String province;
+    String district;
+    String ward;
+    String addressDetail;
+    List<Long> shopIds;
+    String shippingService;
+}

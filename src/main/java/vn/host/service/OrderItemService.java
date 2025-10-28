@@ -1,12 +1,10 @@
 package vn.host.service;
 
 import vn.host.entity.OrderItem;
+import vn.host.model.response.OrderItemResponse;
 
 import java.util.List;
 
 public interface OrderItemService {
-    void save(OrderItem orderItem);
-    void delete(long id);
-    List<OrderItem> findAll();
-    OrderItem findById(long id);
+    List<OrderItemResponse> getOrderDetailsByOrderIdAndUserId(Long orderId, Long userId);
 }

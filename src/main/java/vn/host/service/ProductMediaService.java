@@ -6,7 +6,10 @@ import java.util.List;
 
 public interface ProductMediaService {
     void save(ProductMedia productMedia);
-    void delete(long id);
-    List<ProductMedia> findAll();
-    ProductMedia findById(long id);
+
+    List<ProductMedia> findByProduct_ProductId(Long productId);
+
+    ProductMedia findById(Long id);
+
+    void delete(ProductMedia productMedia);
 }

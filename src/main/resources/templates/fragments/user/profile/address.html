@@ -1,0 +1,134 @@
+<div th:fragment = "address-input" id="address-form-section">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="mb-0" id="form-title">Địa chỉ giao hàng</h6>
+        <button type="button" id="cancel-new-address-btn" class="btn-close" aria-label="Close" style="display: none;">
+
+        </button>
+    </div>
+
+    <form id="shipping-form">
+        <div class="row g-3">
+            <!-- Receiver Name -->
+            <div class="col-md-6">
+                <label for="receiver-name" class="form-label">
+                    Họ và tên người nhận <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" id="receiver-name"
+                       placeholder="Nhập họ tên" required>
+                <div class="invalid-feedback">Vui lòng nhập họ tên người nhận</div>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="col-md-6">
+                <label for="receiver-phone" class="form-label">
+                    Số điện thoại <span class="text-danger">*</span>
+                </label>
+                <input type="tel" class="form-control" id="receiver-phone"
+                       placeholder="Nhập số điện thoại" required pattern="[0-9]{10,11}">
+                <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ (10-11 số)</div>
+            </div>
+
+            <!-- Province/City -->
+            <div class="col-md-4">
+                <label for="province" class="form-label">
+                    Tỉnh/Thành phố <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" id="province" required>
+                    <option value="" selected disabled>Chọn Tỉnh/Thành phố</option>
+                </select>
+                <div class="invalid-feedback">Vui lòng chọn tỉnh/thành phố</div>
+            </div>
+
+            <!-- District -->
+            <div class="col-md-4">
+                <label for="district" class="form-label">
+                    Quận/Huyện <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" id="district" required disabled>
+                    <option value="" selected disabled>Chọn Quận/Huyện</option>
+                </select>
+                <div class="invalid-feedback">Vui lòng chọn quận/huyện</div>
+            </div>
+
+            <!-- Ward -->
+            <div class="col-md-4">
+                <label for="ward" class="form-label">
+                    Phường/Xã <span class="text-danger">*</span>
+                </label>
+                <select class="form-select" id="ward" required disabled>
+                    <option value="" selected disabled>Chọn Phường/Xã</option>
+                </select>
+                <div class="invalid-feedback">Vui lòng chọn phường/xã</div>
+            </div>
+
+            <!-- Detailed Address -->
+            <div class="col-12">
+                <label for="address-detail" class="form-label">
+                    Địa chỉ chi tiết <span class="text-danger">*</span>
+                </label>
+                <textarea class="form-control" id="address-detail" rows="3"
+                          placeholder="Số nhà, tên đường..." required></textarea>
+                <div class="invalid-feedback">Vui lòng nhập địa chỉ chi tiết</div>
+            </div>
+        </div>
+    </form>
+    <hr class="my-4">
+</div>
+
+<div th:fragment = "address-modal" class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width: 700px">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAddressModalLabel">Thêm địa chỉ mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="add-address-form">
+                    <div th:replace="~{fragments/user/profile/address::address-input}"></div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="isDefault">
+                        <label class="form-check-label" for="isDefault">
+                            Đặt làm địa chỉ mặc định
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="save-address-btn">Lưu địa chỉ</button>
+            </div>
+        </div>
+    </div>
+    <script src="/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/libs/simplebar/dist/simplebar.min.js"></script>
+    <script>
+        const modalEl = document.getElementById('addAddressModal');
+        const modal = new bootstrap.Modal(modalEl);
+        modalEl.addEventListener('hide.bs.modal', function () {
+            document.getElementById('add-address-form').reset();
+            document.getElementById('province').classList.remove('is-invalid');
+            document.getElementById('district').classList.remove('is-invalid');
+            document.getElementById('ward').classList.remove('is-invalid');
+            document.getElementById('receiver-name').classList.remove('is-invalid');
+            document.getElementById('receiver-phone').classList.remove('is-invalid');
+            document.getElementById('address-detail').classList.remove('is-invalid');
+        });
+
+    </script>
+</div>
+
+<div th:fragment = "address-view">
+    <h5 class="mb-3">Địa chỉ giao hàng</h5>
+    <div id="addresses-list" class="row g-3">
+
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <div id="address-page-info"></div>
+        <div id="address-pagination"></div>
+    </div>
+
+    <button class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+        <i class="bi bi-plus-circle me-2"></i>Thêm địa chỉ mới
+    </button>
+</div>
