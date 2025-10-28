@@ -129,4 +129,19 @@ public class CouponServiceImpl implements CouponService {
                 .totalPages(pg.getTotalPages())
                 .build();
     }
+
+    @Override
+    public List<Coupon> findAllGlobalCoupons() {
+        return couponRepository.findGlobalCoupon();
+    }
+
+    @Override
+    public List<Coupon> findAll() {
+        return couponRepository.findAll();
+    }
+
+    @Override
+    public List<Coupon> findShopCoupons(Long shopId) {
+        return couponRepository.findShopCoupon(shopId);
+    }
 }

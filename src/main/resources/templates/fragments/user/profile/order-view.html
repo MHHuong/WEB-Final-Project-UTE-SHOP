@@ -1,0 +1,130 @@
+<div th:fragment = "order-view" id="orders-section" class="content-section" style="display: none;">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <h4 class="mb-0">Đơn đặt hàng của tôi</h4>
+        </div>
+        <div class="card-body">
+            <!-- Search Box -->
+            <div class="mb-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text"
+                           class="form-control"
+                           id="order-search-input"
+                           placeholder="Tìm kiếm theo mã đơn hàng, tên sản phẩm..."
+                           autocomplete="off">
+                    <button class="btn btn-outline-secondary" type="button" id="clear-search-btn" style="display: none;">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <small class="text-muted">Nhập từ khóa để tìm kiếm đơn hàng</small>
+            </div>
+
+            <!-- Filter Tabs -->
+            <ul class="nav nav-pills mb-4" id="orderFilterTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all-orders" type="button" role="tab">
+                        Tất cả
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pending-tab" data-bs-toggle="pill" data-bs-target="#pending-orders" type="button" role="tab">
+                        Chờ xác nhận
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="shipping-tab" data-bs-toggle="pill" data-bs-target="#shipping-orders" type="button" role="tab">
+                        Đang giao
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="delivered-tab" data-bs-toggle="pill" data-bs-target="#completed-orders" type="button" role="tab">
+                        Đã giao hàng
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="received-tab" data-bs-toggle="pill" data-bs-target="#cancelled-orders" type="button" role="tab">
+                        Đã nhận hàng
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="cancelled-tab" data-bs-toggle="pill" data-bs-target="#cancelled-orders" type="button" role="tab">
+                        Đã hủy
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="returned-tab" data-bs-toggle="pill" data-bs-target="#cancelled-orders" type="button" role="tab">
+                        Đã trả hàng
+                    </button>
+                </li>
+            </ul>
+
+            <div id="orders-list">
+
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <div id="order-page-info"></div>
+                <div id="order-pagination"></div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/user/modal::status-modal}"></div>
+</div>
+
+
+<style>
+    #order-search-input:focus {
+        border-color: #0aad0a;
+        box-shadow: 0 0 0 0.2rem rgba(10, 173, 10, 0.25);
+    }
+
+    .input-group-text {
+        border-right: none;
+    }
+
+    #order-search-input {
+        border-left: none;
+    }
+
+    #order-search-input:focus + .input-group-text {
+        border-color: #0aad0a;
+    }
+
+    #clear-search-btn {
+        border-left: none;
+    }
+
+    .status-change-info {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+    }
+
+    #cancel-reason {
+        resize: none;
+    }
+
+    #cancel-reason:focus {
+        border-color: #0aad0a;
+        box-shadow: 0 0 0 0.2rem rgba(10, 173, 10, 0.25);
+    }
+
+    .modal-content {
+        border-radius: 1rem;
+    }
+
+    .modal-header {
+        padding: 1.5rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        padding: 1rem 1.5rem;
+    }
+</style>

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.host.entity.Order;
+import vn.host.model.response.OrderResponse;
 import vn.host.util.sharedenum.OrderStatus;
 
 import java.time.Instant;
@@ -136,4 +137,68 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
             @Param("fromTs") Instant fromTs,
             @Param("toTs") Instant toTs
     );
+
+    @Query
+            (
+                    """
+                             SELECT new vn.host.model.response.OrderResponse(
+                                o.orderId,
+                                o.user.userId,
+                                o.shop.shopId,
+                                o.paymentMethod,
+                                o.totalAmount,
+                                o.status,
+                                new vn.host.model.request.AddressRequest(
+                                    o.address.addressId,
+                                    o.address.province,
+                                    o.address.district,
+                                    o.address.ward,
+                                    o.address.addressDetail,
+                                    o.address.receiverName,
+                                    o.address.phone,
+                                    o.address.isDefault
+                                ),
+                                 o.createdAt,
+                                  o.shippingProvider.estimatedDays
+                             )
+                             FROM Order o
+                             WHERE o.user.userId = :userId
+                             ORDER BY o.createdAt DESC
+                            """
+            )
+    List<OrderResponse> findAllOrdersByUserId(Long userId);
+
+
+    @Query
+            (
+                    """
+                             SELECT new vn.host.model.response.OrderResponse(
+                                o.orderId,
+                                o.user.userId,
+                                o.shop.shopId,
+                                o.paymentMethod,
+                                o.totalAmount,
+                                o.status,
+                                new vn.host.model.request.AddressRequest(
+                                    o.address.addressId,
+                                    o.address.province,
+                                    o.address.district,
+                                    o.address.ward,
+                                    o.address.addressDetail,
+                                    o.address.receiverName,
+                                    o.address.phone,
+                                    o.address.isDefault
+                                ),
+                                 o.createdAt,
+                                 o.shippingProvider.estimatedDays
+                             )
+                             FROM Order o
+                             WHERE o.orderId = :orderId
+                            """
+            )
+    OrderResponse findOrderById(Long orderId);
+
+    Order findTopByUser_UserIdAndShop_ShopIdOrderByOrderIdDesc(Long userId, Long shopId);
+
+    List<Order> findAllOrderByAddress_AddressId(Long addressId);
 }

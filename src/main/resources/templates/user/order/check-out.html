@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{user/user-layout.html}" lang="en">
+
+<main layout:fragment="content">
+    <section class="mt-8 mb-8">
+        <div class="container">
+            <!-- Page Title -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="mb-6">
+                        <h1 class="fw-bold mb-0">Thanh Toán</h1>
+                        <p class="mb-0">Vui lòng điền thông tin để hoàn tất đơn hàng</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Left Column - Shipping & Payment Info -->
+                <div class="col-lg-7 col-md-12">
+                    <!-- Shipping Address -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="bi bi-geo-alt text-primary me-2"></i>
+                                Địa chỉ giao hàng
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Saved Addresses -->
+                            <div id="saved-addresses-section" class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Địa chỉ đã lưu</h6>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="add-new-address-btn">
+                                        <i class="bi bi-plus-circle me-1"></i>Thêm địa chỉ mới
+                                    </button>
+                                </div>
+
+                                <!-- Loading state -->
+                                <div id="addresses-loading" class="text-center py-3">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Đang tải...</span>
+                                    </div>
+                                    <p class="text-muted small mt-2 mb-0">Đang tải địa chỉ...</p>
+                                </div>
+
+                                <!-- Saved addresses list -->
+                                <div id="saved-addresses-list" class="overflow-auto" style="display: none; max-height: 350px;"></div>
+
+                                <!-- No addresses message -->
+                                <div id="no-addresses-message" style="display: none;">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        Bạn chưa có địa chỉ nào được lưu. Vui lòng thêm địa chỉ mới.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+                            <!-- Address Form (Hidden by default when addresses exist) -->
+                            <div th:replace="~{fragments/user/profile/address::address-input}"></div>
+                            <!-- Note -->
+                            <div class="col-12 mt-2">
+                                <label for="order-note" class="form-label">Ghi chú đơn hàng (Tùy chọn)</label>
+                                <textarea class="form-control" id="order-note" rows="2"
+                                          placeholder="Ghi chú về đơn hàng, ví dụ: thời gian hay chỉ dẫn địa điểm giao hàng chi tiết hơn"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Method -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="bi bi-truck text-primary me-2"></i>
+                                Phương thức vận chuyển
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="shipping-methods">
+                                <!-- Standard Shipping -->
+                                <div class="form-check shipping-option mb-3 p-3 border rounded">
+                                    <input class="form-check-input" type="radio" name="shipping-method"
+                                           id="shipping-standard" value="STANDARD" checked>
+                                    <label class="form-check-label w-100" for="shipping-standard">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-box-seam fs-3 text-primary me-3"></i>
+                                                <div>
+                                                    <h6 class="mb-0">Giao hàng tiêu chuẩn</h6>
+                                                    <small class="text-muted">Giao hàng trong 3-5 ngày</small>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <span class="badge bg-success">Miễn phí</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- Fast Shipping -->
+                                <div class="form-check shipping-option mb-3 p-3 border rounded">
+                                    <input class="form-check-input" type="radio" name="shipping-method"
+                                           id="shipping-fast" value="FAST">
+                                    <label class="form-check-label w-100" for="shipping-fast">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-lightning-charge fs-3 text-warning me-3"></i>
+                                                <div>
+                                                    <h6 class="mb-0">Giao hàng nhanh</h6>
+                                                    <small class="text-muted">Giao hàng trong 1-2 ngày</small>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold text-primary">30,000₫</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- Express Shipping -->
+                                <div class="form-check shipping-option p-3 border rounded">
+                                    <input class="form-check-input" type="radio" name="shipping-method"
+                                           id="shipping-express" value="EXPRESS">
+                                    <label class="form-check-label w-100" for="shipping-express">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-rocket-takeoff fs-3 text-danger me-3"></i>
+                                                <div>
+                                                    <h6 class="mb-0">Giao hàng hỏa tốc</h6>
+                                                    <small class="text-muted">Giao hàng trong vòng 24h</small>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold text-primary">50,000₫</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="bi bi-ticket-perforated text-primary me-2"></i>
+                                Mã giảm giá
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="selected-voucher-display" class="alert alert-success d-flex align-items-center justify-content-between" style="display: none !important;">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                    <div>
+                                        <strong id="voucher-code-display"></strong>
+                                        <p class="mb-0 small text-muted" id="voucher-desc-display"></p>
+                                    </div>
+                                </div>
+                                <button type="button" id="remove-voucher-btn" class="btn-close" aria-label="Close"></button>
+                            </div>
+
+                            <!-- Voucher input/selection -->
+                            <div id="voucher-selection-section">
+                                <!-- Manual voucher code input -->
+                                <div class="mb-3">
+                                    <label for="voucher-code-input" class="form-label">Nhập mã giảm giá</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="voucher-code-input"
+                                               placeholder="Nhập mã giảm giá">
+                                        <button class="btn btn-primary" type="button" id="apply-voucher-btn">
+                                            <i class="bi bi-check-lg me-1"></i>Áp dụng
+                                        </button>
+                                    </div>
+                                    <small class="text-muted">Nhập mã giảm giá của hệ thống</small>
+                                </div>
+
+                                <!-- Or divider -->
+                                <div class="text-center mb-3">
+                                    <span class="text-muted small">HOẶC</span>
+                                </div>
+
+                                <!-- Available vouchers button -->
+                                <button type="button" class="btn btn-outline-primary w-100" id="view-vouchers-btn">
+                                    <i class="bi bi-gift me-2"></i>
+                                    Xem mã giảm giá có thể dùng
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="bi bi-credit-card text-primary me-2"></i>
+                                Phương thức thanh toán
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="payment-methods">
+                                <!-- COD -->
+                                <div class="form-check payment-option mb-3 p-3 border rounded">
+                                    <input class="form-check-input" type="radio" name="payment-method"
+                                           id="payment-cod" value="COD" checked>
+                                    <label class="form-check-label w-100" for="payment-cod">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-cash-coin fs-3 text-success me-3"></i>
+                                            <div>
+                                                <h6 class="mb-0">Thanh toán khi nhận hàng (COD)</h6>
+                                                <small class="text-muted">Thanh toán bằng tiền mặt khi nhận hàng</small>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- E-Wallet -->
+                                <div class="form-check payment-option p-3 border rounded">
+                                    <input class="form-check-input" type="radio" name="payment-method"
+                                           id="payment-ewallet" value="E_WALLET">
+                                    <label class="form-check-label w-100" for="payment-ewallet">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-wallet2 fs-3 text-warning me-3"></i>
+                                            <div>
+                                                <h6 class="mb-0">Ví điện tử</h6>
+                                                <small class="text-muted">Thanh toán qua ví điện tử</small>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- E-Wallet Options (Hidden by default) -->
+                                <div id="ewallet-options" class="ms-4 mt-3" style="display: none;">
+                                    <p class="text-muted mb-3"><small>Chọn ví điện tử:</small></p>
+
+                                    <!-- MoMo -->
+                                    <div class="form-check payment-sub-option mb-2 p-3 border rounded">
+                                        <input class="form-check-input" type="radio" name="ewallet-type"
+                                               id="ewallet-momo" value="MOMO">
+                                        <label class="form-check-label w-100" for="ewallet-momo">
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3" style="width: 40px; height: 40px; background: #d82d8b; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="bi bi-wallet2 text-white fs-5"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">MoMo</h6>
+                                                    <small class="text-muted">Ví điện tử MoMo</small>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    <!-- VNPay -->
+                                    <div class="form-check payment-sub-option p-3 border rounded">
+                                        <input class="form-check-input" type="radio" name="ewallet-type"
+                                               id="ewallet-vnpay" value="VNPAY">
+                                        <label class="form-check-label w-100" for="ewallet-vnpay">
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-3" style="width: 40px; height: 40px; background: #0066cc; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="bi bi-credit-card text-white fs-5"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">VNPay</h6>
+                                                    <small class="text-muted">Cổng thanh toán VNPay</small>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right Column - Order Summary -->
+                <div class="col-lg-5 col-md-12">
+                    <div class="card sticky-top" style="top: 90px;">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="bi bi-cart-check text-primary me-2"></i>
+                                Đơn hàng của bạn
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Selected Products -->
+                            <div id="order-products" class="mb-4">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Đang tải...</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Order Summary -->
+                            <div class="order-summary">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Tạm tính (<span id="item-count">0</span> sản phẩm)</span>
+                                    <span id="subtotal" class="fw-bold">0₫</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Phí vận chuyển</span>
+                                    <span id="shipping-fee" class="text-success">0₫</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Giảm giá</span>
+                                    <span id="discount" class="text-danger">-0₫</span>
+                                </div>
+
+                                <hr>
+
+                                <div class="d-flex justify-content-between mb-4">
+                                    <h5 class="mb-0">Tổng cộng</h5>
+                                    <h5 class="mb-0 text-primary" id="total">0₫</h5>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary btn-lg" id="place-order-btn" disabled>
+                                        <i class="bi bi-check-circle me-2"></i>Đặt hàng
+                                    </button>
+                                    <a href="/user/shop-cart" class="btn btn-outline-secondary">
+                                        <i class="bi bi-arrow-left me-2"></i>Quay lại giỏ hàng
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div th:replace="~{fragments/user/modal::save-address-modal}"></div>
+    <style>
+        .payment-option, .shipping-option {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-option:hover, .shipping-option:hover {
+            background-color: #f8f9fa;
+            border-color: #0d6efd !important;
+        }
+
+        .payment-option input:checked ~ label,
+        .shipping-option input:checked ~ label {
+            color: #0d6efd;
+        }
+
+        .payment-option:has(input:checked),
+        .shipping-option:has(input:checked) {
+            background-color: #e7f3ff;
+            border-color: #0d6efd !important;
+        }
+
+        .payment-sub-option {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-sub-option:hover {
+            background-color: #f8f9fa;
+            border-color: #0d6efd !important;
+        }
+
+        .payment-sub-option:has(input:checked) {
+            background-color: #e7f3ff;
+            border-color: #0d6efd !important;
+        }
+
+        .product-item-checkout {
+            border-bottom: 1px solid #dee2e6;
+            padding: 12px 0;
+        }
+
+        .product-item-checkout:last-child {
+            border-bottom: none;
+        }
+
+        .product-img-checkout {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        /* Address card styles */
+        .address-card {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .address-card:hover {
+            border-color: #0d6efd;
+            background-color: #f8f9fa;
+        }
+
+        .address-card.selected {
+            border-color: #0d6efd;
+            background-color: #e7f3ff;
+        }
+
+        .address-card .default-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+
+        .address-card .check-icon {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #dee2e6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            transition: all 0.3s;
+        }
+
+        .address-card.selected .check-icon {
+            background: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+        .address-card.selected .check-icon::after {
+            content: '\2713';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .address-content {
+            margin-left: 32px;
+        }
+
+        .voucher-card:hover {
+            border-color: #0aad0a;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .voucher-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f5f5f5;
+        }
+
+        .voucher-card.disabled:hover {
+            border-color: #e5e5e5;
+            box-shadow: none;
+        }
+
+        .voucher-left {
+            width: 80px;
+            background: #0aad0a;
+        }
+
+        .voucher-left .discount-value {
+            font-size: 15px;
+        }
+
+        .voucher-left .discount-label {
+            font-size: 11px;
+        }
+
+        .voucher-code {
+            font-size: 14px;
+        }
+
+        .voucher-description {
+            font-size: 13px;
+        }
+
+        .voucher-expiry {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .voucher-condition.available {
+            background: #fff0e8;
+            color: #0aad0a;
+        }
+
+        .voucher-condition.unavailable {
+            background: #f5f5f5;
+            color: #999;
+        }
+
+        .voucher-action {
+            width: 100px;
+        }
+
+        .voucher-action .btn-apply {
+            height: 50px;
+        }
+
+        .voucher-card:hover .voucher-action .btn-apply {
+            background: #0aad0a;
+            color: white;
+        }
+
+        .voucher-card.disabled .voucher-action .btn-apply {
+            border-color: #ccc;
+            color: #ccc;
+            pointer-events: none;
+        }
+    </style>
+    <script type="module" src="/js/services/view/checkOutService.js"></script>
+</main>
+</html>

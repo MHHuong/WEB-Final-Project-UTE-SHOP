@@ -7,6 +7,7 @@ import vn.host.dto.ProductDTO;
 import vn.host.dto.common.PageResult;
 import vn.host.dto.product.ProductListItemVM;
 import vn.host.entity.Product;
+import vn.host.model.response.ProductResponse;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -55,4 +56,6 @@ public interface ProductService {
     void restoreOwnerProduct(String userEmail, long productId, int toStatus);
 
     void bulkUpdateStatus(String userEmail, List<Long> productIds, int status);
+
+    List<ProductResponse> findAllProductOrder();
 }

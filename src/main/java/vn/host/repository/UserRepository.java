@@ -15,14 +15,19 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     Optional<User> findByEmail(String email);
+
     boolean existsByEmail(String email);
+
     List<User> findByEmailContainingIgnoreCase(String email);
 
     List<User> findByRole(UserRole role);
 
     @Query("SELECT u FROM User u WHERE u.status = 1")
     List<User> findAllActiveUsers();
+
     Page<User> findAll(Pageable pageable);
 
     Page<User> findByEmailContainingIgnoreCase(String email, Pageable pageable);
+
+    User findUserByFullName(String fullName);
 }

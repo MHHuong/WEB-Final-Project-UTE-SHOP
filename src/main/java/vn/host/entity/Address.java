@@ -1,5 +1,6 @@
 package vn.host.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,13 +18,8 @@ public class Address {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserId", nullable = false)
+    @JsonIgnore
     private User user;
-
-    @Column(length = 100)
-    private String receiverName;
-
-    @Column(length = 20)
-    private String phone;
 
     @Column(length = 50)
     private String province;
@@ -36,6 +32,15 @@ public class Address {
 
     @Column(length = 255)
     private String addressDetail;
+
+    @Column(length = 100)
+    private String receiverName;
+
+    @Column(length = 20)
+    private String phone;
+
+    @Column(columnDefinition = "tinyint default 1")
+    private Integer status = 1;
 
     @Column(columnDefinition = "tinyint default 0")
     private Integer isDefault = 0;

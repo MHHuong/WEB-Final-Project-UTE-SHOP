@@ -13,6 +13,7 @@ import vn.host.dto.ProductDTO;
 import vn.host.dto.common.PageResult;
 import vn.host.dto.product.ProductListItemVM;
 import vn.host.entity.Product;
+import vn.host.model.response.ProductResponse;
 import vn.host.repository.ProductMediaRepository;
 import vn.host.repository.ProductRepository;
 import vn.host.repository.ShopRepository;
@@ -335,5 +336,10 @@ public class ProductServiceImpl implements ProductService {
                 .forEach(p -> p.setStatus(status));
 
         productRepository.saveAll(list);
+    }
+
+    @Override
+    public List<ProductResponse> findAllProductOrder() {
+        return productRepository.findAllProductsOrder();
     }
 }
