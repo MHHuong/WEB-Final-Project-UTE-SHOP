@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.host.entity.OrderItem;
+import vn.host.model.response.OrderItemResponse;
 import vn.host.util.sharedenum.OrderStatus;
 
 import java.time.Instant;
@@ -33,4 +34,18 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long>, Jpa
             @Param("from") Instant from,
             @Param("to") Instant to
     );
+
+    @Query("""
+            SELECT new vn.host.model.response.OrderItemResponse(
+                oi.product.productId,
+                oi.product.name,
+                oi.quantity,
+                oi.unitPrice,
+                oi.discountAmount
+            )
+            FROM OrderItem oi
+            WHERE oi.order.orderId = :orderId
+                AND oi.order.user.userId = :userId
+            """)
+    public List<OrderItemResponse> findOrderByOrderIdAndUserId(Long orderId, Long userId);
 }

@@ -7,6 +7,7 @@ import vn.host.dto.common.PageResult;
 import vn.host.dto.coupon.CouponVM;
 import vn.host.entity.Coupon;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CouponService {
@@ -27,4 +28,10 @@ public interface CouponService {
     Coupon save(Coupon coupon);
 
     void delete(Long id);
+
+    List<Coupon> findAllGlobalCoupons();
+
+    List<Coupon> findAll();
+
+    List<Coupon> findShopCoupons(Long shopId);
 }

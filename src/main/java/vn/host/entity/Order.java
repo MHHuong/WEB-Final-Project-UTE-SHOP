@@ -68,6 +68,9 @@ public class Order {
     @JoinColumn(name = "CouponId")
     private Coupon coupon;
 
+    @Column(columnDefinition = "TEXT")
+    private String note;
+
     @OneToMany(mappedBy = "order", orphanRemoval = true)
     private Set<OrderItem> items = new HashSet<>();
 

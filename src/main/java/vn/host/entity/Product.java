@@ -30,7 +30,11 @@ public class Product {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CategoryId")
+<<<<<<< HEAD
     @JsonIgnoreProperties({"products", "hibernateLazyInitializer", "handler"})
+=======
+    @JsonIgnore
+>>>>>>> feature/payment
     private Category category;
 
     @Column(length = 200, nullable = false)

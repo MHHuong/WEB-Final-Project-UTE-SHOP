@@ -46,7 +46,11 @@ public class Shop {
     private Instant createdAt;
 
     @OneToMany(mappedBy = "shop")
+<<<<<<< HEAD
     @JsonIgnoreProperties({"category", "shop"})
+=======
+    @JsonIgnore
+>>>>>>> feature/payment
     private Set<Product> products = new HashSet<>();
 
     @OneToMany(mappedBy = "shop")

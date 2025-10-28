@@ -1,5 +1,6 @@
 package vn.host.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -34,8 +35,10 @@ public class Coupon {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ShopId")
+    @JsonIgnore
     private Shop shop;
 
     @OneToMany(mappedBy = "coupon")
+    @JsonIgnore
     private Set<Order> orders = new HashSet<>();
 }
