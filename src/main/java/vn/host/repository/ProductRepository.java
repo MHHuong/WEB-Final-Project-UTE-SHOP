@@ -15,9 +15,6 @@ import java.util.Set;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product,Long>, JpaSpecificationExecutor<Product> {
-    Page<Product> findByShop_ShopId(Long shopId, Pageable pageable);
-    Page<Product> findByCategory_CategoryId(Long categoryId, Pageable pageable);
-    Page<Product> findByNameContainingIgnoreCase(String q, Pageable pageable);
     @Query("SELECT DISTINCT p FROM Product p " +
             "LEFT JOIN FETCH p.media " +
             "LEFT JOIN FETCH p.reviews " +
@@ -90,4 +87,7 @@ public interface ProductRepository extends JpaRepository<Product,Long>, JpaSpeci
                                                  @Param("minPrice") BigDecimal minPrice,
                                                  @Param("maxPrice") BigDecimal maxPrice,
                                                  Pageable pageable);
+    Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
+    @Query("SELECT p FROM Product p WHERE LOWER(p.shop.shopName) LIKE LOWER(CONCAT('%', :shopName, '%'))")
+    Page<Product> findByShopNameContainingIgnoreCase(@Param("shopName") String shopName, Pageable pageable);
 }

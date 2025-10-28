@@ -1,13 +1,12 @@
 package vn.host.service;
 
+import org.springframework.data.domain.Page;
 import vn.host.entity.Shipper;
 
-import java.util.List;
-
 public interface ShipperService {
-    void save(Shipper shipper);
-    void delete(long id);
-    List<Shipper> findAll();
-    Shipper findById(long id);
-    List<Shipper> findByShippingProviderId(long shippingProviderId);
+    Page<Shipper> getAll(String keyword, int page, int size);
+    Shipper findById(Long id);
+    Shipper save(Shipper shipper);
+    Shipper update(Long id, Shipper shipper);
+    void delete(Long id);
 }

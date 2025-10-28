@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="admin/_layout :: head(~{::title})">
+    <title>UTESHOP • Products</title>
+</head>
+
+<body>
+<div th:replace="admin/_layout :: layout(~{::content})">
+    <div th:fragment="content">
+        <div class="page-wrap">
+
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Products</li>
+                </ol>
+            </nav>
+
+            <!-- Title -->
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h3 class="m-0">Products</h3>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row g-2 align-items-center">
+
+                        <!-- Search Product -->
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                                <input id="searchProduct" type="text" class="form-control" placeholder="Search products by name...">
+                                <button id="btnSearch" class="btn btn-primary">Search</button>
+                            </div>
+                        </div>
+
+                        <!-- Search Shop -->
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-shop"></i></span>
+                                <input id="searchShop" type="text" class="form-control" placeholder="Search by shop name...">
+                                <button id="btnSearchShop" class="btn btn-secondary">Search Shop</button>
+                            </div>
+                        </div>
+
+                        <!-- ✅ Category Filter có tìm kiếm -->
+                        <div class="col-md-2">
+                            <select id="categoryFilter" class="form-select">
+                                <option value="">— Filter by category —</option>
+                                <option value="1">Snack & Munchies</option>
+                                <option value="2">Bakery & Biscuits</option>
+                                <option value="3">Điện thoại</option>
+                                <option value="4">Phụ kiện</option>
+                                <option value="5">Laptop</option>
+                            </select>
+                        </div>
+
+                        <!-- Reload -->
+                        <div class="col-md-2 text-md-end">
+                            <button id="btnReload" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-arrow-clockwise"></i> Reload
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                            <tr>
+                                <th><input type="checkbox"></th>
+                                <th>Image</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Shop</th>
+                                <th>Status</th>
+                                <th class="text-center">Price</th>
+                                <th class="text-center">Stock</th>
+                                <th>Create at</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tblProducts">
+                            <!-- Render by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-center mt-3">
+                        <div id="pagination" class="btn-group"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Toast -->
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
+            <div id="toast" class="toast align-items-center text-bg-success border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body" id="toastMsg">Done!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- ✅ Thư viện Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- JS chính -->
+<script th:src="@{/js/admin/admin-products.js}"></script>
+
+<!-- ✅ Kích hoạt Select2 -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const categorySelect = document.querySelector("#categoryFilter");
+
+        if (categorySelect) {
+            $(categorySelect).select2({
+                placeholder: "— Filter by category —",
+                allowClear: true,
+                width: '100%'
+            });
+        }
+    });
+</script>
+
+</body>
+<style>
+    .page-wrap {
+        max-width: 1300px;
+        margin: 0 auto;
+    }
+    .table thead th {
+        font-weight: 600;
+        color: #475467;
+        background: #f8fafc;
+    }
+    .badge-active {
+        background: #dcfce7;
+        color: #166534;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: .8rem;
+    }
+    .badge-draft {
+        background: #fef9c3;
+        color: #92400e;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: .8rem;
+    }
+    .badge-deactive {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: .8rem;
+    }
+    .product-img {
+        width: 64px !important;
+        height: 64px !important;
+        object-fit: cover;
+        display: block;
+    }
+    .price-badge {
+        background-color: #e0f2ff;
+        color: #007bff;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        display: inline-block;
+        min-width: 80px;
+        text-align: center;
+    }
+</style>
+</html>

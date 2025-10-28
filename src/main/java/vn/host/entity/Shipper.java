@@ -1,5 +1,7 @@
 package vn.host.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,6 +21,7 @@ public class Shipper {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserId", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "shipper", "passwordHash", "addresses", "shops"})
     private User user;
 
     @Column(length = 100)
@@ -32,5 +35,6 @@ public class Shipper {
     private ShippingProvider shippingProvider;
 
     @OneToMany(mappedBy = "shipper")
+    @JsonIgnore
     private Set<Order> assignedOrders = new HashSet<>();
 }

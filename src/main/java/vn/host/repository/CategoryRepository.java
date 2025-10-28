@@ -1,5 +1,7 @@
 package vn.host.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -14,4 +16,6 @@ public interface CategoryRepository extends JpaRepository<Category,Long>, JpaSpe
     boolean existsByName(String name);
     @Query("SELECT c.name FROM Category c ORDER BY c.name ASC")
     List<String> findAllCategoryNames();
+    Page<Category> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
 }

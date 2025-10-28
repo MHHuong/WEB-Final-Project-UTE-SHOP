@@ -1,6 +1,9 @@
 package vn.host.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.host.dto.CategoryNodeDTO;
@@ -11,31 +14,39 @@ import vn.host.service.CategoryService;
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    @Autowired
-    public CategoryServiceImpl(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
+    @Override
+    public Page<Category> findAll(Pageable pageable) {
+        return categoryRepository.findAll(pageable);
     }
 
     @Override
-    public void save(Category category) {
+    public Optional<Category> findById(Long id) {
+        return categoryRepository.findById(id);
     }
 
     @Override
-    public void delete(long id) {
+    public Page<Category> searchByName(String keyword, Pageable pageable) {
+        return categoryRepository.findByNameContainingIgnoreCase(keyword, pageable);
     }
 
     @Override
-    public List<Category> findAll() {
-        return List.of();
+    public Category save(Category category) {
+        return categoryRepository.save(category);
     }
 
     @Override
-    public Category findById(long id) {
-        return null;
+    public void delete(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục!"));
+        if (!category.getProducts().isEmpty()) {
+            throw new RuntimeException("Không thể xóa danh mục này vì đang chứa sản phẩm!");
+        }
+        categoryRepository.delete(category);
     }
 
     @Override
