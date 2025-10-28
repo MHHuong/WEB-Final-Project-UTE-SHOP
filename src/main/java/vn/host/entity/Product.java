@@ -25,11 +25,12 @@ public class Product {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ShopId", nullable = false)
+    @JsonIgnoreProperties({"products", "hibernateLazyInitializer", "handler"})
     private Shop shop;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CategoryId")
-    @JsonIgnore
+    @JsonIgnoreProperties({"products", "hibernateLazyInitializer", "handler"})
     private Category category;
 
     @Column(length = 200, nullable = false)
@@ -50,6 +51,7 @@ public class Product {
     private Instant createdAt;
 
     @OneToMany(mappedBy = "product")
+    @JsonIgnoreProperties("product")
     private Set<ProductMedia> media = new HashSet<>();
 
     @OneToMany(mappedBy = "product")

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import vn.host.config.api.GeoCodeApi;
@@ -147,7 +148,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponse> getOrdersByUserId(Long userId) {
-        List<OrderResponse> orders  = orderRepository.findAllOrdersByUserId(userId);
+        List<OrderResponse> orders = orderRepository.findAllOrdersByUserId(userId);
         for (OrderResponse order : orders) {
             List<OrderItemResponse> items = orderItemRepository.findOrderByOrderIdAndUserId(order.getOrderId(), userId);
             order.setOrderItem(items);
@@ -170,7 +171,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse getOrderByOrderId(Long orderId) {
-        OrderResponse order  = orderRepository.findOrderById(orderId);
+        OrderResponse order = orderRepository.findOrderById(orderId);
         List<OrderItemResponse> items = orderItemRepository.findOrderByOrderIdAndUserId(order.getOrderId(), order.getUserId());
         for (OrderItemResponse item : items) {
             Optional<Product> product = productRepository.findById(item.getProductId());
@@ -338,7 +339,7 @@ public class OrderServiceImpl implements OrderService {
                 payment.setStatus(vn.host.util.sharedenum.PaymentStatus.FAILED);
                 order.setStatus(OrderStatus.CANCELLED);
             }
-            Payment new_payment =  paymentRepository.save(payment);
+            Payment new_payment = paymentRepository.save(payment);
             order.getPayments().add(new_payment);
             orderRepository.save(order);
         }
@@ -363,10 +364,30 @@ public class OrderServiceImpl implements OrderService {
                 payment.setStatus(vn.host.util.sharedenum.PaymentStatus.FAILED);
                 order.setStatus(OrderStatus.CANCELLED);
             }
-            Payment new_payment =  paymentRepository.save(payment);
+            Payment new_payment = paymentRepository.save(payment);
             order.getPayments().add(new_payment);
             order.setStatus(OrderStatus.CONFIRMED);
             orderRepository.save(order);
         }
+    }
+
+    @Override
+    public Page<Order> findByShop_ShopId(Long shopId, Pageable pageable) {
+        return orderRepository.findByShop_ShopId(shopId, pageable);
+    }
+
+    @Override
+    public Order findById(Long id) {
+        return orderRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Order not found"));
+    }
+
+    @Override
+    public void save(Order order) {
+        orderRepository.save(order);
+    }
+
+    @Override
+    public Page<Order> findAll(Specification<Order> spec, Pageable pageable) {
+        return orderRepository.findAll(spec, pageable);
     }
 }

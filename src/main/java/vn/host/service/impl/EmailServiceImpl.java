@@ -1,26 +1,44 @@
 package vn.host.service.impl;
 
 import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import vn.host.entity.Order;
 import vn.host.entity.User;
 import vn.host.service.EmailService;
 import vn.host.util.sharedenum.OrderStatus;
 
-import org.thymeleaf.context.Context;
-
 @Service
+@RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
+    private final JavaMailSender mail;
+    private final SpringTemplateEngine templateEngine;
 
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${app.otp.sender:UTE SHOP <no-reply@uteshop.vn>}")
+    private String sender;
 
-    @Autowired
-    private SpringTemplateEngine templateEngine;
+    @Override
+    public void sendOtp(String to, String code) {
+        sendText(to, "UTE SHOP - Mã xác thực (OTP)",
+                "Mã OTP của bạn là: " + code + " (hiệu lực 5 phút).");
+    }
+
+    @Override
+    public void sendText(String to, String subject, String body) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom(sender);
+        msg.setTo(to);
+        msg.setSubject(subject);
+        msg.setText(body);
+        mail.send(msg);
+    }
 
     @Override
     public void sendOrderStatusEmail(Order order, User user, OrderStatus status) {
@@ -33,13 +51,13 @@ public class EmailServiceImpl implements EmailService {
         context.setVariable("orderUrl", "http://localhost:8082/user/order/" + order.getOrderId());
 
         String htmlContent = templateEngine.process("email/status", context);
-        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessage message = mail.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(to);
             helper.setSubject(getEmailSubject(status, order.getOrderId()));
             helper.setText(htmlContent, true);
-            mailSender.send(message);
+            mail.send(message);
         } catch (Exception e) {
             e.printStackTrace();
         }

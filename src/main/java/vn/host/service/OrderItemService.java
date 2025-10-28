@@ -1,5 +1,6 @@
 package vn.host.service;
 
+import vn.host.entity.OrderItem;
 import vn.host.model.response.OrderItemResponse;
 
 import java.util.List;

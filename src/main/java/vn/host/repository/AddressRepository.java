@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AddressRepository extends JpaRepository<Address,Long> {
+public interface AddressRepository extends JpaRepository<Address, Long> {
     @Query("""
             SELECT a
             FROM Address a
@@ -52,4 +52,6 @@ public interface AddressRepository extends JpaRepository<Address,Long> {
     Page<Address> findAllByUserId(Long userId, Pageable pageable);
 
     Optional<Address> findAddressByAddressIdAndUser_UserId(Long addressId, Long userId);
+
+    List<Address> findByUser_UserIdOrderByIsDefaultDesc(Long userId);
 }

@@ -2,6 +2,7 @@ package vn.host.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import vn.host.entity.Order;
 import vn.host.entity.Payment;
 import vn.host.model.request.OrderRequest;
@@ -37,4 +38,12 @@ public interface OrderService {
     void updateOrderPaymentVnPay(String orderIdsStr, String responseCode, String transNo, Long amount);
 
     void updateOrderPaymentMomo(String orderIdsStr, Integer responseCode, String transNo, Long amount);
+
+    Page<Order> findByShop_ShopId(Long shopId, Pageable pageable);
+
+    Order findById(Long id);
+
+    void save(Order order);
+
+    Page<Order> findAll(Specification<Order> spec, Pageable pageable);
 }
