@@ -1,5 +1,7 @@
 package vn.host.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,10 +25,12 @@ public class Product {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ShopId", nullable = false)
+    @JsonIgnoreProperties({"products", "hibernateLazyInitializer", "handler"})
     private Shop shop;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CategoryId")
+    @JsonIgnoreProperties({"products", "hibernateLazyInitializer", "handler"})
     private Category category;
 
     @Column(length = 200, nullable = false)
@@ -47,6 +51,7 @@ public class Product {
     private Instant createdAt;
 
     @OneToMany(mappedBy = "product")
+    @JsonIgnoreProperties("product")
     private Set<ProductMedia> media = new HashSet<>();
 
     @OneToMany(mappedBy = "product")

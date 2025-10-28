@@ -8,4 +8,6 @@ public interface AuthService {
     void requestOtp(EmailOnlyReq req);
     boolean verifyOtp(VerifyOtpReq req);
     void resetPassword(ResetPasswordReq req);
+    void requestRegistrationOtp(EmailOnlyReq req);
+    AuthRes processOAuth2User(String email, String name);
 }

@@ -27,4 +27,10 @@ public class AuthController {
 
     @PostMapping("/password/reset")
     public ResponseEntity<?> reset(@RequestBody @Valid ResetPasswordReq req) { svc.resetPassword(req); return ResponseEntity.ok().build(); }
+
+    @PostMapping("/otp/register")
+    public ResponseEntity<?> requestRegistrationOtp(@RequestBody @Valid EmailOnlyReq req) {
+        svc.requestRegistrationOtp(req);
+        return ResponseEntity.ok().build();
+    }
 }

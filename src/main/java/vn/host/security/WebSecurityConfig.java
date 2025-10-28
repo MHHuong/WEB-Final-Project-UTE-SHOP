@@ -1,19 +1,22 @@
 package vn.host.security;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig {
+
+    private final AuthenticationSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -30,32 +33,33 @@ public class WebSecurityConfig {
                                 "/pages/**",
                                 "/api/auth/**",
                                 "/login",
-                                "/register"
+                                "/register",
+                                "/forgot-password",
+                                "/shop-grid",
+                                "/shop-grid/**",
+                                "/api/admin/**",
+                                "/admin/**",
+                                "/shop/**",
+                                "/api/**"
                         ).permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/locations/**").permitAll()
-                        .requestMatchers("/assets/**", "/uploads/**", "/login", "/register", "/shop/account/shop-register").permitAll()
+                        .requestMatchers("/uploads/**", "/shop/account/shop-register").permitAll()
                         .requestMatchers("/api/**").authenticated()
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
 
                 .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-
-                .logout(logout -> logout.permitAll())
-
-                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
-
+                .logout(out -> out.permitAll())
+                .oauth2Login(oauth -> {
+                    oauth.loginPage("/login");
+                    oauth.authorizationEndpoint(auth -> auth
+                            .baseUri("/oauth2/authorization")
+                    );
+                    oauth.redirectionEndpoint(redir -> redir
+                            .baseUri("/login/oauth2/code/*")
+                    );
+                    oauth.successHandler(oAuth2LoginSuccessHandler);
+                });
         return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
-        return cfg.getAuthenticationManager();
     }
 }

@@ -12,8 +12,6 @@ import java.util.Optional;
 public interface CouponService {
     Coupon findById(long id);
 
-    void save(Coupon coupon);
-
     void delete(long id);
 
     Optional<Coupon> findByCode(String code);
@@ -21,4 +19,12 @@ public interface CouponService {
     Page<Coupon> findByShop_ShopId(long shopId, Pageable pageable);
 
     PageResult<CouponVM> searchOwnerCoupons(String userEmail, String q, String status, int page, int size, Sort sort);
+
+    Page<Coupon> findAppCoupons(Pageable pageable);
+
+    Page<Coupon> searchByCode(String code, Pageable pageable);
+
+    Coupon save(Coupon coupon);
+
+    void delete(Long id);
 }

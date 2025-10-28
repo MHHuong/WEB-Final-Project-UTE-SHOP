@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="admin/_layout :: head(~{::title})">
+    <title>Edit Category</title>
+</head>
+<body>
+<div th:replace="admin/_layout :: layout(~{::content})">
+    <div th:fragment="content" class="container mt-5" style="max-width: 600px;">
+        <h3 class="text-center mb-4 fw-bold">Edit Category</h3>
+
+        <form id="categoryForm" class="card p-4 shadow-sm border-0">
+            <div class="mb-3">
+                <label for="categoryName" class="form-label fw-semibold">Category Name</label>
+                <input type="text" id="categoryName" class="form-control" placeholder="Enter category name" required>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success px-4">Save Changes</button>
+                <a href="/admin/categories" class="btn btn-secondary px-4">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Truyền ID từ Thymeleaf sang JS -->
+<script th:inline="javascript">
+    const categoryId = /*[[${id}]]*/ null;
+</script>
+
+<!-- File JS dùng chung -->
+<script th:src="@{/js/admin/admin-categories.js}"></script>
+</body>
+</html>

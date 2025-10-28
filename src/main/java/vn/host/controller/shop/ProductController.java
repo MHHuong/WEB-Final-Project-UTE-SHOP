@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/shop/products")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('SELLER')")
 public class ProductController {
 
     private final UserService users;
@@ -51,7 +53,7 @@ public class ProductController {
         Shop shop = shops.findFirstByOwner_UserId(u.getUserId());
 
 
-        Category cat = categories.findById(data.getCategoryId());
+        Category cat = categories.findById(data.getCategoryId()).orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
         Product p = new Product();
         p.setShop(shop);
@@ -214,7 +216,7 @@ public class ProductController {
             throw new SecurityException("Not your product");
         }
 
-        Category cat = categories.findById(data.getCategoryId());
+        Category cat = categories.findById(data.getCategoryId()).orElseThrow(() -> new IllegalArgumentException("Category not found"));
         p.setCategory(cat);
         p.setName(data.getName());
         p.setDescription(data.getDescription());

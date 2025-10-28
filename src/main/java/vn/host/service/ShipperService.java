@@ -11,7 +11,15 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ShipperService {
-    void save(Shipper shipper);
+    Page<Shipper> getAll(String keyword, int page, int size);
+
+    Shipper findById(Long id);
+
+    Shipper save(Shipper shipper);
+
+    Shipper update(Long id, Shipper shipper);
+
+    void delete(Long id);
 
     void delete(long id);
 

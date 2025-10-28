@@ -2,6 +2,7 @@ package vn.host.controller.shop;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import vn.host.dto.dashboard.DashboardRes;
@@ -16,6 +17,7 @@ import java.time.Instant;
 @RestController
 @RequestMapping("/api/shop/dashboard")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('SELLER')")
 public class DashboardController {
 
     private final UserService users;

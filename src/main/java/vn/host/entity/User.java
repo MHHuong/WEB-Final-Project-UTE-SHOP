@@ -1,5 +1,7 @@
 package vn.host.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -17,6 +19,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +29,7 @@ public class User {
     @Email
     private String email;
 
-    @Column(length = 255, nullable = false)
+    @Column(length = 255, nullable = true)
     private String passwordHash;
 
     @Column(length = 100)
@@ -46,11 +49,14 @@ public class User {
     private Instant createdAt;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private Set<Address> addresses = new HashSet<>();
 
     @OneToMany(mappedBy = "owner")
+    @JsonIgnore
     private Set<Shop> shops = new HashSet<>();
 
     @OneToOne(mappedBy = "user")
+    @JsonIgnoreProperties({"user", "shippingProvider", "assignedOrders", "hibernateLazyInitializer", "handler"})
     private Shipper shipper;
 }

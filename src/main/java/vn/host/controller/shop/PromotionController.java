@@ -8,6 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import vn.host.service.UserService;
 @RestController
 @RequestMapping("/api/shop/promotions")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('SELLER')")
 public class PromotionController {
     private final PromotionService promotionService;
     private final CategoryService categoryService;
@@ -109,7 +111,7 @@ public class PromotionController {
 
         Category cat = null;
         if (req.applyCategoryId() != null) {
-            cat = categoryService.findById(req.applyCategoryId());
+            cat = categoryService.findById(req.applyCategoryId()).orElseThrow(() -> new IllegalArgumentException("Category not found"));
         }
 
         Promotion p = Promotion.builder()
@@ -154,7 +156,7 @@ public class PromotionController {
 
         Category cat = null;
         if (req.applyCategoryId() != null) {
-            cat = categoryService.findById(req.applyCategoryId());
+            cat = categoryService.findById(req.applyCategoryId()).orElseThrow(() -> new IllegalArgumentException("Category not found"));
         }
 
         p.setTitle(req.title());

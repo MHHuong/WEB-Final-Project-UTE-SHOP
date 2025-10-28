@@ -1,9 +1,11 @@
 package vn.host.controller.shop;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
+@PreAuthorize("hasRole('SELLER')")
 public class ShopPageController {
     @GetMapping("/shop")
     public String shopIndex() {

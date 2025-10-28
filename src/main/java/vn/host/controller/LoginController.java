@@ -13,4 +13,8 @@ public class LoginController {
     public String registerView() {
         return "pages/auth/register";
     }
+    @GetMapping("/forgot-password")
+    public String forgotPasswordView() {
+        return "pages/auth/forgot-password";
+    }
 }
