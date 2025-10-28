@@ -22,4 +22,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecif
     RatingSummary getRatingSummaryByProductId(Long productId);
 
     Optional<Review> findById(Long id);
+
+    Page<Review> findByProduct_ProductId(Long productId, Pageable pageable);
 }

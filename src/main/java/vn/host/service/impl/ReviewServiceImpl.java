@@ -29,4 +29,9 @@ public class ReviewServiceImpl implements ReviewService {
     public Review findById(Long id) {
         return reviewRepo.findById(id).orElseThrow(() -> new IllegalArgumentException("Review not found"));
     }
+
+    @Override
+    public Page<Review> findByProduct_ProductId(Long productId, Pageable pageable) {
+        return reviewRepo.findByProduct_ProductId(productId, pageable);
+    }
 }
