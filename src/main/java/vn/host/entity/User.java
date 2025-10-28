@@ -29,7 +29,7 @@ public class User {
     @Email
     private String email;
 
-    @Column(length = 255, nullable = false)
+    @Column(length = 255, nullable = true)
     private String passwordHash;
 
     @Column(length = 100)
