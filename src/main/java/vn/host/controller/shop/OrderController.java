@@ -13,12 +13,9 @@ import vn.host.dto.order.OrderDetailVM;
 import vn.host.dto.order.OrderItemVM;
 import vn.host.dto.order.OrderRowVM;
 import vn.host.dto.order.UpdateStatusReq;
-import vn.host.entity.Coupon;
-import vn.host.entity.Order;
-import vn.host.entity.OrderItem;
-import vn.host.entity.Shop;
-import vn.host.entity.User;
+import vn.host.entity.*;
 import vn.host.service.OrderService;
+import vn.host.service.ProductService;
 import vn.host.service.ShopService;
 import vn.host.service.UserService;
 import vn.host.util.sharedenum.DiscountType;
@@ -37,6 +34,7 @@ public class OrderController {
     private final UserService userService;
     private final ShopService shopService;
     private final OrderService orderService;
+    private final ProductService productService;
 
     private User authedUser(Authentication auth) {
         if (auth == null) throw new SecurityException("Unauthenticated");
@@ -200,6 +198,31 @@ public class OrderController {
         OrderStatus next = OrderStatus.valueOf(req.getStatus().toUpperCase());
         if (next != OrderStatus.CONFIRMED && next != OrderStatus.CANCELLED) {
             throw new IllegalArgumentException("Only CONFIRMED or CANCELLED is allowed for NEW orders");
+        }
+
+        if (next == OrderStatus.CONFIRMED) {
+            for (OrderItem it : o.getItems()) {
+                Product p = it.getProduct();
+                if (p == null) continue;
+
+                Integer current = p.getStock() == null ? 0 : p.getStock();
+
+                // MẶC ĐỊNH: giảm theo số lượng đặt
+                int qty = (it.getQuantity() == null ? 1 : it.getQuantity());
+
+                // NẾU BẠN MUỐN "mỗi Confirm chỉ trừ đúng 1":
+                // int qty = 1;
+
+                int decreased = Math.max(0, current - qty);
+                p.setStock(decreased);
+
+                // Quy ước: 0 = In Stock, 1 = Out of Stock (theo yêu cầu "0 -> 1")
+                if (decreased == 0) {
+                    p.setStatus(1);
+                }
+
+                productService.save(p);
+            }
         }
         o.setStatus(next);
         orderService.save(o);
