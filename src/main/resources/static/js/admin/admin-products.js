@@ -1,13 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector("#tblProducts");
-    const pagination = document.querySelector("#pagination"); // ✅ thêm
+    const pagination = document.querySelector("#pagination");
     const searchBtn = document.querySelector("#btnSearch");
     const searchInput = document.querySelector("#searchProduct");
     const searchShopBtn = document.querySelector("#btnSearchShop");
     const searchShopInput = document.querySelector("#searchShop");
     const categorySelect = document.querySelector("#categoryFilter");
     const reloadBtn = document.querySelector("#btnReload");
-    const dropdown = document.querySelector("#categoryFilter");
 
     let currentPage = 0;
     const pageSize = 10;
@@ -24,7 +23,10 @@ document.addEventListener("DOMContentLoaded", function () {
             tbody.insertAdjacentHTML("beforeend", `
         <tr>
           <td><input type="checkbox"></td>
-          <td><img src="${p.media?.[0]?.url || '/assets/images/sample/snack.jpg'}" class="product-img"></td>
+          <td>
+            <img src="${p.media?.[0]?.url || '/assets/images/sample/snack.jpg'}"
+                 style="width:100px; height:100px; object-fit:cover; border-radius:6px; display:block;">
+          </td>
           <td>${p.name}</td>
           <td>${p.category ? p.category.name : '-'}</td>
           <td>${p.shop ? p.shop.shopName : '-'}</td>
@@ -33,8 +35,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 ? '<span class="badge bg-success">Active</span>'
                 : '<span class="badge bg-danger">Inactive</span>'}
           </td>
-          <td class="text-end">$${p.price.toFixed(2)}</td>
-          <td class="text-center">${p.stock || 0}</td>
+        <td class="text-center">
+          <span class="price-badge">
+            ${formatCurrency(p.price)}
+          </span>
+        </td>          
+        <td class="text-center">${p.stock || 0}</td>
           <td>${formatDate(p.createdAt)}</td>
           <td class="text-center">
               <button class="btn btn-sm btn-outline-warning me-1" 
@@ -49,11 +55,11 @@ document.addEventListener("DOMContentLoaded", function () {
               </button>
           </td>
         </tr>
-      `);
+    `);
         });
     }
 
-    // ================= RENDER PAGINATION ================= ✅ thêm
+    // ================= RENDER PAGINATION =================
     function renderPagination(totalPages, currentPage) {
         pagination.innerHTML = "";
         if (totalPages <= 1) return;
@@ -76,7 +82,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 const products = data.content || data;
                 renderProducts(products);
-                // ✅ thêm phân trang
                 if (data.totalPages !== undefined) renderPagination(data.totalPages, data.number);
             })
             .catch(err => console.error("Lỗi tải danh sách sản phẩm:", err));
@@ -100,19 +105,19 @@ document.addEventListener("DOMContentLoaded", function () {
         else loadProducts();
     });
 
-    // ================= FILTER CATEGORY =================
-    categorySelect?.addEventListener("change", () => {
-        const cateId = categorySelect.value;
-        if (cateId)
-            loadProducts(0, `/api/admin/products?categoryId=${cateId}&page=0&size=${pageSize}`);
-        else loadProducts();
-    });
+    // // ================= FILTER CATEGORY =================
+    // categorySelect?.addEventListener("change", () => {
+    //     const cateId = categorySelect.value;
+    //     if (cateId)
+    //         loadProducts(0, `/api/admin/products?categoryId=${cateId}&page=0&size=${pageSize}`);
+    //     else loadProducts();
+    // });
 
     // ================= RELOAD =================
     reloadBtn?.addEventListener("click", () => {
         searchInput.value = "";
         searchShopInput.value = "";
-        categorySelect.value = "";
+        $(categorySelect).val("").trigger("change");
         loadProducts();
     });
 
@@ -157,18 +162,44 @@ document.addEventListener("DOMContentLoaded", function () {
         return d.toLocaleDateString("en-GB");
     }
 
-    // ================= LOAD CATEGORY OPTIONS =================
+    function formatCurrency(amount) {
+        if (amount == null || isNaN(amount)) return "-";
+        // Định dạng theo VND
+        return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+    }
+
+    // ================= LOAD CATEGORY OPTIONS + SELECT2 =================
     function loadCategories() {
         fetch("/api/admin/categories?page=0&size=100")
             .then(res => res.json())
             .then(data => {
                 const select = document.getElementById("categoryFilter");
                 select.innerHTML = `<option value="">— Filter by category —</option>`;
+
+                // ⚠️ Dữ liệu từ Spring Data có thể nằm trong .content
                 const categories = data.content || data;
                 categories.forEach(c => {
                     select.insertAdjacentHTML("beforeend",
                         `<option value="${c.categoryId}">${c.name}</option>`);
                 });
+
+                // ✅ Kích hoạt Select2 có thanh tìm kiếm
+                $(select).select2({
+                    placeholder: "— Filter by category —",
+                    allowClear: true,
+                    width: '100%'
+                });
+
+                // ✅ GẮN SỰ KIỆN SAU KHI KÍCH HOẠT SELECT2
+                $(select).on("change", function () {
+                    const cateId = $(this).val();
+                    if (cateId)
+                        loadProducts(0, `/api/admin/products?categoryId=${cateId}&page=0&size=${pageSize}`);
+                    else
+                        loadProducts();
+                });
+
+
             })
             .catch(err => console.error("Lỗi tải danh mục:", err));
     }
