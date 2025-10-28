@@ -134,7 +134,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     opt.textContent = `${u.fullName || "(No name)"} (${u.email})`;
                     userId.appendChild(opt);
                 });
-                if (window.$ && $.fn.select2) $('#userId').select2({ width: '100%' });
+
+                // ✅ THÊM: cấu hình Select2 có placeholder và allowClear
+                if (window.$ && $.fn.select2) {
+                    $('#userId').select2({
+                        placeholder: "-- Select Shipper User --",
+                        allowClear: true,
+                        width: '100%'
+                    });
+                }
+
             } catch (err) {
                 console.error("Error loading users:", err);
             }
@@ -152,7 +161,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     opt.textContent = `${p.name} (${Number(p.fee).toLocaleString()} ₫, ${p.estimatedDays} days)`;
                     providerId.appendChild(opt);
                 });
-                if (window.$ && $.fn.select2) $('#shippingProviderId').select2({ width: '100%' });
+
+                // ✅ THÊM: cấu hình Select2 có placeholder và allowClear
+                if (window.$ && $.fn.select2) {
+                    $('#shippingProviderId').select2({
+                        placeholder: "-- Select Provider --",
+                        allowClear: true,
+                        width: '100%'
+                    }).on('select2:clear', function () {
+                        // ✅ Reset lại option đầu tiên, tránh bị render duplicate
+                        $(this).val('').trigger('change');
+                    });
+                }
+
             } catch (err) {
                 console.error("Error loading providers:", err);
             }
@@ -220,6 +241,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 opt.textContent = `${p.name} (${Number(p.fee).toLocaleString()} ₫, ${p.estimatedDays} days)`;
                 providerId.appendChild(opt);
             });
+
+            // ✅ THÊM: bật Select2 cho trang edit
+            if (window.$ && $.fn.select2) {
+                $('#shippingProviderId').select2({
+                    placeholder: "-- Select Provider --",
+                    allowClear: true,
+                    width: '100%'
+                }).on('select2:clear', function () {
+                    // ✅ Reset lại option đầu tiên, tránh bị render duplicate
+                    $(this).val('').trigger('change');
+                });
+            }
         }
 
         async function loadShipper() {
@@ -230,6 +263,7 @@ document.addEventListener("DOMContentLoaded", function () {
             phone.value = s.phone || "";
             await loadProviders();
             providerId.value = s.shippingProvider?.shippingProviderId || "";
+            $('#shippingProviderId').trigger('change'); // ✅ cập nhật Select2 hiển thị đúng
         }
 
         loadShipper();

@@ -2,132 +2,89 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="admin/_layout :: head(~{::title})">
     <title>UTESHOP • Edit Shipper</title>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
 </head>
+
 <body>
 <div th:replace="admin/_layout :: layout(~{::content})">
+    <div th:fragment="content">
 
-    <div th:fragment="content" class="page-wrap" style="max-width: 900px; margin: 0 auto;">
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="/admin/shippers">Shippers</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Edit Shipper</li>
-            </ol>
-        </nav>
+        <div class="page-wrap" style="max-width: 900px; margin: 0 auto;">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/admin/shippers">Shippers</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit Shipper</li>
+                </ol>
+            </nav>
 
-        <h3 class="mb-4">Edit Shipper</h3>
+            <h3 class="mb-4">Edit Shipper</h3>
 
-        <form id="shipperForm" class="card p-4 shadow-sm">
-            <div class="mb-3">
-                <label class="form-label">User</label>
-                <select id="userId" class="form-select" disabled></select>
-            </div>
+            <form id="shipperForm" class="card p-4 shadow-sm">
+                <!-- User -->
+                <div class="mb-3">
+                    <label for="userId" class="form-label">User</label>
+                    <select id="userId" class="form-select" disabled>
+                        <option value="">-- Select Shipper User --</option>
+                    </select>
+                </div>
 
-            <div class="mb-3">
-                <label class="form-label">Company Name</label>
-                <input type="text" id="companyName" class="form-control" placeholder="Enter company name" required>
-            </div>
+                <!-- Company -->
+                <div class="mb-3">
+                    <label for="companyName" class="form-label">Company Name</label>
+                    <input type="text" id="companyName" class="form-control" placeholder="Enter company name" required>
+                </div>
 
-            <div class="mb-3">
-                <label class="form-label">Phone Number</label>
-                <input type="text" id="phone" class="form-control" placeholder="Enter phone number">
-            </div>
+                <!-- Phone -->
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <input type="text" id="phone" class="form-control" placeholder="Enter phone number">
+                </div>
 
-            <div class="mb-3">
-                <label class="form-label">Shipping Provider</label>
-                <select id="shippingProviderId" class="form-select" required></select>
-            </div>
+                <!-- Provider -->
+                <div class="mb-3">
+                    <label for="shippingProviderId" class="form-label">Select Shipping Provider</label>
+                    <select id="shippingProviderId" class="form-select" required>
+                        <option value="">-- Select Provider --</option>
+                    </select>
+                </div>
 
-            <div class="d-flex justify-content-between">
-                <a href="/admin/shippers" class="btn btn-secondary">← Back</a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-save"></i> Save Changes
-                </button>
-            </div>
-        </form>
+                <!-- Actions -->
+                <div class="d-flex justify-content-between">
+                    <a href="/admin/shippers" class="btn btn-secondary">← Back</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<!-- Select2 -->
+<!-- ✅ Thư viện Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
+<!-- JS chính -->
 <script th:src="@{/js/admin/admin-shippers.js}"></script>
+<style>
+    .page-wrap { max-width: 700px; margin: 0 auto; }
+    .card { border-radius: 14px; }
+    .form-label { font-weight: 500; }
 
-<script>
-    document.addEventListener("DOMContentLoaded", async function () {
-        const shipperId = new URLSearchParams(window.location.search).get("id");
-        if (!shipperId) {
-            alert("⚠️ Shipper ID not found!");
-            window.location.href = "/admin/shippers";
-            return;
-        }
-
-        const userSelect = document.getElementById("userId");
-        const providerSelect = document.getElementById("shippingProviderId");
-        const companyName = document.getElementById("companyName");
-        const phone = document.getElementById("phone");
-
-        // ===== Load providers =====
-        async function loadProviders(selectedId) {
-            const res = await fetch("/api/admin/shipping-providers?size=100");
-            const data = await res.json();
-            const providers = data.content || data;
-            providerSelect.innerHTML = "";
-            providers.forEach(p => {
-                const opt = document.createElement("option");
-                opt.value = p.shippingProviderId;
-                opt.textContent = `${p.name} (${Number(p.fee).toLocaleString()} ₫, ${p.estimatedDays} days)`;
-                if (p.shippingProviderId === selectedId) opt.selected = true;
-                providerSelect.appendChild(opt);
-            });
-            $('#shippingProviderId').select2({ width: '100%' });
-        }
-
-        // ===== Load shipper =====
-        async function loadShipper() {
-            const res = await fetch(`/api/admin/shippers/${shipperId}`);
-            if (!res.ok) {
-                alert("⚠️ Cannot load shipper info!");
-                window.location.href = "/admin/shippers";
-                return;
-            }
-            const s = await res.json();
-            companyName.value = s.companyName || "";
-            phone.value = s.phone || "";
-            userSelect.innerHTML = `<option selected>${s.user.fullName} (${s.user.email})</option>`;
-            await loadProviders(s.shippingProvider?.shippingProviderId);
-        }
-
-        await loadShipper();
-
-        // ===== Submit form =====
-        document.getElementById("shipperForm").addEventListener("submit", async e => {
-            e.preventDefault();
-            const data = {
-                companyName: companyName.value.trim(),
-                phone: phone.value.trim(),
-                shippingProviderId: parseInt(providerSelect.value)
-            };
-
-            try {
-                const res = await fetch(`/api/admin/shippers/${shipperId}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
-                });
-                const msg = await res.text();
-                if (!res.ok) alert("❌ " + (msg || "Update failed!"));
-                else {
-                    alert("✅ Shipper updated successfully!");
-                    window.location.href = "/admin/shippers";
-                }
-            } catch (err) {
-                console.error(err);
-                alert("⚠️ Server connection error!");
-            }
-        });
-    });
-</script>
+    /* ✅ Giao diện Select2 đồng nhất */
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+    }
+    .select2-container--default .select2-selection__arrow {
+        height: 36px;
+    }
+</style>
 </body>
 </html>

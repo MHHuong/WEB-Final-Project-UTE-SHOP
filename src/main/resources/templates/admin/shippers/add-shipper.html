@@ -2,27 +2,11 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="admin/_layout :: head(~{::title})">
     <title>UTESHOP • Add Shipper</title>
-
-    <!-- Select2 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 </head>
+
 <body>
-
 <div th:replace="admin/_layout :: layout(~{::content})">
-
     <div th:fragment="content">
-        <style>
-            .page-wrap {max-width: 700px; margin: 0 auto;}
-            .card {border-radius: 14px;}
-            .form-label {font-weight: 500;}
-            .select2-container--default .select2-selection--single {
-                height: 38px;
-                border: 1px solid #ced4da;
-                border-radius: 6px;
-                display: flex;
-                align-items: center;
-            }
-        </style>
 
         <div class="page-wrap">
 
@@ -78,8 +62,29 @@
         </div>
     </div>
 </div>
+<!-- ✅ Thư viện Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<!-- Select2 JS -->
+<!-- JS chính -->
 <script th:src="@{/js/admin/admin-shippers.js}"></script>
 </body>
+<style>
+    .page-wrap { max-width: 700px; margin: 0 auto; }
+    .card { border-radius: 14px; }
+    .form-label { font-weight: 500; }
+
+    /* Tùy chỉnh giao diện Select2 */
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+    }
+    .select2-container--default .select2-selection__arrow {
+        height: 36px;
+    }
+</style>
 </html>
