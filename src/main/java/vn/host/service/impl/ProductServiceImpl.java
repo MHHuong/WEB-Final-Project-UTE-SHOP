@@ -9,17 +9,21 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.host.dto.ProductDTO;
 import vn.host.entity.Product;
 import vn.host.repository.ProductRepository; // (File này ở mục 2)
+import vn.host.service.CategoryService;
 import vn.host.service.ProductService;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
+    private final CategoryService categoryService;
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService) {
         this.productRepository = productRepository;
+        this.categoryService = categoryService;
     }
 
     @Override
@@ -112,12 +116,20 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductDTO> findAllProductsAsDTO() {
-        // 1. Gọi phương thức findAll() cũ của bạn để lấy Entity
         List<Product> products = this.findAll();
-
-        // 2. Chuyển đổi List<Product> sang List<ProductDTO>
         return products.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> findProductsByCategoryId(Long categoryId, Pageable pageable) {
+        Set<Long> allCategoryIds = categoryService.getCategoryAndDescendantIds(categoryId);
+        if (allCategoryIds.isEmpty()) {
+            return Page.empty(pageable);
+        }
+        Page<Product> productPage = productRepository.findByCategoryIdsIn(allCategoryIds, pageable);
+        return productPage.map(this::convertToDTO);
+    }
+
 }

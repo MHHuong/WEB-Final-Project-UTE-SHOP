@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import vn.host.entity.Product;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product,Long>, JpaSpecificationExecutor<Product> {
@@ -49,4 +50,10 @@ public interface ProductRepository extends JpaRepository<Product,Long>, JpaSpeci
     @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c LEFT JOIN FETCH p.reviews WHERE c.name = :categoryName",
             countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c WHERE c.name = :categoryName")
     Page<Product> findByCategoryName(String categoryName, Pageable pageable);
+    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c LEFT JOIN FETCH p.reviews WHERE c.categoryId = :categoryId",
+            countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c WHERE c.categoryId = :categoryId")
+    Page<Product> findByCategoryId(Long categoryId, Pageable pageable);
+    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c LEFT JOIN FETCH p.reviews WHERE c.categoryId IN :categoryIds",
+            countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c WHERE c.categoryId IN :categoryIds")
+    Page<Product> findByCategoryIdsIn(@Param("categoryIds") Set<Long> categoryIds, Pageable pageable);
 }

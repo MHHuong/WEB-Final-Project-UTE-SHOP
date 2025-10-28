@@ -17,4 +17,5 @@ public interface ProductService {
     Page<ProductDTO> findAllProducts(Pageable pageable);
     Page<ProductDTO> findProductsByCategory(String categoryName, Pageable pageable);
     List<ProductDTO> findAllProductsAsDTO();
+    Page<ProductDTO> findProductsByCategoryId(Long categoryId, Pageable pageable);
 }
