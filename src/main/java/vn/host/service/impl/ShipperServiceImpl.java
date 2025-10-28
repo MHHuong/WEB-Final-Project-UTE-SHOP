@@ -22,6 +22,7 @@ import vn.host.util.sharedenum.OrderStatus;
 import vn.host.util.sharedenum.ShipperAction;
 import vn.host.util.sharedenum.UserRole;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,6 +78,12 @@ public class ShipperServiceImpl implements ShipperService {
         return new Area(provinceName, districtName);
     }
 
+    private String tailLike(String district, String province) {
+        if (!org.springframework.util.StringUtils.hasText(district)
+                || !org.springframework.util.StringUtils.hasText(province)) return null;
+        return "%, " + district.trim() + ", " + province.trim();
+    }
+
     @Override
     public Optional<Shipper> findByUserId(Long userId) {
         return shipperRepository.findByUser_UserId(userId);
@@ -104,28 +111,36 @@ public class ShipperServiceImpl implements ShipperService {
 
     @Override
     public Page<Order> listOrdersForShipper(Shipper me, OrderStatus status, Pageable pageable) {
-        Area area = resolveAreaFromAddress(me.getAddress());
-        String province = area.province();
-        String district = area.district();
+        Area a = resolveAreaFromAddress(me.getAddress());
+        String province = a.province(), district = a.district();
 
         Specification<Order> spec = (root, cq, cb) -> {
-            var ps = new java.util.ArrayList<Predicate>();
+            List<Predicate> ps = new ArrayList<>();
             ps.add(cb.equal(root.get("status"), status));
+
             if (status == OrderStatus.CONFIRMED) {
                 ps.add(cb.isNull(root.get("shipper")));
-            } else {
-                ps.add(cb.equal(root.get("shipper"), me));
-            }
-            Join<Object, Object> addr = root.join("address", JoinType.INNER);
 
-            if (StringUtils.hasText(province)) {
-                ps.add(cb.equal(addr.get("province"), province));
+                Join<Object, Object> shop = root.join("shop", JoinType.INNER);
+                String likeTail = tailLike(district, province);
+                if (likeTail != null) {
+                    ps.add(cb.like(shop.get("address"), likeTail));
+                }
+            } else if (status == OrderStatus.SHIPPING) {
+                Join<Object, Object> recvAddr = root.join("address", JoinType.INNER);
+                if (org.springframework.util.StringUtils.hasText(province)) {
+                    ps.add(cb.equal(recvAddr.get("province"), province));
+                }
+                if (org.springframework.util.StringUtils.hasText(district)) {
+                    ps.add(cb.equal(recvAddr.get("district"), district));
+                }
+                // Mặc định: chỉ thấy đơn SHIPPING của chính mình
+                //ps.add(cb.equal(root.get("shipper"), me));
             }
-            if (StringUtils.hasText(district)) {
-                ps.add(cb.equal(addr.get("district"), district));
-            }
+
             return cb.and(ps.toArray(new Predicate[0]));
         };
+
         return orderRepository.findAll(spec, pageable);
     }
 
@@ -135,14 +150,18 @@ public class ShipperServiceImpl implements ShipperService {
         if (o.getStatus() != OrderStatus.CONFIRMED) {
             throw new IllegalStateException("Order not in CONFIRMED state");
         }
-        Area area = resolveAreaFromAddress(me.getAddress());
-        String province = area.province();
-        String district = area.district();
+        Area a = resolveAreaFromAddress(me.getAddress());
+        String province = a.province(), district = a.district();
 
-        if (StringUtils.hasText(province) && StringUtils.hasText(district)) {
-            // Phải đúng khu vực, so sánh đúng text (y như option text bên shop)
-            if (!province.equals(o.getAddress().getProvince()) || !district.equals(o.getAddress().getDistrict())) {
-                throw new SecurityException("Order outside your service area");
+        // Lấy địa chỉ SHOP
+        var shop = o.getShop();
+        var sa = (shop != null) ? shop.getAddress() : null;
+        Area ashop = resolveAreaFromAddress(sa);
+        String shopProvince = ashop.province(), shopDistrict = ashop.district();
+
+        if (org.springframework.util.StringUtils.hasText(province) && org.springframework.util.StringUtils.hasText(district)) {
+            if (!province.equals(shopProvince) || !district.equals(shopDistrict)) {
+                throw new SecurityException("Order outside your pickup area (shop)");
             }
         }
 
@@ -160,6 +179,19 @@ public class ShipperServiceImpl implements ShipperService {
         if (o.getStatus() != OrderStatus.SHIPPING) throw new IllegalStateException("Order not in SHIPPING state");
         if (o.getShipper() == null || !o.getShipper().getShipperId().equals(me.getShipperId())) {
             throw new SecurityException("You are not assigned to this order");
+        }
+
+        Area a = resolveAreaFromAddress(me.getAddress());
+        String province = a.province(), district = a.district();
+
+        var oa = o.getAddress(); // ManyToOne Address
+        String recvProvince = (oa != null) ? oa.getProvince() : null;
+        String recvDistrict = (oa != null) ? oa.getDistrict() : null;
+
+        if (org.springframework.util.StringUtils.hasText(province) && org.springframework.util.StringUtils.hasText(district)) {
+            if (!province.equals(recvProvince) || !district.equals(recvDistrict)) {
+                throw new SecurityException("Order outside your delivery area (receiver)");
+            }
         }
 
         o.setStatus(OrderStatus.DELIVERED);
