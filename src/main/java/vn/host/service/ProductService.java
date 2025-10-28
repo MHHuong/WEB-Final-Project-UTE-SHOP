@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import vn.host.dto.ProductDTO;
 import vn.host.entity.Product;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface ProductService {
@@ -18,4 +19,6 @@ public interface ProductService {
     Page<ProductDTO> findProductsByCategory(String categoryName, Pageable pageable);
     List<ProductDTO> findAllProductsAsDTO();
     Page<ProductDTO> findProductsByCategoryId(Long categoryId, Pageable pageable);
+    Page<ProductDTO> findAllProductsFiltered(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
+    Page<ProductDTO> findProductsByCategoryIdFiltered(Long categoryId, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable);
 }

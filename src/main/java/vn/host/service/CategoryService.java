@@ -15,4 +15,5 @@ public interface CategoryService {
     List<CategoryNodeDTO> getCategoryTree();
     Set<Long> getExpandedCategoryIds(Long categoryId);
     Set<Long> getCategoryAndDescendantIds(Long categoryId);
+    String getCategoryNameById(Long categoryId);
 }

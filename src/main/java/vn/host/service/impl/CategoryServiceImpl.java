@@ -117,4 +117,14 @@ public class CategoryServiceImpl implements CategoryService {
         }
         return ids;
     }
+    @Override
+    @Transactional(readOnly = true)
+    public String getCategoryNameById(Long categoryId) {
+        if (categoryId == null) {
+            return null;
+        }
+        return categoryRepository.findById(categoryId)
+                .map(Category::getName)
+                .orElse(null);
+    }
 }

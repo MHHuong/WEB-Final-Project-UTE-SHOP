@@ -12,6 +12,7 @@ import vn.host.repository.ProductRepository; // (File này ở mục 2)
 import vn.host.service.CategoryService;
 import vn.host.service.ProductService;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -129,6 +130,22 @@ public class ProductServiceImpl implements ProductService {
             return Page.empty(pageable);
         }
         Page<Product> productPage = productRepository.findByCategoryIdsIn(allCategoryIds, pageable);
+        return productPage.map(this::convertToDTO);
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> findAllProductsFiltered(BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
+        Page<Product> productPage = productRepository.findAllWithPriceFilter(minPrice, maxPrice, pageable);
+        return productPage.map(this::convertToDTO);
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> findProductsByCategoryIdFiltered(Long categoryId, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
+        Set<Long> allCategoryIds = categoryService.getCategoryAndDescendantIds(categoryId);
+        if (allCategoryIds.isEmpty()) {
+            return Page.empty(pageable);
+        }
+        Page<Product> productPage = productRepository.findByCategoryIdsInAndPriceFilter(allCategoryIds, minPrice, maxPrice, pageable);
         return productPage.map(this::convertToDTO);
     }
 

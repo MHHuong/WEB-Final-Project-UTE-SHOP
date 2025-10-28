@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import vn.host.entity.Product;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -56,4 +57,37 @@ public interface ProductRepository extends JpaRepository<Product,Long>, JpaSpeci
     @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c LEFT JOIN FETCH p.reviews WHERE c.categoryId IN :categoryIds",
             countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c WHERE c.categoryId IN :categoryIds")
     Page<Product> findByCategoryIdsIn(@Param("categoryIds") Set<Long> categoryIds, Pageable pageable);
+    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c LEFT JOIN FETCH p.reviews " +
+            "WHERE (:minPrice IS NULL OR p.price >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR p.price <= :maxPrice)",
+            countQuery = "SELECT count(p) FROM Product p " +
+                    "WHERE (:minPrice IS NULL OR p.price >= :minPrice) " +
+                    "AND (:maxPrice IS NULL OR p.price <= :maxPrice)")
+    Page<Product> findAllWithPriceFilter(@Param("minPrice") BigDecimal minPrice,
+                                         @Param("maxPrice") BigDecimal maxPrice,
+                                         Pageable pageable);
+    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c LEFT JOIN FETCH p.reviews " +
+            "WHERE c.categoryId IN :categoryIds " +
+            "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR p.price <= :maxPrice)",
+            countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c " +
+                    "WHERE c.categoryId IN :categoryIds " +
+                    "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
+                    "AND (:maxPrice IS NULL OR p.price <= :maxPrice)")
+    Page<Product> findByCategoryIdsInAndPriceFilter(@Param("categoryIds") Set<Long> categoryIds,
+                                                    @Param("minPrice") BigDecimal minPrice,
+                                                    @Param("maxPrice") BigDecimal maxPrice,
+                                                    Pageable pageable);
+    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c LEFT JOIN FETCH p.reviews " +
+            "WHERE c.categoryId = :categoryId " +
+            "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
+            "AND (:maxPrice IS NULL OR p.price <= :maxPrice)",
+            countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c " +
+                    "WHERE c.categoryId = :categoryId " +
+                    "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
+                    "AND (:maxPrice IS NULL OR p.price <= :maxPrice)")
+    Page<Product> findByCategoryIdAndPriceFilter(@Param("categoryId") Long categoryId,
+                                                 @Param("minPrice") BigDecimal minPrice,
+                                                 @Param("maxPrice") BigDecimal maxPrice,
+                                                 Pageable pageable);
 }
