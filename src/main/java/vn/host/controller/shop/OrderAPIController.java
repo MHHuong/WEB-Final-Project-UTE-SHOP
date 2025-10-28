@@ -31,7 +31,7 @@ import java.util.List;
 @RequestMapping("/api/shop/orders")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('SELLER')")
-public class OrderController {
+public class OrderAPIController {
 
     private final UserService userService;
     private final ShopService shopService;

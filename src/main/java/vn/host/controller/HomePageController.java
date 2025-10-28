@@ -12,7 +12,7 @@ import vn.host.service.OrderService;
 
 @Controller
 @RequestMapping("/user")
-public class CartController {
+public class HomePageController {
     @Autowired
     OrderService orderService;
 

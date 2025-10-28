@@ -29,7 +29,7 @@ import java.util.Optional;
 @RequestMapping("/api/shop/coupons")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('SELLER')")
-public class CouponController {
+public class CouponAPIController {
     private final CouponService couponService;
     private final ShopService shopService;
     private final UserService userService;
