@@ -39,4 +39,17 @@ public interface ShipperService {
     Order pickup(Long orderId, Shipper me);
 
     Order deliver(Long orderId, Shipper me);
+
+    Shipper edit(Shipper s);
+
+    Page<Order> listReturnPickup(Shipper me, Pageable pageable);
+
+    // Danh sách RETURNED đã lấy hàng trả (đã có RETURN_PICKUP nhưng chưa RETURN_DELIVER) -> lọc theo địa chỉ shop
+    Page<Order> listReturnDeliver(Shipper me, Pageable pageable);
+
+    // Đánh dấu đã lấy hàng trả (RETURN_PICKUP)
+    Order returnPickup(Long orderId, Shipper me);
+
+    // Đánh dấu đã giao hàng trả về shop (RETURN_DELIVER)
+    Order returnDeliver(Long orderId, Shipper me);
 }

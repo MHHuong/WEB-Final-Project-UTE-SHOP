@@ -48,13 +48,30 @@ public class ShipperController {
         return ResponseEntity.ok(saved.getShipperId());
     }
 
-    // 2) Lấy thông tin shipper hiện tại
+    // Lấy profile shipper của user hiện tại
     @GetMapping("/me")
-    public ResponseEntity<?> me(Authentication auth) {
+    public ResponseEntity<?> myProfile(Authentication auth) {
         User u = authed(auth);
-        Shipper me = shipperSvc.findByUserId(u.getUserId()).orElse(null);
-        if (me == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(me);
+        var opt = shipperSvc.findByUserId(u.getUserId());
+        if (opt.isEmpty()) return ResponseEntity.status(404).body("Not a shipper");
+        return ResponseEntity.ok(vn.host.dto.shipper.ShipperProfileVM.of(opt.get()));
+    }
+
+    // Cập nhật profile shipper hiện tại
+    @PutMapping("/me")
+    public ResponseEntity<?> updateMyProfile(Authentication auth, @RequestBody RegisterShipperReq req) {
+        User u = authed(auth);
+        var opt = shipperSvc.findByUserId(u.getUserId());
+        if (opt.isEmpty()) return ResponseEntity.status(404).body("Not a shipper");
+        Shipper me = opt.get();
+        if (req.getCompanyName() != null) me.setCompanyName(req.getCompanyName());
+        if (req.getPhone() != null) me.setPhone(req.getPhone());
+        if (req.getAddress() != null) me.setAddress(req.getAddress());
+        if (req.getShippingProviderId() != null) {
+            var sp = providers.findById(req.getShippingProviderId());
+            me.setShippingProvider(sp);
+        }
+        return ResponseEntity.ok(shipperSvc.edit(me));
     }
 
     // 3) Danh sách đơn CONFIRMED (đang chờ lấy) theo khu vực shipper
@@ -134,6 +151,74 @@ public class ShipperController {
         User u = authed(auth);
         Shipper me = shipperSvc.findByUserId(u.getUserId()).orElseThrow(() -> new SecurityException("Not a shipper"));
         var pg = logs.findByShipper_ShipperIdAndAction(me.getShipperId(), ShipperAction.DELIVER,
+                        PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
+                .map(l -> ShipperOrderRowVM.of(l.getOrder()));
+        return ResponseEntity.ok(PageResult.of(pg));
+    }
+
+    @GetMapping("/orders/return/pickup")
+    public ResponseEntity<PageResult<ShipperOrderRowVM>> listReturnPickup(Authentication auth,
+                                                                          @RequestParam(defaultValue = "0") int page,
+                                                                          @RequestParam(defaultValue = "10") int size,
+                                                                          @RequestParam(defaultValue = "createdAt,desc") String sort) {
+        User u = authed(auth);
+        Shipper me = shipperSvc.findByUserId(u.getUserId()).orElseThrow(() -> new SecurityException("Not a shipper"));
+        var pg = shipperSvc.listReturnPickup(me, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
+                .map(ShipperOrderRowVM::of);
+        return ResponseEntity.ok(PageResult.of(pg));
+    }
+
+    // --- RETURN: deliver list (đã RETURN_PICKUP nhưng chưa RETURN_DELIVER) ---
+    @GetMapping("/orders/return/deliver")
+    public ResponseEntity<PageResult<ShipperOrderRowVM>> listReturnDeliver(Authentication auth,
+                                                                           @RequestParam(defaultValue = "0") int page,
+                                                                           @RequestParam(defaultValue = "10") int size,
+                                                                           @RequestParam(defaultValue = "createdAt,desc") String sort) {
+        User u = authed(auth);
+        Shipper me = shipperSvc.findByUserId(u.getUserId()).orElseThrow(() -> new SecurityException("Not a shipper"));
+        var pg = shipperSvc.listReturnDeliver(me, PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
+                .map(ShipperOrderRowVM::of);
+        return ResponseEntity.ok(PageResult.of(pg));
+    }
+
+    // --- RETURN: hành động đánh dấu đã LẤY hàng trả ---
+    @PostMapping("/orders/{orderId}/return/pickup")
+    public ResponseEntity<Long> doReturnPickup(Authentication auth, @PathVariable Long orderId) {
+        User u = authed(auth);
+        Shipper me = shipperSvc.findByUserId(u.getUserId()).orElseThrow(() -> new SecurityException("Not a shipper"));
+        var saved = shipperSvc.returnPickup(orderId, me);
+        return ResponseEntity.ok(saved.getOrderId());
+    }
+
+    // --- RETURN: hành động đánh dấu đã GIAO hàng trả về shop ---
+    @PostMapping("/orders/{orderId}/return/deliver")
+    public ResponseEntity<Long> doReturnDeliver(Authentication auth, @PathVariable Long orderId) {
+        User u = authed(auth);
+        Shipper me = shipperSvc.findByUserId(u.getUserId()).orElseThrow(() -> new SecurityException("Not a shipper"));
+        var saved = shipperSvc.returnDeliver(orderId, me);
+        return ResponseEntity.ok(saved.getOrderId());
+    }
+
+    // --- History cho trả hàng (tương tự /history/picked | /history/delivered) ---
+    @GetMapping("/history/return/pickup")
+    public ResponseEntity<PageResult<ShipperOrderRowVM>> historyReturnPickup(Authentication auth,
+                                                                             @RequestParam(defaultValue = "0") int page,
+                                                                             @RequestParam(defaultValue = "10") int size) {
+        User u = authed(auth);
+        Shipper me = shipperSvc.findByUserId(u.getUserId()).orElseThrow(() -> new SecurityException("Not a shipper"));
+        var pg = logs.findByShipper_ShipperIdAndAction(me.getShipperId(), ShipperAction.RETURN_PICKUP,
+                        PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
+                .map(l -> ShipperOrderRowVM.of(l.getOrder()));
+        return ResponseEntity.ok(PageResult.of(pg));
+    }
+
+    @GetMapping("/history/return/deliver")
+    public ResponseEntity<PageResult<ShipperOrderRowVM>> historyReturnDeliver(Authentication auth,
+                                                                              @RequestParam(defaultValue = "0") int page,
+                                                                              @RequestParam(defaultValue = "10") int size) {
+        User u = authed(auth);
+        Shipper me = shipperSvc.findByUserId(u.getUserId()).orElseThrow(() -> new SecurityException("Not a shipper"));
+        var pg = logs.findByShipper_ShipperIdAndAction(me.getShipperId(), ShipperAction.RETURN_DELIVER,
                         PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
                 .map(l -> ShipperOrderRowVM.of(l.getOrder()));
         return ResponseEntity.ok(PageResult.of(pg));

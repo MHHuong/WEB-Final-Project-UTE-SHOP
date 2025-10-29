@@ -29,4 +29,34 @@ public class ShipperPageController {
     public String historyDeliveredPage() {
         return "shipper/history-delivered";
     }
+
+    @GetMapping("/shipper")
+    public String profilePage() {
+        return "shipper/profile";
+    }
+
+    @GetMapping("/shipper/profile/edit")
+    public String editProfilePage() {
+        return "shipper/edit-profile";
+    }
+
+    @GetMapping("/shipper/orders/return/pickup")
+    public String returnPickupPage() {
+        return "shipper/order-return-pickup";
+    }
+
+    @GetMapping("/shipper/orders/return/deliver")
+    public String returnDeliverPage() {
+        return "shipper/order-return-deliver";
+    }
+
+    @GetMapping("/shipper/history/return/pickup")
+    public String returnPickupHistoryPage() {
+        return "shipper/history-return-pickup";
+    }
+
+    @GetMapping("/shipper/history/return/deliver")
+    public String returnDeliverHistoryPage() {
+        return "shipper/history-return-deliver";
+    }
 }

@@ -14,7 +14,7 @@
     const money = n => (n == null || Number(n) === 0) ? '-' : Number(n).toLocaleString('vi-VN');
 
     async function load() {
-        const res = await fetch(`${BASE}/api/shipper/history/picked?page=${page}&size=${size}`, {
+        const res = await fetch(`${BASE}/api/shipper/history/return/pickup?page=${page}&size=${size}`, {
             headers: {'Authorization': `Bearer ${token}`}
         });
         if (!res.ok) {
