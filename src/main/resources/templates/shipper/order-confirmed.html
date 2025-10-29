@@ -58,27 +58,26 @@
             </div>
         </div>
     </div>
-</main>
-
-<!-- Modal chi tiết -->
-<div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Order Detail</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <dl class="row mb-0" id="detailDl"></dl>
-            </div>
-            <div class="modal-footer">
-                <button id="pickupBtn" class="btn btn-primary">Pick up</button>
-                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+    <!-- Modal chi tiết -->
+    <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Detail</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <dl class="row mb-0" id="detailDl"></dl>
+                </div>
+                <div class="modal-footer">
+                    <button id="pickupBtn" class="btn btn-primary">Pick up</button>
+                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-<script th:src="@{/assets/js/shipper/shipper-confirmed.js}"></script>
+    <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/assets/js/shipper/shipper-confirmed.js}"></script>
+</main>
 </body>
 </html>
