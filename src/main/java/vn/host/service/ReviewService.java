@@ -14,4 +14,6 @@ public interface ReviewService {
     RatingSummary getRatingSummaryByProductId(Long productId);
 
     Review findById(Long id);
+
+    Page<Review> findByProduct_ProductId(Long productId, Pageable pageable);
 }

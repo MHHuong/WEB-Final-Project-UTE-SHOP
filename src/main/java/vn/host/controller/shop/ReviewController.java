@@ -145,4 +145,50 @@ public class ReviewController {
 
         return ResponseEntity.ok(ReviewDetailVM.of(r, categoryName, gallery));
     }
+
+    @GetMapping(params = "productId")
+    public ResponseEntity<PageResult<ReviewItemRes>> listByProduct(
+            @RequestParam Long productId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt,desc") String sort
+    ) {
+        // parse sort
+        Sort sortObj;
+        try {
+            String[] parts = sort.split(",");
+            sortObj = (parts.length == 2)
+                    ? Sort.by(Sort.Direction.fromString(parts[1].trim()), parts[0].trim())
+                    : Sort.by(Sort.Direction.DESC, "createdAt");
+        } catch (Exception e) {
+            sortObj = Sort.by(Sort.Direction.DESC, "createdAt");
+        }
+        Pageable pageable = PageRequest.of(page, size, sortObj);
+
+        // chỉ lọc theo productId, KHÔNG gọi authedUser, KHÔNG lọc theo shop
+        Page<Review> pg = reviewService.findByProduct_ProductId(productId, pageable);
+
+        // map về VM như bạn đang dùng
+        List<ReviewItemRes> content = pg.getContent().stream().map(r -> ReviewItemRes.builder()
+                .reviewId(r.getReviewId())
+                .productId(r.getProduct() != null ? r.getProduct().getProductId() : null)
+                .productName(r.getProduct() != null ? r.getProduct().getName() : null)
+                .userId(r.getUser() != null ? r.getUser().getUserId() : null)
+                .userName(r.getUser() != null ? r.getUser().getFullName() : null)
+                .rating(r.getRating())
+                .comment(r.getComment())
+                .createdAt(r.getCreatedAt())
+                .build()
+        ).toList();
+
+        PageResult<ReviewItemRes> result = PageResult.<ReviewItemRes>builder()
+                .content(content)
+                .page(pg.getNumber())
+                .size(pg.getSize())
+                .totalElements(pg.getTotalElements())
+                .totalPages(pg.getTotalPages())
+                .build();
+
+        return ResponseEntity.ok(result);
+    }
 }

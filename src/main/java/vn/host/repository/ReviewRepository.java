@@ -13,9 +13,15 @@ import java.util.Optional;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecificationExecutor<Review> {
-    @Query("select avg(r.rating) as avg, count(r) as total " +
-            "from Review r where r.product.productId = :productId")
+    @Query("""
+            select coalesce(avg(r.rating), 0.0) as avg,
+                   coalesce(count(r), 0)
+            from Review r
+            where r.product.productId = :productId
+            """)
     RatingSummary getRatingSummaryByProductId(Long productId);
 
     Optional<Review> findById(Long id);
+
+    Page<Review> findByProduct_ProductId(Long productId, Pageable pageable);
 }
