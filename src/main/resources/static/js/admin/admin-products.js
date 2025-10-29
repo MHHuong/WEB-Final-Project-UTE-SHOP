@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
             loadProducts(0, `${contextPath}/api/admin/products/search/shop?q=${encodeURIComponent(shopName)}&page=0&size=${pageSize}`);
         else loadProducts();
     });
-    
+
     // ================= RELOAD =================
     reloadBtn?.addEventListener("click", () => {
         searchInput.value = "";

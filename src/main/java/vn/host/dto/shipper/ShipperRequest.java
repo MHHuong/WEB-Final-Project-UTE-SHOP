@@ -9,10 +9,8 @@ import vn.host.entity.User;
 public class ShipperRequest {
     @JsonProperty("user")
     private User user;
-
     @JsonProperty("shippingProvider")
     private ShippingProvider shippingProvider;
-
     private String companyName;
     private String phone;
 }
