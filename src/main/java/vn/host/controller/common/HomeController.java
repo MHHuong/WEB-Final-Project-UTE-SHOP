@@ -1,11 +1,9 @@
-package vn.host.controller;
+package vn.host.controller.common;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import vn.host.dto.ProductDTO;
-import vn.host.entity.Product; // <-- Import Product
+import vn.host.dto.common.ProductDTO;
 import vn.host.service.ProductService;
 
 import java.util.List;

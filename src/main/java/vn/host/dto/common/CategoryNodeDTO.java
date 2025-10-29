@@ -1,4 +1,4 @@
-package vn.host.dto;
+package vn.host.dto.common;
 import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
