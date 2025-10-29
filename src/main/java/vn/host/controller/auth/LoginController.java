@@ -7,14 +7,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class LoginController {
     @GetMapping("/login")
     public String loginView() {
-        return "pages/auth/login";
+        return "/auth/login";
     }
     @GetMapping("/register")
     public String registerView() {
-        return "pages/auth/register";
+        return "/auth/register";
     }
     @GetMapping("/forgot-password")
     public String forgotPasswordView() {
-        return "pages/auth/forgot-password";
+        return "/auth/forgot-password";
     }
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      lang="en">
 <body>
 
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-3">
@@ -24,20 +25,12 @@
                     <a class="nav-link" th:href="@{/shop-grid}">Shop</a>
                 </li>
             </ul>
-
             <form class="d-flex mx-lg-auto w-50" role="search" th:action="@{/search}" method="get">
                 <input class="form-control" type="search" name="query" placeholder="Search for products..." aria-label="Search">
             </form>
-
             <div class="d-flex align-items-center">
 
-                <a class="text-muted position-relative me-4"
-                   data-bs-toggle="offcanvas"
-                   data-bs-target="#offcanvasRight"
-                   href="#!"
-                   role="button"
-                   aria-controls="offcanvasRight">
-
+                <a id="nav-cart-anonymous" class="text-muted position-relative me-4" th:href="@{/login}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                          class="feather feather-shopping-bag">
@@ -46,9 +39,30 @@
                         <path d="M16 10a4 4 0 0 1-8 0"></path>
                     </svg>
                 </a>
+                <a id="nav-user-anonymous" class="text-muted ms-3" th:href="@{/login}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="feather feather-user">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </a>
 
-                <div class="dropdown ms-3">
-
+                <a id="nav-cart-authenticated" class="text-muted position-relative me-4 d-none"
+                   data-bs-toggle="offcanvas"
+                   data-bs-target="#offcanvasRight"
+                   href="#!"
+                   role="button"
+                   aria-controls="offcanvasRight">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="feather feather-shopping-bag">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                </a>
+                <div id="nav-user-authenticated" class="dropdown ms-3 d-none">
                     <a class="text-muted dropdown-toggle" href="#!" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -58,7 +72,6 @@
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                     </a>
-
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
                         <li>
                             <a class="dropdown-item" th:href="@{/profile}">
@@ -69,11 +82,9 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <form th:action="@{/logout}" method="post" class="d-inline">
-                                <button type="submit" class="dropdown-item btn btn-link w-100 text-start">
-                                    <i class="feather-icon icon-log-out me-2"></i> Logout
-                                </button>
-                            </form>
+                            <a id="nav-logout-button" class="dropdown-item btn btn-link w-100 text-start" href="#" style="cursor: pointer;">
+                                <i class="feather-icon icon-log-out me-2"></i> Logout
+                            </a>
                         </li>
                     </ul>
                 </div>
