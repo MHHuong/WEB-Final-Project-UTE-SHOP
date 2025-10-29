@@ -3,18 +3,104 @@
 <head th:replace="admin/_layout :: head(~{::title})">
     <title>UTESHOP • Shipping Providers</title>
 </head>
+
 <body>
-
 <div th:replace="admin/_layout :: layout(~{::content})">
-
     <div th:fragment="content">
+
         <style>
-            /* Custom style for Shipping Provider page */
-            .page-wrap {max-width: 1200px; margin: 0 auto;}
-            .card {border-radius: 14px;}
-            .table thead th {font-weight: 600; color: #475467; background: #f8fafc;}
-            .badge-fee {background: #e0f2fe; color: #0369a1; font-size: .85rem; border-radius: 6px; padding: 4px 8px;}
-            .badge-days {background: #ecfdf3; color: #047857; font-size: .85rem; border-radius: 6px; padding: 4px 8px;}
+            /* ===================== SHIPPING PROVIDERS PAGE ===================== */
+            @keyframes fadeInUp {
+                from {opacity: 0; transform: translateY(20px);}
+                to {opacity: 1; transform: translateY(0);}
+            }
+
+            .page-wrap {
+                max-width: 1200px;
+                margin: 0 auto;
+                animation: fadeInUp .4s ease;
+            }
+
+            h3 {
+                font-weight: 700;
+                color: #111827;
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+            }
+
+            h3::before {
+                content: "\f0d1"; /* truck icon */
+                font-family: "Font Awesome 6 Free";
+                font-weight: 900;
+                color: #16a34a;
+            }
+
+            .card {
+                border-radius: 16px;
+                border: 1px solid #e5e7eb;
+                box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+                background: #fff;
+            }
+
+            .table thead th {
+                font-weight: 600;
+                color: #475467;
+                background: #f8fafc;
+            }
+
+            .badge-fee {
+                background: #e0f2fe;
+                color: #0369a1;
+                font-size: .85rem;
+                border-radius: 6px;
+                padding: 4px 8px;
+            }
+
+            .badge-days {
+                background: #ecfdf3;
+                color: #047857;
+                font-size: .85rem;
+                border-radius: 6px;
+                padding: 4px 8px;
+            }
+
+            .btn-primary {
+                background: linear-gradient(90deg, #16a34a, #22c55e);
+                border: none;
+                border-radius: 10px;
+                font-weight: 600;
+                transition: all .3s ease;
+            }
+
+            .btn-primary:hover {
+                background: linear-gradient(90deg, #15803d, #16a34a);
+                box-shadow: 0 0 10px rgba(22,163,74,.4);
+            }
+
+            .btn-outline-secondary {
+                border-radius: 10px;
+                border: 1px solid #d1d5db;
+                color: #374151;
+            }
+
+            .btn-outline-secondary:hover {
+                background: #f3f4f6;
+            }
+
+            /* Action buttons */
+            .table td .btn {
+                margin: 0 3px;
+                padding: 4px 8px;
+                font-size: .85rem;
+                border-radius: 8px;
+            }
+
+            #toast {
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                animation: fadeInUp .4s ease;
+            }
         </style>
 
         <div class="page-wrap">
@@ -27,11 +113,13 @@
                 </ol>
             </nav>
 
+            <!-- Header -->
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <h3 class="m-0">Shipping Provider Management</h3>
                 <div class="text-muted">Manage all delivery partners in the system</div>
             </div>
 
+            <!-- Add Button -->
             <a href="/UTE_SHOP/admin/shipping-providers/add" class="btn btn-primary mb-3">
                 <i class="bi bi-plus-circle"></i> Add Provider
             </a>
@@ -43,7 +131,7 @@
                         <div class="col-12 col-md-6">
                             <div class="input-group">
                                 <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                                <input id="searchKeyword" type="text" class="form-control" placeholder="Search by name...">
+                                <input id="searchKeyword" type="text" class="form-control" placeholder="Search by provider name...">
                                 <button id="btnSearch" class="btn btn-primary">Search</button>
                             </div>
                         </div>
@@ -63,17 +151,18 @@
                         <table id="tblProviders" class="table align-middle">
                             <thead>
                             <tr>
-                                <th style="width:80px">ID</th>
+                                <th style="width:80px;">ID</th>
                                 <th>Name</th>
                                 <th>Delivery Fee (₫)</th>
                                 <th>Estimated Days</th>
-                                <th style="width:150px" class="text-center">Actions</th>
+                                <th style="width:160px;" class="text-center">Actions</th>
                             </tr>
                             </thead>
                             <tbody><!-- Rendered by JS --></tbody>
                         </table>
                     </div>
 
+                    <!-- Pagination -->
                     <div class="d-flex justify-content-center mt-3">
                         <div id="pagination" class="btn-group"></div>
                     </div>
@@ -105,14 +194,13 @@
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
             <div id="toast" class="toast align-items-center text-bg-success border-0" role="alert">
                 <div class="d-flex">
-                    <div class="toast-body" id="toastMsg">Success!</div>
+                    <div class="toast-body fw-semibold" id="toastMsg">Success!</div>
                     <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
                 </div>
             </div>
         </div>
 
     </div>
-
 </div>
 
 <script th:src="@{/js/admin/admin-shipping-provider.js}"></script>
