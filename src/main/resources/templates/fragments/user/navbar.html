@@ -498,12 +498,16 @@
         }
     </style>
     <script type="module">
-        import cartBadgeUtils from "../UTE_SHOP/js/utils/cartBadgeUtils.js";
-        import {AuthState} from "../UTE_SHOP/js/auth.js";
+        import cartBadgeUtils from "/UTE_SHOP/js/utils/cartBadgeUtils.js";
+        import {AuthState} from "/UTE_SHOP/js/auth.js";
 
-        const USER_ID = AuthState.userId;
+        let USER_ID = 0;
 
         document.addEventListener('DOMContentLoaded', async () => {
+            if (!USER_ID) await AuthState.fetchUserInfo();
+            USER_ID = AuthState.getUserId() || 0;
+            console.log(`User ID: ${USER_ID}`);
+            localStorage.setItem('userId', USER_ID);
             // Initialize cart badge on page load
             await cartBadgeUtils.initCartBadge(USER_ID);
         });

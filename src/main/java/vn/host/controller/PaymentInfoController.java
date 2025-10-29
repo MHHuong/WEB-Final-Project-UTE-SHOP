@@ -35,7 +35,7 @@ public class PaymentInfoController {
     public String getPaymentInfoMomo(
             @RequestParam("amount") Long amount,
             @RequestParam("resultCode") Integer resultCode,
-            @RequestParam("transactionNo") String transactionNo,
+            @RequestParam("transId") String transactionNo,
             @RequestParam("orderId") String orderId
     ) throws IOException {
         try {

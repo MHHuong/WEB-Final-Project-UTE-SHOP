@@ -1,15 +1,12 @@
-import cartService from "../../api/cartService.js";
+import cartService from "../../services/api/cartService.js";
 import { showSuccessToast, showErrorToast, showWarningToast, showInfoToast } from "../../utils/toastUtils.js";
-import paymentService from "../../api/paymentService.js";
-import addressService from "../../api/addressService.js";
-import orderService from "../../api/orderService.js";
-import couponService from "../../api/couponService.js";
+import paymentService from "../../services/api/paymentService.js";
+import addressService from "../../services/api/addressService.js";
+import orderService from "../../services/api/orderService.js";
+import couponService from "../../services/api/couponService.js";
+import {loadProvinces, loadDistricts, loadWards} from "../../utils/locationUtils.js";
 
-import { AuthState } from "../../auth.js";
-
-
-const getUserId = () => AuthState.getUserId() || 1;
-let USER_ID = getUserId();
+const USER_ID = localStorage.getItem("userId");
 let selectedProducts = [];
 let savedAddresses = [];
 let selectedAddressId = null;
@@ -17,10 +14,8 @@ let shippingFee = 0
 let shippingFeePre = 0
 let shippingMethod = 'STANDARD';
 let shippingProviderId = 1;
+let vouchers = [];
 
-// Mock data for provinces and districts (Replace with actual API)
-const locationData = addresses;
-let selectedDistricts = [];
 
 // Format currency
 function formatCurrency(amount) {
@@ -72,7 +67,7 @@ function renderSavedAddresses() {
                          onclick="selectAddressById(${address.addressId})">
                         <div class="check-icon"></div>
                         <div class="address-content">
-                                ${isDefault ? '<span class="badge bg-primary default-badge ">Mặc định</span>' : ''}
+                                ${isDefault ? '<span class="badge bg-primary default-badge ">Default</span>' : ''}
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="mb-0">${address.receiverName}</h6>
                                 <span class="text-muted small mt-5">${address.phone}</span>
@@ -157,9 +152,9 @@ function showAddressForm() {
 
     province.value = '';
 
-    district.innerHTML = '<option value="" selected disabled>Chọn Quận/Huyện</option>';
+    district.innerHTML = '<option value="" selected disabled>Select District</option>';
     district.disabled = true;
-    ward.innerHTML = '<option value="" selected disabled>Chọn Phường/Xã</option>';
+    ward.innerHTML = '<option value="" selected disabled>Select Ward</option>';
     ward.disabled = true;
     // Clear form
     document.getElementById('shipping-form').reset();
@@ -193,65 +188,7 @@ function cancelAddressForm() {
     }
 }
 
-// Load provinces
-function loadProvinces() {
-    const provinceSelect = document.getElementById('province');
-    locationData.forEach(province => {
-        const option = document.createElement('option');
-        option.value = province.code;
-        option.textContent = province.name;
-        provinceSelect.appendChild(option);
-    });
-}
 
-// Load districts based on province
-function loadDistricts(provinceId) {
-    return new Promise((resolve) => {
-        const districtSelect = document.getElementById('district');
-        const wardSelect = document.getElementById('ward');
-
-        districtSelect.innerHTML = '<option value="" selected disabled>Chọn Quận/Huyện</option>';
-        wardSelect.innerHTML = '<option value="" selected disabled>Chọn Phường/Xã</option>';
-        wardSelect.disabled = true;
-
-        const districts = locationData.find(prov => prov.code === Number(provinceId))?.districts || [];
-        selectedDistricts = districts;
-
-        if (districts.length > 0) {
-            districtSelect.disabled = false;
-            districts.forEach(district => {
-                const option = document.createElement('option');
-                option.value = district.code;
-                option.textContent = district.name;
-                districtSelect.appendChild(option);
-            });
-        } else {
-            districtSelect.disabled = true;
-        }
-        resolve();
-    });
-}
-
-// Load wards based on district
-function loadWards(districtId) {
-    return new Promise((resolve) => {
-        const wardSelect = document.getElementById('ward');
-        wardSelect.innerHTML = '<option value="" selected disabled>Chọn Phường/Xã</option>';
-        const wards = selectedDistricts.find(prov => prov.code === Number(districtId))?.wards || []
-        if (wards.length > 0) {
-            wardSelect.disabled = false;
-            wards.forEach(ward => {
-                const option = document.createElement('option');
-                option.value = ward.code;
-                option.textContent = ward.name;
-                wardSelect.appendChild(option);
-            });
-        } else {
-            wardSelect.disabled = true;
-        }
-        resolve();
-    });
-}
 
 // Load selected products from sessionStorage
 async function loadSelectedProducts() {
@@ -259,9 +196,9 @@ async function loadSelectedProducts() {
     if (result.status === 'Success') {
         selectedProducts = result.data;
         if (!selectedProducts) {
-            showWarningToast('Vui lòng chọn sản phẩm từ giỏ hàng!');
+            showWarningToast('Please choose product from cart!');
             setTimeout(() => {
-                window.location.href = '/user/shop-cart';
+                window.location.href = 'UTE_SHOP/user/shop-cart';
             }, 2000);
             return;
         }
@@ -271,11 +208,11 @@ async function loadSelectedProducts() {
             updateOrderSummary();
         } catch (error) {
             console.error('Error loading selected products:', error);
-            showErrorToast('Có lỗi xảy ra!');
+            showErrorToast('Error loading selected products: ' + error.message);
         }
     }
     else {
-        showErrorToast('Có lỗi xảy ra!');
+        showErrorToast('Error loading selected products: ' + result.message);
     }
 }
 
@@ -286,7 +223,7 @@ function renderProducts() {
     if (selectedProducts.length === 0) {
         container.innerHTML = `
                     <div class="text-center py-4">
-                        <p class="text-muted">Không có sản phẩm nào được chọn</p>
+                        <p class="text-muted">There are no products selected</p>
                     </div>
                 `;
         return;
@@ -381,7 +318,7 @@ async function processOrder(shouldSaveAddress = false) {
         userId: USER_ID,
         paymentMethod: ewalletType || paymentMethod,
         shippingProviderId: 1,
-        total: parseInt(document.getElementById('total').innerText.replace(/₫/g, '').replace(/\./g, '') || 0),
+        totalAmount: parseInt(document.getElementById('total').innerText.replace(/₫/g, '').replace(/\./g, '') || 0),
         payments: null,
         coupon: document.getElementById('voucher-code-input').value || null,
         address: {
@@ -401,6 +338,7 @@ async function processOrder(shouldSaveAddress = false) {
             discountAmount: item.discountValue || 0
         })),
     };
+    console.log(orderData);
 
     if (shouldSaveAddress) {
         const isDefault = document.getElementById('set-as-default-address').checked;
@@ -415,24 +353,24 @@ async function processOrder(shouldSaveAddress = false) {
             isDefault: isDefault ? 1 : 0
         };
 
-        try {
-            const result = await addressService.createAddress(addressData);
-            if (result.status === 'Success') {
-                showSuccessToast('Đã lưu địa chỉ thành công!');
-            }
-        } catch (error) {
-            console.error('Error saving address:', error);
-        }
+        // try {
+        //     const result = await addressService.createAddress(addressData);
+        //     if (result.status === 'Success') {
+        //         showSuccessToast('Saved address successfully!');
+        //     }
+        // } catch (error) {
+        //     console.error('Error saving address:', error);
+        // }
     }
 
     console.log('Order data:', orderData);
     const result = await orderService.saveOrder(orderData);
     console.log(result);
     if (result.status === 'Success') {
-        showSuccessToast('Đặt hàng thành công!');
+        showSuccessToast('Order placed successfully!');
         await handleNavigation()
     } else {
-        showErrorToast('Đặt hàng thất bại: ' + result.message);
+        showErrorToast('Order placement failed: ' + result.message);
     }
 }
 
@@ -498,7 +436,6 @@ async function calcShippingFee() {
         shippingService: shippingMethod
     }
     const result = await orderService.calculateShippingFee(shippingData);
-    console.log(result)
     if (result.status === 'Success') {
         shippingFee = Math.floor(result.data.fee) || 0;
         shippingProviderId = result.data.shippingProviderId || 0
@@ -518,6 +455,7 @@ async function displayShippingFeeFist() {
 async function addShippingServiceFee() {
     let shippingMethod = document.querySelector('input[name="shipping-method"]:checked').value;
     // await calcShippingFee()
+    shippingFee = 0;
     switch (shippingMethod) {
         case 'STANDARD':
             shippingFee += 0;
@@ -540,20 +478,23 @@ async function addShippingServiceFee() {
     document.getElementById("total").innerText = formatCurrency(total);
 }
 
-// Render vouchers in modal
-async function renderVouchers() {
-    let vouchers = [];
+async function fetchVoucher() {
     try {
         const result = await couponService.getAllGlobalCoupons();
         if (result.status === 'Success' && result.data) {
             vouchers = result.data;
         }
-        else showErrorToast(result.message);
+        else vouchers = [];
     } catch (error) {
+        vouchers = [];
         console.error('Error fetching vouchers:', error);
-        showErrorToast('Lỗi khi tải mã giảm giá');
-        return;
     }
+}
+
+
+
+// Render vouchers in modal
+async function renderVouchers() {
     const container = document.getElementById('voucher-list');
     document.getElementById('voucher-loading').style.display = 'none';
 
@@ -570,8 +511,8 @@ async function renderVouchers() {
         const discountValue = voucher.discountType === 'PERCENT'
             ? `${voucher.value}%`
             : `${formatCurrency(voucher.value)}`;
-        const discountLabel = 'GIẢM';
-        const description = `Giảm ${discountValue} cho các hóa đơn từ ${formatCurrency(voucher.minOrderAmount)} trở lên`
+        const discountLabel = 'Discount';
+        const description = `Discount of ${discountValue} for orders from ${formatCurrency(voucher.minOrderAmount)} and above.`;
 
         const voucherCard = document.createElement('div');
         voucherCard.className = `voucher-card border border-secondary-subtle rounded p-3 mb-3 bg-white position-relative cursor-pointer d-flex gap-3 ${isDisabled ? 'disabled' : ''}`;
@@ -587,7 +528,7 @@ async function renderVouchers() {
             </div>
             <div class="voucher-action d-flex align-items-center justify-content-center flex-shrink-0">
                 <button class="btn-apply btn btn-outline-success btn-sm fw-medium px-3 py-1 rounded-1" ${isDisabled ? 'disabled' : ''}>
-                    ${isDisabled ? 'Không thể dùng' : 'Áp dụng'}
+                    ${isDisabled ? 'Cannot Apply' : 'Apply'}
                 </button>
             </div>
         `;
@@ -639,7 +580,7 @@ function applyVoucher(code, discountAmount, description) {
     // Recalculate total
     updateTotal();
 
-    showSuccessToast(`Đã áp dụng mã ${code}`);
+    showSuccessToast(`Đã áp dụng mã ${code}: ${description}`);
 }
 
 // Remove voucher
@@ -690,6 +631,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loadProvinces();
     loadSelectedProducts();
     loadSavedAddresses();
+    fetchVoucher();
+
+    // loadLocationData();
 
     // Add new address button
     document.getElementById('add-new-address-btn').addEventListener('click', showAddressForm);
@@ -778,11 +722,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const voucherCode = document.getElementById('voucher-code-input').value.trim();
 
         if (!voucherCode) {
-            showWarningToast('Vui lòng nhập mã giảm giá');
+            showWarningToast('Please enter a voucher code');
             return;
         }
-        showSuccessToast('Áp dụng mã giảm giá thành công!');
-        applyVoucher(voucherCode, 50000, 'Giảm 50K phí vận chuyển');
+        const voucher = vouchers.find(v => v.code === voucherCode);
+        if (!voucher) {
+            showErrorToast('Invalid voucher code');
+            return;
+        }
+        const discountAmount = voucher.discountType === 'PERCENT'
+            ? calculatePercentDiscount(voucher.value, 0)
+            : voucher.value;
+        const description = `Discount of ${voucher.discountType === 'PERCENT' ? voucher.value + '%' : formatCurrency(voucher.value)} for orders from ${formatCurrency(voucher.minOrderAmount)} and above.`;
+        applyVoucher(voucher.code, discountAmount, description);
     });
 
     // Remove voucher button click

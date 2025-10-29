@@ -2,14 +2,22 @@
     <div class="offcanvas-header border-bottom">
         <div class="text-start">
             <h5 id="offcanvasRightLabel" class="mb-0 fs-4">Shop Cart</h5>
-            <small>User shop cart</small>
+            <small id="cart-item-count">0 items</small>
         </div>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
         <div>
-            <!-- alert -->
-            <ul class="list-group list-group-flush">
+            <!-- Loading Spinner -->
+            <div id="cart-loading" class="text-center py-5" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Đang tải giỏ hàng...</p>
+            </div>
+
+            <!-- Cart Items Container -->
+            <ul class="list-group list-group-flush" id="cart-items-container">
                 <!-- Cart items will be dynamically inserted here -->
             </ul>
 
@@ -28,22 +36,26 @@
         </div>
     </div>
 
-    <script type="module">
+    <script  type="module">
         import cartService from "/UTE_SHOP/js/services/api/cartService.js";
         import { showSuccessToast, showErrorToast, showWarningToast, showInfoToast } from "/UTE_SHOP/js/utils/toastUtils.js";
         import cartBadgeUtils from "/UTE_SHOP/js/utils/cartBadgeUtils.js";
+        import {AuthState} from "/UTE_SHOP/js/auth.js";
 
         let cartItems = []
         let currentPage = 1;
         let totalPages = 1;
         let totalElements = 0;
         const itemsPerPage = 5;
-        const USER_ID = 1;
+        let USER_ID = localStorage.getItem("userId") || 0;
 
         async function loadCartItems() {
+            // Show loading
+            document.getElementById('cart-loading').style.display = 'block';
+            document.getElementById('cart-items-container').style.display = 'none';
+
             const result = await cartService.getCartItemByUserIdPaginated(USER_ID, currentPage, itemsPerPage);
             if (result.status === 'Success') {
-                console.log(result.data);
                 const pageData = result.data;
                 cartItems = pageData.content;
                 currentPage = pageData.currentPage;
@@ -55,11 +67,29 @@
                 totalPages = 1;
                 totalElements = 0;
             }
+
+            // Hide loading
+            document.getElementById('cart-loading').style.display = 'none';
+            document.getElementById('cart-items-container').style.display = 'block';
+
+            // Update cart item count
+            updateCartItemCount();
+        }
+
+        function updateCartItemCount() {
+            const countElement = document.getElementById('cart-item-count');
+            if (totalElements === 0) {
+                countElement.textContent = 'Cart is empty';
+            } else if (totalElements === 1) {
+                countElement.textContent = '1 item';
+            } else {
+                countElement.textContent = `${totalElements} items`;
+            }
         }
 
         function formatCurrency(amount) {
-            if (isNaN(amount)) return "0 ₫";
-            return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+            if (isNaN(amount)) return "0₫";
+            return amount.toLocaleString('vi-VN') + '₫';
         }
 
         // Function to render pagination
@@ -184,10 +214,8 @@
         async function updateCartQuantity(cartItemId, newQuantity) {
             try {
                 const result = await cartService.updateCartItem(cartItemId, newQuantity);
-                if (result.status === 'true') {
-                    console.log('Cart updated successfully');
-                    showSuccessToast('Cập nhật số lượng thành công!');
-                    // Reload cart items from backend with current page
+                if (result.status === 'Success') {
+                    showSuccessToast('Updated quantity successfully!');
                     await loadCartItems();
                     renderCartItems();
                     renderPagination();
@@ -195,7 +223,7 @@
                     await cartBadgeUtils.refreshCartBadge(USER_ID);
                 } else {
                     console.error('Failed to update cart:', result.message);
-                    showErrorToast('Không thể cập nhật giỏ hàng. Vui lòng thử lại!');
+                    showErrorToast('Failed to update cart. Please try again!');
                     // Reload to reset the UI
                     await loadCartItems();
                     renderCartItems();
@@ -203,7 +231,7 @@
                 }
             } catch (error) {
                 console.error('Error updating cart:', error);
-                showErrorToast('Có lỗi xảy ra khi cập nhật giỏ hàng!');
+                showErrorToast('An error occurred while updating cart!');
                 // Reload to reset the UI
                 await loadCartItems();
                 renderCartItems();
@@ -212,44 +240,57 @@
         }
 
         function renderCartItems() {
-            const listGroup = document.querySelector('.offcanvas-body ul.list-group');
+            const listGroup = document.getElementById('cart-items-container');
             listGroup.innerHTML = ''; // Clear existing items
+
             if (cartItems.length === 0) {
                 renderEmptyCart();
                 return;
             }
-            else cartItems.forEach(item => {
+
+            cartItems.forEach(item => {
                 const listItem = document.createElement('li');
-                listItem.className = 'list-group-item py-3 ps-0 border-top';
+                listItem.className = 'list-group-item border-0 p-0 mb-3';
                 listItem.innerHTML = `
-                    <div class="row align-items-center">
-                        <div class="col-6 col-md-6 col-lg-7">
-                            <div class="d-flex">
-                                <img src="${item.productResponse.image}" alt="Ecommerce" class="icon-shape icon-xxl" />
-                                <div class="ms-3">
-                                    <a href="pages/shop-single.html" class="text-inherit">
-                                        <h6 class="mb-0">${item.productResponse.productName}</h6>
-                                    </a>
-                                    <div class="mt-2 small lh-1">
-                                        <a href="#" class="text-decoration-none text-inherit remove-item-btn" data-cart-item-id="${item.cartId}">
-                                       <span class="me-1 align-text-bottom">
-                                          <i class="bi bi-trash text-danger"></i>
-                                       </span>
-                                            <span class="text-muted">Remove</span>
-                                        </a>
+                    <div class="cart-item p-3 border rounded">
+                        <div class="d-flex gap-3">
+                            <div class="flex-shrink-0">
+                                <img src="${item.productResponse.image}"
+                                     alt="${item.productResponse.productName}"
+                                     class="cart-item-image"
+                                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" />
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="cart-item-title mb-2 fw-bold">
+                                    ${item.productResponse.productName}
+                                </h6>
+
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div class="input-spinner d-flex align-items-center border rounded" data-cart-item-id="${item.cartId}">
+                                        <button type="button" class="button-minus btn btn-sm border-0" data-field="quantity">
+                                            <i class="bi bi-dash"></i>
+                                        </button>
+                                        <input type="number" step="1" max="10" value="${item.quantity}"
+                                               name="quantity" class="quantity-field form-control-sm border-0 text-center" readonly style="width: 50px;" />
+                                        <button type="button" class="button-plus btn btn-sm border-0" data-field="quantity">
+                                            <i class="bi bi-plus"></i>
+                                        </button>
+                                    </div>
+                                    <div class="cart-item-price fw-bold text-success">
+                                        ${formatCurrency(item.productResponse.price * item.quantity)}
                                     </div>
                                 </div>
+
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <small class="text-muted">
+                                        ${formatCurrency(item.productResponse.price)} / item
+                                    </small>
+                                    <a href="#" class="text-decoration-none remove-item-btn text-danger" data-cart-item-id="${item.cartId}">
+                                        <i class="bi bi-trash me-1"></i>
+                                        <small>Xóa</small>
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-4 col-md-3 col-lg-3">
-                             <div class="input-group input-spinner" data-cart-item-id="${item.cartId}">
-                                <input type="button" value="-" class="button-minus btn btn-sm" data-field="quantity" />
-                                <input type="number" step="1" max="10" value="${item.quantity}" name="quantity" class="quantity-field form-control-sm form-input" />
-                                <input type="button" value="+" class="button-plus btn btn-sm" data-field="quantity" />
-                            </div>
-                        </div>
-                        <div class="col-2 text-lg-end text-start text-md-end col-md-2">
-                            <span class="fw-bold">${formatCurrency(item.productResponse.price*item.quantity)}</span>
                         </div>
                     </div>
                 `;
@@ -299,7 +340,7 @@
 
         async function removeCartItem(cartItemId) {
             try {
-                const result = await cartService.deleteCartItem(cartItemId);
+                const result = await cartService.removeCartItem(cartItemId);
                 if (result.status === 'Success') {
                     showSuccessToast('Đã xóa sản phẩm khỏi giỏ hàng!');
                     await loadCartItems();
@@ -323,7 +364,7 @@
         };
 
         window.handleNavigation = function() {
-            window.location.href = '/UTE_SHOP/user/cart';
+            window.location.href = '/UTE_SHOP/user/shop-cart';
         };
 
         // Initialize cart when offcanvas is shown
@@ -332,5 +373,106 @@
             renderCartItems();
             renderPagination();
         });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (USER_ID === 0) {
+                AuthState.fetchUserInfo();
+                USER_ID = localStorage.getItem("userId") || 0;
+            }
+        })
     </script>
+    <style>
+        .remove-item-btn {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .remove-item-btn:hover {
+            background-color: #f8d7da;
+            transform: scale(1.05);
+        }
+
+        .remove-item-btn:hover i {
+            transform: scale(1.2);
+        }
+
+        .remove-item-btn:hover .text-muted {
+            color: #dc3545 !important;
+        }
+
+        .remove-item-btn i {
+            transition: transform 0.2s ease;
+        }
+
+        /* Disable state for spinner buttons */
+        .input-spinner input[type="button"]:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .input-spinner input[type="number"]:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            background-color: #f8f9fa;
+        }
+
+        .input-spinner.updating {
+            position: relative;
+        }
+
+        .input-spinner.updating::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Pagination styles */
+        .pagination {
+            margin-bottom: 0;
+        }
+
+        .pagination .page-item .page-link {
+            color: #0aad0a;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #0aad0a;
+            border-color: #0aad0a;
+            color: #fff;
+        }
+
+        .pagination .page-item .page-link:hover {
+            background-color: #0a9d0a;
+            border-color: #0a9d0a;
+            color: #fff;
+        }
+
+        .pagination .page-link {
+            color: #0d6efd;
+            cursor: pointer;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            cursor: not-allowed;
+        }
+    </style>
 </div>

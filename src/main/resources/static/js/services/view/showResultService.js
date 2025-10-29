@@ -1,11 +1,12 @@
 import {showErrorToast, showSuccessToast, showWarningToast, showInfoToast} from "../../utils/toastUtils.js";
-import orderService from "../../api/orderService.js";
+import orderService from "../../services/api/orderService.js";
 import {urlParams} from "../../utils/apiClient.js";
-import paymentService from "../../api/paymentService.js";
+import paymentService from "../../services/api/paymentService.js";
 import { AuthState } from "../../auth.js";
 
 
-const getUserId = () => AuthState.getUserId() || 1;
+const USER_ID = localStorage.getItem("userId");
+
 
 
 let paymentData = {};

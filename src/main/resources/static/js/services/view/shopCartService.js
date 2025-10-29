@@ -1,14 +1,17 @@
 import {showErrorToast, showInfoToast, showSuccessToast} from "../../utils/toastUtils.js";
 import cartBadgeUtils from "../../utils/cartBadgeUtils.js";
-import couponService from "../../api/couponService.js";
-import cartService from "../../api/cartService.js";
+import couponService from "../../services/api/couponService.js";
+import cartService from "../../services/api/cartService.js";
 import { AuthState } from "../../auth.js";
 
-const getUserId = () => AuthState.getUserId() || 1;
 
 let cartItems = [];
 let selectedItems = new Set();
 let shopVouchers = {}; // Store selected vouchers per shop
+let USER_ID = localStorage.getItem("userId");
+
+
+
 
 // Format currency
 function formatCurrency(amount) {
@@ -38,7 +41,7 @@ function groupByShop(items) {
 // Load cart items
 async function loadCartItems() {
     try {
-        const result = await cartService.getCartItemByUserId(getUserId());
+        const result = await cartService.getCartItemByUserId(USER_ID);
         if (result.status === 'Success') {
             cartItems = result.data;
             renderCartItems();
@@ -484,7 +487,7 @@ window.handleNavigation = async () => {
         }))
     const result = await cartService.saveSelectedCartItem(selectedCartItems);
     if (result.status === 'Success') {
-        window.location.href = `/user/checkout`;
+        window.location.href = `/UTE_SHOP/user/checkout`;
     }
 }
 
@@ -609,5 +612,18 @@ function calculatePercentDiscount(percent, shopId) {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
+    await AuthState.fetchUserInfo()
+    if (USER_ID === 0) {
+        USER_ID = AuthState.getUserId() || 0;
+    }
+    USER_ID = AuthState.getUserId() || 0;
+    if (USER_ID === 0) {
+        setTimeout(async () => {
+            showErrorToast('User not authenticated. Redirecting to login page.');
+            window.location.href = '/login';
+        },2000)
+    }
     await loadCartItems();
+
+
 });
