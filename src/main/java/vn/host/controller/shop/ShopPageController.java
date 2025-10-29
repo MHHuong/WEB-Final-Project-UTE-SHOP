@@ -91,4 +91,9 @@ public class ShopPageController {
     public String editCoupon() {
         return "shop/coupon/edit-coupon";
     }
+
+    @GetMapping("shop/return/returns")
+    public String returnsPage() {
+        return "shop/return/returns";
+    }
 }
