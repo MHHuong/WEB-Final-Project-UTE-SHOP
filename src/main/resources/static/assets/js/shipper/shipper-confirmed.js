@@ -62,7 +62,7 @@
         // Render rows
         tbody.innerHTML = '';
         if (list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">Không có đơn chờ lấy hàng</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No Order</td></tr>`;
         } else {
             list.forEach(it => {
                 const tr = document.createElement('tr');

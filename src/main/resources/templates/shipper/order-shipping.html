@@ -59,26 +59,25 @@
             </div>
         </div>
     </div>
-</main>
-
-<!-- Modal -->
-<div class="modal fade" id="shipModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header"><h5 class="modal-title">Order Detail</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <dl class="row mb-0" id="detailDl"></dl>
-            </div>
-            <div class="modal-footer">
-                <button id="deliveredBtn" class="btn btn-success">Delivered</button>
-                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+    <!-- Modal -->
+    <div class="modal fade" id="shipModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title">Order Detail</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <dl class="row mb-0" id="detailDl"></dl>
+                </div>
+                <div class="modal-footer">
+                    <button id="deliveredBtn" class="btn btn-success">Delivered</button>
+                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-<script th:src="@{/assets/js/shipper/shipper-shipping.js}"></script>
+    <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/assets/js/shipper/shipper-shipping.js}"></script>
+</main>
 </body>
 </html>

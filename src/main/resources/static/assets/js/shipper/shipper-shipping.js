@@ -11,16 +11,14 @@
     const modalEl = document.getElementById('shipModal');
     const detailDl = document.getElementById('detailDl');
     const deliveredBtn = document.getElementById('deliveredBtn');
-    const bsModal = new bootstrap.Modal(modalEl);
+
+    // Khởi tạo modal an toàn
+    const bsModal = (modalEl && window.bootstrap) ? new window.bootstrap.Modal(modalEl) : null;
+
     let page = 0, size = 10, sort = 'createdAt,desc', currentId = null;
 
-    function fmt(v) {
-        return v ?? '';
-    }
-
-    function money(n) {
-        return (n == null) ? '0' : Number(n).toLocaleString();
-    }
+    const fmt = v => v ?? '';
+    const money = n => (n == null || Number(n) === 0) ? '-' : Number(n).toLocaleString('vi-VN');
 
     function buildDetail(it) {
         detailDl.innerHTML = `
@@ -45,44 +43,54 @@
         }
         const data = await res.json();
 
-        tbody.innerHTML = '';
-        (data.items || []).forEach(it => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-        <td>#${fmt(it.orderId)}</td>
-        <td>${fmt(it.productName)}</td>
-        <td>${fmt(it.status)}</td>
-        <td>${fmt(it.shippingProvider)}</td>
-        <td>${fmt(it.shopName)}</td>
-        <td>${fmt(it.receiverName)}</td>
-        <td>${fmt(it.receiverPhone)}</td>
-        <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fmt(it.receiverAddress)}</td>
-        <td>${money(it.amountForCOD)}</td>
-        <td class="text-end">
-          <div class="btn-group">
-            <button class="btn btn-sm btn-light btn-view">View</button>
-            <button class="btn btn-sm btn-success btn-done">Delivered</button>
-          </div>
-        </td>
-      `;
-            tr.querySelector('.btn-view').addEventListener('click', () => {
-                currentId = it.orderId;
-                buildDetail(it);
-                bsModal.show();
-            });
-            tr.querySelector('.btn-done').addEventListener('click', () => deliver(it.orderId));
-            tbody.appendChild(tr);
-        });
+        // Chuẩn hoá Page shape
+        const list = Array.isArray(data.content) ? data.content : (data.items ?? []);
+        const curPage = (typeof data.page === 'number') ? data.page : (data.number ?? 0);
+        const totalPages = data.totalPages ?? 0;
 
+        tbody.innerHTML = '';
+        if (list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-4">No Order</td></tr>`;
+        } else {
+            list.forEach(it => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+          <td>#${fmt(it.orderId)}</td>
+          <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fmt(it.productName)}</td>
+          <td><span class="badge bg-info-subtle text-info">${fmt(it.status)}</span></td>
+          <td>${fmt(it.shippingProvider)}</td>
+          <td>${fmt(it.shopName)}</td>
+          <td>${fmt(it.receiverName)}</td>
+          <td>${fmt(it.receiverPhone)}</td>
+          <td style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fmt(it.receiverAddress)}</td>
+          <td>${money(it.amountForCOD)}</td>
+          <td class="text-end">
+            <div class="btn-group">
+              <button class="btn btn-sm btn-light btn-view">View</button>
+              <button class="btn btn-sm btn-success btn-done">Delivered</button>
+            </div>
+          </td>
+        `;
+                tr.querySelector('.btn-view').addEventListener('click', () => {
+                    currentId = it.orderId;
+                    buildDetail(it);
+                    if (deliveredBtn) deliveredBtn.dataset.id = String(it.orderId); // <-- gắn id cho nút modal
+                    bsModal?.show();
+                });
+                tr.querySelector('.btn-done').addEventListener('click', () => deliver(it.orderId));
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Phân trang
         pager.innerHTML = '';
-        const totalPages = data.totalPages || 0;
         for (let i = 0; i < totalPages; i++) {
             const li = document.createElement('li');
-            li.className = 'page-item' + (i === data.page ? ' active' : '');
+            li.className = 'page-item' + (i === curPage ? ' active' : '');
             const a = document.createElement('a');
             a.className = 'page-link';
             a.href = 'javascript:void(0)';
-            a.textContent = (i + 1);
+            a.textContent = (i + 1).toString();
             a.addEventListener('click', () => {
                 page = i;
                 load();
@@ -102,12 +110,17 @@
             alert('Deliver thất bại: ' + t);
             return;
         }
-        bsModal.hide();
+        bsModal?.hide();
         await load();
     }
 
-    deliveredBtn.addEventListener('click', () => {
-        if (currentId) deliver(currentId);
-    });
-    load();
+    // GẮN 1 LẦN: click cho nút trong modal
+    if (deliveredBtn) {
+        deliveredBtn.addEventListener('click', () => {
+            const id = deliveredBtn.dataset.id;
+            if (id) deliver(Number(id));
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', load);
 })();
