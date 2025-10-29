@@ -144,7 +144,7 @@
 
         const html = (data.content || []).map(reviewItemHTML).join('');
         if (append) listEl.insertAdjacentHTML('beforeend', html);
-        else listEl.innerHTML = html || `<div class="text-muted">Chưa có đánh giá nào.</div>`;
+        else listEl.innerHTML = html || `<div class="text-muted">No reviews.</div>`;
 
         // event: click thumb -> show lên main gallery
         listEl.querySelectorAll('.rv-thumb').forEach(th => {
