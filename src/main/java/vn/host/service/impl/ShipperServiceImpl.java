@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import vn.host.dto.shipper.ShipperRequest;
 import vn.host.entity.*;
 import vn.host.repository.*;
 import vn.host.service.ShipperService;
@@ -48,54 +49,51 @@ public class ShipperServiceImpl implements ShipperService {
     }
 
     @Override
-    public Shipper save(Shipper shipper) {
-        // Validate input
-        if (shipper.getUser() == null || shipper.getUser().getUserId() == null)
-            throw new RuntimeException("User information is required!");
-        if (shipper.getShippingProvider() == null || shipper.getShippingProvider().getShippingProviderId() == null)
-            throw new RuntimeException("Shipping provider information is required!");
+    public Shipper save(ShipperRequest req) {
+        if (req.getUser().getUserId() == null)
+            throw new RuntimeException("User ID is required!");
+        if (req.getShippingProvider().getShippingProviderId() == null)
+            throw new RuntimeException("Shipping Provider ID is required!");
 
-        Long userId = shipper.getUser().getUserId();
-        Long providerId = shipper.getShippingProvider().getShippingProviderId();
+        User user = userRepository.findById(req.getUser().getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + req.getUser().getUserId()));
+        ShippingProvider provider = shippingProviderRepository.findById(req.getShippingProvider().getShippingProviderId())
+                .orElseThrow(() -> new RuntimeException("Shipping provider not found with ID: " + req.getShippingProvider().getShippingProviderId()));
 
-        // Validate user & provider
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-        ShippingProvider provider = shippingProviderRepository.findById(providerId)
-                .orElseThrow(() -> new RuntimeException("Shipping provider not found with ID: " + providerId));
-
-        // Validate user role
         if (user.getRole() != UserRole.SHIPPER)
             throw new RuntimeException("User must have role SHIPPER to be assigned as a shipper!");
 
-        // Check duplicate shipper
-        if (shipperRepository.existsByUser_UserId(userId))
+        if (shipperRepository.existsByUser_UserId(req.getUser().getUserId()))
             throw new RuntimeException("This user is already assigned as a shipper!");
 
-        shipper.setUser(user);
-        shipper.setShippingProvider(provider);
+        Shipper shipper = Shipper.builder()
+                .user(user)
+                .companyName(req.getCompanyName())
+                .phone(req.getPhone())
+                .shippingProvider(provider)
+                .build();
 
         return shipperRepository.save(shipper);
     }
 
     @Override
-    public Shipper update(Long id, Shipper shipper) {
+    public Shipper update(Long id, ShipperRequest req) {
         Shipper existing = findById(id);
 
-        // Không cho phép thay đổi user
-        existing.setCompanyName(shipper.getCompanyName());
-        existing.setPhone(shipper.getPhone());
+        // Không cho phép đổi user (giữ nguyên shipper cũ)
+        existing.setCompanyName(req.getCompanyName());
+        existing.setPhone(req.getPhone());
 
-        if (shipper.getShippingProvider() != null && shipper.getShippingProvider().getShippingProviderId() != null) {
+        // Nếu người dùng có chọn lại provider
+        if (req.getShippingProvider() != null && req.getShippingProvider().getShippingProviderId() != null) {
             ShippingProvider provider = shippingProviderRepository.findById(
-                    shipper.getShippingProvider().getShippingProviderId()
+                    req.getShippingProvider().getShippingProviderId()
             ).orElseThrow(() -> new RuntimeException("Shipping provider not found!"));
             existing.setShippingProvider(provider);
         }
 
         return shipperRepository.save(existing);
     }
-
     @Override
     public void delete(Long id) {
         Shipper existing = findById(id);

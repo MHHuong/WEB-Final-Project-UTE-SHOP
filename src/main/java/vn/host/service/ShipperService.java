@@ -2,6 +2,7 @@ package vn.host.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import vn.host.dto.shipper.ShipperRequest;
 import vn.host.entity.Order;
 import vn.host.entity.Shipper;
 import vn.host.entity.User;
@@ -15,9 +16,9 @@ public interface ShipperService {
 
     Shipper findById(Long id);
 
-    Shipper save(Shipper shipper);
+    Shipper save(ShipperRequest req);
 
-    Shipper update(Long id, Shipper shipper);
+    Shipper update(Long id, ShipperRequest req);
 
     void delete(Long id);
 
