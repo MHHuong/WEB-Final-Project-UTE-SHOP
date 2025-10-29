@@ -48,13 +48,30 @@ public class ShipperController {
         return ResponseEntity.ok(saved.getShipperId());
     }
 
-    // 2) Lấy thông tin shipper hiện tại
+    // Lấy profile shipper của user hiện tại
     @GetMapping("/me")
-    public ResponseEntity<?> me(Authentication auth) {
+    public ResponseEntity<?> myProfile(Authentication auth) {
         User u = authed(auth);
-        Shipper me = shipperSvc.findByUserId(u.getUserId()).orElse(null);
-        if (me == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(me);
+        var opt = shipperSvc.findByUserId(u.getUserId());
+        if (opt.isEmpty()) return ResponseEntity.status(404).body("Not a shipper");
+        return ResponseEntity.ok(vn.host.dto.shipper.ShipperProfileVM.of(opt.get()));
+    }
+
+    // Cập nhật profile shipper hiện tại
+    @PutMapping("/me")
+    public ResponseEntity<?> updateMyProfile(Authentication auth, @RequestBody RegisterShipperReq req) {
+        User u = authed(auth);
+        var opt = shipperSvc.findByUserId(u.getUserId());
+        if (opt.isEmpty()) return ResponseEntity.status(404).body("Not a shipper");
+        Shipper me = opt.get();
+        if (req.getCompanyName() != null) me.setCompanyName(req.getCompanyName());
+        if (req.getPhone() != null) me.setPhone(req.getPhone());
+        if (req.getAddress() != null) me.setAddress(req.getAddress());
+        if (req.getShippingProviderId() != null) {
+            var sp = providers.findById(req.getShippingProviderId());
+            me.setShippingProvider(sp);
+        }
+        return ResponseEntity.ok(shipperSvc.edit(me));
     }
 
     // 3) Danh sách đơn CONFIRMED (đang chờ lấy) theo khu vực shipper

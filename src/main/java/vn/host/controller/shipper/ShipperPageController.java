@@ -29,4 +29,14 @@ public class ShipperPageController {
     public String historyDeliveredPage() {
         return "shipper/history-delivered";
     }
+
+    @GetMapping("/shipper")
+    public String profilePage() {
+        return "shipper/profile";
+    }
+
+    @GetMapping("/shipper/profile/edit")
+    public String editProfilePage() {
+        return "shipper/edit-profile";
+    }
 }

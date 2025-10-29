@@ -38,4 +38,6 @@ public interface ShipperService {
     Order pickup(Long orderId, Shipper me);
 
     Order deliver(Long orderId, Shipper me);
+
+    Shipper edit(Shipper s);
 }

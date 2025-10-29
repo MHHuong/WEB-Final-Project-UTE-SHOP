@@ -16,9 +16,23 @@
     const detailInput = document.getElementById('detailInput');
     const registerBtn = document.getElementById('registerBtn');
 
+    // === helpers giống shop-information ===
+    const getSelectedText = (sel) =>
+        sel?.selectedOptions?.[0]
+            ? (sel.selectedOptions[0].getAttribute('data-name') || sel.selectedOptions[0].textContent || '').trim()
+            : '';
+
+    function buildAddressString() {
+        const detail = (detailInput.value || '').trim();
+        const ward = getSelectedText(wardSelect);
+        const district = getSelectedText(districtSelect);
+        const province = getSelectedText(provinceSelect);
+        const parts = [detail, ward, district, province].filter(Boolean);
+        return parts.join(', ');
+    }
+
     // ==== Load providers ====
     async function loadProviders() {
-        // tuỳ theo API bạn đã có. Ví dụ: /api/shipping-providers (GET all)
         const res = await fetch(`${BASE}/api/shipping-providers`, {
             headers: {'Authorization': `Bearer ${token}`}
         });
@@ -26,6 +40,7 @@
         const list = await res.json();
         providerSelect.innerHTML = '<option value="">-- Chọn đơn vị vận chuyển --</option>';
         (list || []).forEach(p => {
+            // value: id/code; hiển thị: name
             const opt = document.createElement('option');
             opt.value = p.shippingProviderId || p.id || p.providerId;
             opt.textContent = p.name;
@@ -33,15 +48,16 @@
         });
     }
 
-    // ==== Location render (dựa script shop) ====
-    // Giả sử render-location.js đã cung cấp fetchProvinces/districts/wards
+    // ==== Khởi tạo combobox địa chỉ từ choose-location.js ====
     async function initLocation() {
-        // Provinces
+        // provinces
         const provinces = await window.LocationRender.fetchProvinces();
         provinces.forEach(p => {
             const opt = document.createElement('option');
-            opt.value = p.name;
+            // GIỮ value = code để đồng bộ với render-location chuẩn
+            opt.value = p.code || p.name || p.id;
             opt.textContent = p.name;
+            opt.setAttribute('data-name', p.name); // dùng text khi build địa chỉ
             provinceSelect.appendChild(opt);
         });
 
@@ -50,13 +66,16 @@
             wardSelect.disabled = true;
             districtSelect.innerHTML = '<option value="">-- Quận/Huyện --</option>';
             wardSelect.innerHTML = '<option value="">-- Phường/Xã --</option>';
-            const name = provinceSelect.value;
-            if (!name) return;
-            const districts = await window.LocationRender.fetchDistricts(name);
+
+            const provinceName = getSelectedText(provinceSelect);
+            if (!provinceName) return;
+
+            const districts = await window.LocationRender.fetchDistricts(provinceName);
             districts.forEach(d => {
                 const opt = document.createElement('option');
-                opt.value = d.name;
+                opt.value = d.code || d.name || d.id;
                 opt.textContent = d.name;
+                opt.setAttribute('data-name', d.name);
                 districtSelect.appendChild(opt);
             });
             districtSelect.disabled = false;
@@ -65,26 +84,24 @@
         districtSelect.addEventListener('change', async () => {
             wardSelect.disabled = true;
             wardSelect.innerHTML = '<option value="">-- Phường/Xã --</option>';
-            const p = provinceSelect.value, d = districtSelect.value;
-            if (!p || !d) return;
-            const wards = await window.LocationRender.fetchWards(p, d);
+
+            const pName = getSelectedText(provinceSelect);
+            const dName = getSelectedText(districtSelect);
+            if (!pName || !dName) return;
+
+            const wards = await window.LocationRender.fetchWards(pName, dName);
             wards.forEach(w => {
                 const opt = document.createElement('option');
-                opt.value = w.name;
+                opt.value = w.code || w.name || w.id;
                 opt.textContent = w.name;
+                opt.setAttribute('data-name', w.name);
                 wardSelect.appendChild(opt);
             });
             wardSelect.disabled = false;
         });
-    }
 
-    function buildAddressString() {
-        const detail = (detailInput.value || '').trim();
-        const ward = (wardSelect.value || '').trim();
-        const district = (districtSelect.value || '').trim();
-        const province = (provinceSelect.value || '').trim();
-        const parts = [detail, ward, district, province].filter(Boolean);
-        return parts.join(', ');
+        // Cho phép prefill nếu cần (địa chỉ có sẵn)
+        window.prefillFromExisting && window.prefillFromExisting('');
     }
 
     registerBtn.addEventListener('click', async () => {

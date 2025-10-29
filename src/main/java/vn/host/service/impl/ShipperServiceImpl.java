@@ -263,4 +263,26 @@ public class ShipperServiceImpl implements ShipperService {
 
         return saved;
     }
+
+    @Override
+    public Shipper edit(Shipper s) {
+        Long userId = (s.getUser() != null ? s.getUser().getUserId() : null);
+        if (userId == null) {
+            throw new IllegalArgumentException("Shipper.user is required");
+        }
+
+        Optional<Shipper> existingByUser = shipperRepository.findByUser_UserId(userId);
+
+        if (s.getShipperId() == null) {
+            if (existingByUser.isPresent()) {
+                throw new RuntimeException("This user is already assigned as a shipper!");
+            }
+        } else {
+            if (existingByUser.isPresent() && !existingByUser.get().getShipperId().equals(s.getShipperId())) {
+                throw new RuntimeException("This user is already assigned as a shipper!");
+            }
+        }
+
+        return shipperRepository.save(s);
+    }
 }
