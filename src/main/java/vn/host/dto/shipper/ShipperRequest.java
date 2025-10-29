@@ -15,12 +15,4 @@ public class ShipperRequest {
 
     private String companyName;
     private String phone;
-//    @JsonProperty("user")
-//    private User user;
-//
-//    @JsonProperty("shippingProvider")
-//    private ShippingProvider shippingProvider;
-//
-//    private String companyName;
-//    private String phone;
 }
