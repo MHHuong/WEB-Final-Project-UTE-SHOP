@@ -32,7 +32,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             tbody.insertAdjacentHTML("beforeend", `
         <tr>
-          <td><input type="checkbox"></td>
           <td>${c.name}</td>
           <td class="text-center">${productCount}</td>
           <td class="text-center">
