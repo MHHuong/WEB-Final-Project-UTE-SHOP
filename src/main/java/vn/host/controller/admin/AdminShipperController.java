@@ -29,15 +29,15 @@ public class AdminShipperController {
         return ResponseEntity.ok(shipperService.findById(id));
     }
 
-//    @PostMapping
-//    public ResponseEntity<?> create(@RequestBody ShipperRequest req) {
-//        try {
-//            return ResponseEntity.ok(shipperService.save(req));
-//        } catch (RuntimeException e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
-//
+    @PostMapping
+    public ResponseEntity<?> create(@RequestBody ShipperRequest req) {
+        try {
+            return ResponseEntity.ok(shipperService.save(req));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 //    @PutMapping("/{id}")
 //    public ResponseEntity<Shipper> update(
 //            @PathVariable Long id,
