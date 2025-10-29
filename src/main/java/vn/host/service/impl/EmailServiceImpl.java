@@ -71,6 +71,8 @@ public class EmailServiceImpl implements EmailService {
             case DELIVERED -> "Đơn hàng #" + orderId + " đã được giao thành công";
             case RECEIVED -> "Cảm ơn bạn đã xác nhận đơn hàng #" + orderId;
             case CANCELLED -> "Đơn hàng #" + orderId + " đã bị hủy";
+            case REQUEST_RETURN -> "";
+            case RETURNING -> "";
             case RETURNED -> "Đơn hàng #" + orderId + " đã được trả lại";
         };
     }

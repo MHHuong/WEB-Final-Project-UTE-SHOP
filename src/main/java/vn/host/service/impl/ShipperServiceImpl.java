@@ -201,8 +201,6 @@ public class ShipperServiceImpl implements ShipperService {
                 if (org.springframework.util.StringUtils.hasText(district)) {
                     ps.add(cb.equal(recvAddr.get("district"), district));
                 }
-                // Mặc định: chỉ thấy đơn SHIPPING của chính mình
-                //ps.add(cb.equal(root.get("shipper"), me));
             }
 
             return cb.and(ps.toArray(new Predicate[0]));
@@ -294,10 +292,9 @@ public class ShipperServiceImpl implements ShipperService {
 
         Specification<Order> spec = (root, cq, cb) -> {
             List<Predicate> ps = new ArrayList<>();
-            // Trạng thái RETURNED
-            ps.add(cb.equal(root.get("status"), OrderStatus.RETURNED));
 
-            // Chưa có RETURN_PICKUP
+            ps.add(cb.equal(root.get("status"), OrderStatus.RETURNING));
+
             Subquery<Long> sub = cq.subquery(Long.class);
             var logRoot = sub.from(OrderShipperLog.class);
             sub.select(cb.count(logRoot.get("id")));
@@ -307,7 +304,6 @@ public class ShipperServiceImpl implements ShipperService {
             );
             ps.add(cb.equal(sub, 0L));
 
-            // Lọc theo địa chỉ người nhận (order.address)
             Join<Order, Address> recvAddr = root.join("address", JoinType.INNER);
             if (StringUtils.hasText(province)) {
                 ps.add(cb.equal(recvAddr.get("province"), province));
@@ -328,9 +324,8 @@ public class ShipperServiceImpl implements ShipperService {
 
         Specification<Order> spec = (root, cq, cb) -> {
             List<Predicate> ps = new ArrayList<>();
-            ps.add(cb.equal(root.get("status"), OrderStatus.RETURNED));
+            ps.add(cb.equal(root.get("status"), OrderStatus.RETURNING));
 
-            // ĐÃ có RETURN_PICKUP
             Subquery<Long> subPickup = cq.subquery(Long.class);
             var logPickup = subPickup.from(OrderShipperLog.class);
             subPickup.select(cb.count(logPickup.get("id")));
@@ -340,7 +335,6 @@ public class ShipperServiceImpl implements ShipperService {
             );
             ps.add(cb.greaterThan(subPickup, 0L));
 
-            // CHƯA có RETURN_DELIVER
             Subquery<Long> subDeliver = cq.subquery(Long.class);
             var logDeliver = subDeliver.from(OrderShipperLog.class);
             subDeliver.select(cb.count(logDeliver.get("id")));
@@ -350,7 +344,6 @@ public class ShipperServiceImpl implements ShipperService {
             );
             ps.add(cb.equal(subDeliver, 0L));
 
-            // Lọc theo địa chỉ SHOP (shop.address là chuỗi => dùng like tail giống CONFIRMED)
             Join<Order, Shop> shop = root.join("shop", JoinType.INNER);
             String likeTail = tailLike(district, province);
             if (likeTail != null) {
@@ -366,14 +359,12 @@ public class ShipperServiceImpl implements ShipperService {
     @Override
     public Order returnPickup(Long orderId, Shipper me) {
         Order o = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("Order not found"));
-        if (o.getStatus() != OrderStatus.RETURNED)
-            throw new IllegalStateException("Order not in RETURNED state");
+        if (o.getStatus() != OrderStatus.RETURNING)
+            throw new IllegalStateException("Order not in RETURNING state");
 
-        // Chỉ cho phép nếu CHƯA có RETURN_PICKUP
         boolean existed = orderShipperLogRepository.existsByOrder_OrderIdAndAction(orderId, ShipperAction.RETURN_PICKUP);
         if (existed) throw new IllegalStateException("Already picked up returned goods");
 
-        // Kiểm tra vùng giao đến khách (đi lấy lại từ người nhận)
         Area a = resolveAreaFromAddress(me.getAddress());
         String province = a.province(), district = a.district();
 
@@ -384,7 +375,6 @@ public class ShipperServiceImpl implements ShipperService {
             }
         }
 
-        // Gán shipper thực hiện hoàn – tái sử dụng field shipper như luồng giao
         o.setShipper(me);
         Order saved = orderRepository.save(o);
 
@@ -399,16 +389,14 @@ public class ShipperServiceImpl implements ShipperService {
     @Override
     public Order returnDeliver(Long orderId, Shipper me) {
         Order o = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("Order not found"));
-        if (o.getStatus() != OrderStatus.RETURNED)
-            throw new IllegalStateException("Order not in RETURNED state");
+        if (o.getStatus() != OrderStatus.RETURNING)
+            throw new IllegalStateException("Order not in RETURNING state");
 
-        // Phải có RETURN_PICKUP trước và chưa RETURN_DELIVER
         boolean hasPickup = orderShipperLogRepository.existsByOrder_OrderIdAndAction(orderId, ShipperAction.RETURN_PICKUP);
         if (!hasPickup) throw new IllegalStateException("This return hasn't been picked up yet");
         boolean hasDeliver = orderShipperLogRepository.existsByOrder_OrderIdAndAction(orderId, ShipperAction.RETURN_DELIVER);
         if (hasDeliver) throw new IllegalStateException("Already delivered return");
 
-        // Kiểm tra vùng cửa hàng (trả về shop)
         Area a = resolveAreaFromAddress(me.getAddress());
         String province = a.province(), district = a.district();
 
@@ -420,9 +408,6 @@ public class ShipperServiceImpl implements ShipperService {
                 throw new SecurityException("Shop outside your return-delivery area");
             }
         }
-
-        // Có thể vẫn giữ status = RETURNED (đơn đã bị trả), chỉ ghi log RETURN_DELIVER
-        // Nếu bạn muốn đóng vòng đời hoàn trả, có thể cập nhật thêm field/flag khác ở Order, tùy yêu cầu nghiệp vụ.
         o.setShipper(me);
         Order saved = orderRepository.save(o);
 
