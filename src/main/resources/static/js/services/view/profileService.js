@@ -4,10 +4,10 @@ import cartService from "../../services/api/cartService.js";
 import orderService from "../../services/api/orderService.js";
 import favoriteService from "../../services/api/favoriteService.js";
 import {renderPagination, showPageInfo} from "../../utils/paginationUtils.js";
-import {loadProvinces, loadDistricts, loadWards} from "../../utils/locationUtils.js";
+import {loadDistricts, loadProvinces, loadWards} from "../../utils/locationUtils.js";
 import {showOrderStatusModal} from "../../utils/orderStatusModal.js";
 
-import { AuthState } from "../../auth.js";
+import {AuthState} from "../../auth.js";
 
 
 // Hàm lấy USER_ID động
@@ -911,9 +911,26 @@ document.addEventListener('click', async function (e) {
 
 
 
-// ==================== SECURITY SECTION ====================
 function loadSecuritySection() {
-    // Initialize password toggle buttons
+    // Load account information
+    const userInfo = AuthState.getUserInfo();
+    if (userInfo) {
+        document.getElementById('security-email').textContent = userInfo.email || 'N/A';
+
+        // Format created date if available
+        if (userInfo.createdAt) {
+            const date = new Date(userInfo.createdAt);
+            document.getElementById('security-created-date').textContent = date.toLocaleDateString('vi-VN');
+        } else {
+            document.getElementById('security-created-date').textContent = 'N/A';
+        }
+
+        if (userInfo.role) {
+            document.getElementById('security-role').textContent = userInfo.role;
+        }
+        else document.getElementById('security-role').textContent = 'N/A';
+    }
+
     initPasswordToggles();
 }
 
@@ -928,106 +945,84 @@ function initPasswordToggles() {
         const btn = document.getElementById(btnId);
         const input = document.getElementById(inputId);
 
-        btn?.addEventListener('click', function() {
-            const type = input.type === 'password' ? 'text' : 'password';
-            input.type = type;
-            const icon = this.querySelector('i');
-            icon.classList.toggle('bi-eye');
-            icon.classList.toggle('bi-eye-slash');
-        });
+        if (btn && input) {
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+
+            newBtn.addEventListener('click', function() {
+                input.type = input.type === 'password' ? 'text' : 'password';
+                const icon = this.querySelector('i');
+                icon.classList.toggle('bi-eye');
+                icon.classList.toggle('bi-eye-slash');
+            });
+        }
     });
 }
 
 // Change password form
-document.getElementById('change-password-form')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
+document.addEventListener('submit', async function(e) {
+    if (e.target.id === 'change-password-form') {
+        e.preventDefault();
 
-    const currentPassword = document.getElementById('current-password').value;
-    const newPassword = document.getElementById('new-password').value;
-    const confirmPassword = document.getElementById('confirm-password').value;
+        const currentPassword = document.getElementById('current-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
 
-    // Validation
-    let isValid = true;
+        let isValid = true;
 
-    if (!currentPassword) {
-        isValid = false;
-        document.getElementById('current-password').classList.add('is-invalid');
-    } else {
-        document.getElementById('current-password').classList.remove('is-invalid');
-    }
+        if (!currentPassword) {
+            isValid = false;
+            document.getElementById('current-password').classList.add('is-invalid');
+        } else {
+            document.getElementById('current-password').classList.remove('is-invalid');
+        }
 
-    if (!newPassword || newPassword.length < 6) {
-        isValid = false;
-        document.getElementById('new-password').classList.add('is-invalid');
-    } else {
-        document.getElementById('new-password').classList.remove('is-invalid');
-    }
+        if (!newPassword || newPassword.length < 6) {
+            isValid = false;
+            document.getElementById('new-password').classList.add('is-invalid');
+        } else {
+            document.getElementById('new-password').classList.remove('is-invalid');
+        }
 
-    if (newPassword !== confirmPassword) {
-        isValid = false;
-        document.getElementById('confirm-password').classList.add('is-invalid');
-        showErrorToast('Passwords do not match!');
-    } else {
-        document.getElementById('confirm-password').classList.remove('is-invalid');
-    }
+        if (newPassword !== confirmPassword) {
+            isValid = false;
+            document.getElementById('confirm-password').classList.add('is-invalid');
+            showErrorToast('Passwords do not match!');
+        } else {
+            document.getElementById('confirm-password').classList.remove('is-invalid');
+        }
 
-    if (!isValid) return;
+        if (!isValid) return;
 
-    try {
-        // TODO: Call API to change password
-        // const result = await AuthState.changePassword(currentPassword, newPassword);
+        try {
+            const password = {
+                currentPassword: currentPassword,
+                newPassword: newPassword
+            }
 
-        // Mock success
-        showSuccessToast('Password changed successfully!');
-        this.reset();
-    } catch (error) {
-        console.error('Error changing password:', error);
-        showErrorToast('Failed to change password');
-    }
-});
+            console.log(password);
 
-// Two-Factor Authentication toggle
-document.getElementById('toggle-2fa')?.addEventListener('change', async function() {
-    const isEnabled = this.checked;
-
-    try {
-        // TODO: Call API to enable/disable 2FA
-        // const result = await AuthState.toggle2FA(isEnabled);
-
-        showSuccessToast(`Two-Factor Authentication ${isEnabled ? 'enabled' : 'disabled'} successfully!`);
-    } catch (error) {
-        console.error('Error toggling 2FA:', error);
-        showErrorToast('Failed to update 2FA settings');
-        this.checked = !isEnabled; // Revert
-    }
-});
-
-// Delete account
-document.getElementById('confirm-delete-account-btn')?.addEventListener('click', async function() {
-    const password = document.getElementById('delete-password').value;
-    const confirmCheckbox = document.getElementById('confirm-delete');
-
-    if (!password) {
-        showErrorToast('Please enter your password');
-        return;
-    }
-
-    if (!confirmCheckbox.checked) {
-        showErrorToast('Please confirm that you understand this action is permanent');
-        return;
-    }
-
-    try {
-        // TODO: Call API to delete account
-        // const result = await AuthState.deleteAccount(password);
-
-        showSuccessToast('Account deleted successfully. Redirecting...');
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 2000);
-    } catch (error) {
-        console.error('Error deleting account:', error);
-        showErrorToast('Failed to delete account. Please check your password.');
+            const result = await AuthState.updatePassword(USER_ID, password);
+            if (result.status === 'Success') {
+                showSuccessToast('Password changed successfully!');
+                document.getElementById('change-password-form').reset();
+                // Collapse the form
+                const collapseElement = document.getElementById('changePasswordForm');
+                const bsCollapse = bootstrap.Collapse.getInstance(collapseElement);
+                if (bsCollapse) {
+                    bsCollapse.hide();
+                } else {
+                    new bootstrap.Collapse(collapseElement, { toggle: true });
+                }
+            } else {
+                showErrorToast(result.message || 'Failed to change password. Please check your current password.');
+            }
+        } catch (error) {
+            console.log(error);
+            console.error('Error changing password:', error);
+            showErrorToast('An error occurred while changing password: ' + (error.message || 'Please try again later.'));
+        }
     }
 });
+
 

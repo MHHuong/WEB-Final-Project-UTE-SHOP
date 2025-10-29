@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import vn.host.entity.Shipper;
 import vn.host.entity.User;
+import vn.host.model.request.PasswordRequest;
 import vn.host.model.request.UserRequest;
 import vn.host.model.response.ApiResponse;
 import vn.host.service.OrderService;
@@ -75,6 +76,41 @@ public class UserController {
                             "Success",
                             "User info updated successfully",
                             update_user
+                    )
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(
+                    new ApiResponse(
+                            "Error",
+                            "Error: " + e.getMessage(),
+                            null
+                    )
+            );
+        }
+    }
+
+    @PutMapping("{id}/password")
+    public ResponseEntity<?> updatePassword(Authentication auth,@PathVariable Long id, @RequestBody PasswordRequest password) {
+        try {
+            User me = authed(auth);
+            if (me == null) return ResponseEntity.notFound().build();
+            if (!Objects.equals(me.getUserId(), id)) {
+                return ResponseEntity.status(403).body(
+                        new ApiResponse(
+                                "Error",
+                                "You are not allowed to update this user",
+                                null
+                        )
+                );
+            }
+
+            userService.updatePassword(id, password);
+
+            return ResponseEntity.ok(
+                    new ApiResponse(
+                            "Success",
+                            "Password updated successfully",
+                            null
                     )
             );
         } catch (Exception e) {

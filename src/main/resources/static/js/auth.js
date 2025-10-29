@@ -97,15 +97,30 @@ export const AuthState = {
     async updateUserInfo(userId, userData) {
         try {
             const result = await apiClient.put(`/user/${userId}`, userData);
-            console.log(result);
             if (result.status === 'Success' && result.data) {
-                console.log(result);
                 this.setUserInfo(result.data);
                 console.log('User info updated from API:', this.userInfo);
                 return result;
             }
         } catch (error) {
             console.error('Error updating user info:', error);
+            // Nếu lỗi 401/403, logout
+            if (error.status === 401 || error.status === 403) {
+                this.logout();
+            }
+        }
+    },
+
+    async updatePassword(userId, password) {
+        try {
+            const result = await apiClient.put(`/user/${userId}/password`, password);
+            console.log(result);
+            if (result.status === 'Success') {
+                console.log('Password updated successfully');
+                return result;
+            }
+        } catch (error) {
+            console.error('Error updating password:', error);
             // Nếu lỗi 401/403, logout
             if (error.status === 401 || error.status === 403) {
                 this.logout();
