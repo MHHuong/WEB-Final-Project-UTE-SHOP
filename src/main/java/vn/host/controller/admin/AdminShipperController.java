@@ -38,14 +38,14 @@ public class AdminShipperController {
         }
     }
 
-//    @PutMapping("/{id}")
-//    public ResponseEntity<Shipper> update(
-//            @PathVariable Long id,
-//            @RequestBody ShipperRequest req
-//    ) {
-//        return ResponseEntity.ok(shipperService.update(id, req));
-//    }
-//
+    @PutMapping("/{id}")
+    public ResponseEntity<Shipper> update(
+            @PathVariable Long id,
+            @RequestBody ShipperRequest req
+    ) {
+        return ResponseEntity.ok(shipperService.update(id, req));
+    }
+
 //    @DeleteMapping("/{id}")
 //    public ResponseEntity<String> delete(@PathVariable Long id) {
 //        shipperService.delete(id);
