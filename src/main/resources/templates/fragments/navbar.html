@@ -72,12 +72,20 @@
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                     </a>
+
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
                         <li>
-                            <a class="dropdown-item" th:href="@{/profile}">
+                            <a class="dropdown-item" th:href="@{/user/profile}">
                                 <i class="feather-icon icon-user me-2"></i> Profile
                             </a>
                         </li>
+
+                        <li>
+                            <a id="nav-shop-link" class="dropdown-item" th:href="@{/shop/register}">
+                                <i class="feather-icon icon-grid me-2"></i> My Shop
+                            </a>
+                        </li>
+
                         <li>
                             <hr class="dropdown-divider">
                         </li>
@@ -87,6 +95,7 @@
                             </a>
                         </li>
                     </ul>
+
                 </div>
 
             </div>

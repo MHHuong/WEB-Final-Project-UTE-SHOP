@@ -23,9 +23,9 @@ public class WebSecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Tắt CSRF
+                .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable) // Tắt Form Login
+                .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(reg -> reg
                                 .requestMatchers(
@@ -35,6 +35,7 @@ public class WebSecurityConfig {
                                         "/forgot-password",
                                         "/shop-grid",
                                         "/shop-grid/**",
+                                        "/user/**",
                                         "/shop/**"
                                 ).permitAll()
                                 .requestMatchers(
