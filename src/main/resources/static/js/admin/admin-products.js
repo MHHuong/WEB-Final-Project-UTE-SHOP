@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <td>${p.category ? p.category.name : '-'}</td>
           <td>${p.shop ? p.shop.shopName : '-'}</td>
           <td>
-            ${p.status === 1
+            ${p.status === 2
                 ? '<span class="badge bg-success">Active</span>'
                 : '<span class="badge bg-danger">Inactive</span>'}
           </td>
@@ -54,8 +54,8 @@ document.addEventListener("DOMContentLoaded", function () {
           <td class="text-center">
               <button class="btn btn-sm btn-outline-warning me-1" 
                       data-id="${p.productId}" data-action="toggle" 
-                      title="${p.status === 1 ? 'Hide product' : 'Show product'}">
-                  <i class="bi ${p.status === 1 ? 'bi-eye-slash-fill' : 'bi-eye-fill'}"></i>
+                      title="${p.status ===  2? 'Hide product' : 'Show product'}">
+                  <i class="bi ${p.status === 2 ? 'bi-eye-slash-fill' : 'bi-eye-fill'}"></i>
               </button>
               <button class="btn btn-sm btn-outline-danger" 
                       data-id="${p.productId}" data-action="delete" 
@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (action === "toggle") {
             const icon = btn.querySelector("i");
-            const newStatus = icon.classList.contains("bi-eye-slash-fill") ? 0 : 1;
+            const newStatus = icon.classList.contains("bi-eye-slash-fill") ? 3 : 2;
 
             fetch(`${contextPath}/api/admin/products/${id}/status?status=${newStatus}`, { method: "PUT" })
                 .then(res => res.text())
