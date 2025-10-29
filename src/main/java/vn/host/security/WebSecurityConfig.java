@@ -36,7 +36,8 @@ public class WebSecurityConfig {
                                         "/shop-grid",
                                         "/shop-grid/**",
                                         "/user/**",
-                                        "/shop/**"
+                                        "/shop/**",
+                                        "/products/**"
                                 ).permitAll()
                                 .requestMatchers(
                                         "/assets/**",

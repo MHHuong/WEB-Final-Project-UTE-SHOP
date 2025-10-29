@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import vn.host.dto.common.ProductDTO;
 import vn.host.dto.common.PageResult;
+import vn.host.dto.product.ProductDetailVM;
 import vn.host.dto.product.ProductListItemVM;
 import vn.host.entity.Product;
 import vn.host.model.response.ProductResponse;
@@ -58,4 +59,6 @@ public interface ProductService {
     void bulkUpdateStatus(String userEmail, List<Long> productIds, int status);
 
     List<ProductResponse> findAllProductOrder();
+
+    ProductDetailVM getProductDetailVM(Long productId);
 }
