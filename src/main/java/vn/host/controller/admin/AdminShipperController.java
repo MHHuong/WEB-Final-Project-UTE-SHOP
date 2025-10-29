@@ -46,9 +46,9 @@ public class AdminShipperController {
         return ResponseEntity.ok(shipperService.update(id, req));
     }
 
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<String> delete(@PathVariable Long id) {
-//        shipperService.delete(id);
-//        return ResponseEntity.ok("Deleted shipper ID = " + id);
-//    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable Long id) {
+        shipperService.delete(id);
+        return ResponseEntity.ok("Deleted shipper ID = " + id);
+    }
 }
