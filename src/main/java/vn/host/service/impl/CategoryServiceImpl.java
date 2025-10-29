@@ -1,12 +1,11 @@
 package vn.host.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.host.dto.CategoryNodeDTO;
+import vn.host.dto.common.CategoryNodeDTO;
 import vn.host.entity.Category;
 import vn.host.repository.CategoryRepository;
 import vn.host.service.CategoryService;

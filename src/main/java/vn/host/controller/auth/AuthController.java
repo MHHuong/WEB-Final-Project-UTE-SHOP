@@ -1,4 +1,4 @@
-package vn.host.controller;
+package vn.host.controller.auth;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

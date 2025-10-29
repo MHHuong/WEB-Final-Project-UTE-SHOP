@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import vn.host.dto.ProductDTO;
+import vn.host.dto.common.ProductDTO;
 import vn.host.dto.common.PageResult;
 import vn.host.dto.product.ProductListItemVM;
 import vn.host.entity.Product;

@@ -3,7 +3,7 @@ package vn.host.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import vn.host.dto.ProductDTO;
+import vn.host.dto.common.ProductDTO;
 import vn.host.dto.common.PageResult;
 import vn.host.dto.product.ProductListItemVM;
 import vn.host.entity.Product;
