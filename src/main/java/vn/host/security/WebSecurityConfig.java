@@ -51,9 +51,12 @@ public class WebSecurityConfig {
                                         "/api/auth/otp/**",
                                         "/api/auth/password/reset"
                                 ).permitAll()
-                                .requestMatchers("/api/locations/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
-                                .anyRequest().authenticated()
+                        .requestMatchers("/api/locations/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
+//                        .requestMatchers("/admin/**").hasRole("ADMIN")
+//                        .requestMatchers("/shop/**").hasRole("SELLER")
+//                        .requestMatchers("/user/**").authenticated()
+                        .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> {
                     oauth.loginPage("/login");
