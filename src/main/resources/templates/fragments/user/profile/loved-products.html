@@ -1,0 +1,48 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Loved Products Section -->
+<div th:fragment="loved-products-view" id="love-section" class="content-section" style="display: none;">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="bi bi-heart-fill text-danger me-2"></i>Loved Products</h4>
+            <span class="badge bg-primary" id="love-count">0</span>
+        </div>
+        <div class="card-body">
+            <!-- Search bar -->
+            <div class="mb-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control" id="love-search-input" placeholder="Search loved products...">
+                    <button class="btn btn-outline-secondary" type="button" id="clear-love-search-btn" style="display: none;">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="loved-products-list" class="row g-4">
+                <!-- Products will be loaded here dynamically -->
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="bi bi-heart" style="font-size: 3rem; color: #ccc;"></i>
+                        <p class="text-muted mt-3">No loved products yet</p>
+                        <a href="/user/products" class="btn btn-primary mt-2">
+                            <i class="bi bi-shop me-2"></i>Start Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <div id="loved-product-page-info"></div>
+                <div id="loved-product-pagination"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

@@ -25,4 +25,5 @@ public class HomeController {
         model.addAttribute("bestSellsProducts", allProductsDTO);
         return "index";
     }
+
 }

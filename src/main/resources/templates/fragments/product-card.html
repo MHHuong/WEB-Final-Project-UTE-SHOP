@@ -15,8 +15,9 @@
                 <a href="#!" class="btn-action" data-bs-toggle="modal" data-bs-target="#quickViewModal">
                     <i class="bi bi-eye" data-bs-toggle="tooltip" data-bs-html="true" title="Quick View"></i>
                 </a>
-                <a href="#!" class="btn-action" data-bs-toggle="tooltip" data-bs-html="true" title="Wishlist"><i
-                        class="bi bi-heart"></i></a>
+                <a href="#!" class="btn-action-wishlist btn-action" data-bs-toggle="tooltip" data-bs-html="true" title="Wishlist"
+                    th:data-id="${product.productId}"
+                ><i class="bi bi-heart"></i></a>
             </div>
         </div>
 
@@ -58,6 +59,44 @@
             </div>
         </div>
     </div>
+    <script type="module">
+        import favoriteService from "./js/services/api/favoriteService.js";
+        import {showErrorToast, showSuccessToast} from "./js/utils/toastUtils.js";
+        import { AuthState } from "./js/auth.js";
+        let USER_ID = 0;
+
+        document.addEventListener('click', async function (event) {
+            if (event.target.closest('.btn-action-wishlist')) {
+                const button = event.target.closest('.btn-action-wishlist');
+                const productId = button.getAttribute('data-id');
+                const icon = button.querySelector('i');
+                event.preventDefault();
+                if (!USER_ID) {
+                    await AuthState.fetchUserInfo();
+                    USER_ID = AuthState.userInfo ? AuthState.userInfo.userId : null;
+                }
+                if (!USER_ID) {
+                    showErrorToast('Please log in to add products to your favorites.');
+                    return;
+                }
+                await addFavorite(productId);
+            }
+        })
+
+        async function addFavorite(productId) {
+            try {
+                console.log(productId, USER_ID)
+                const result = await favoriteService.createFavorite(productId, USER_ID);
+                if (result.status === "Success") {
+                    showSuccessToast('Added to favorites!');
+                } else {
+                    showErrorToast('Failed to add to favorites: ' + result.message);
+                }
+            } catch (Error) {
+                showErrorToast('An error occurred: ' + Error.message);
+            }
+        }
+    </script>
 </div>
 
 </body>

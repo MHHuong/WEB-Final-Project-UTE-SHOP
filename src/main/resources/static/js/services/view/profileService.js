@@ -1,6 +1,8 @@
 import {showErrorToast, showSuccessToast} from "../../utils/toastUtils.js";
 import addressService from "../../services/api/addressService.js";
+import cartService from "../../services/api/cartService.js";
 import orderService from "../../services/api/orderService.js";
+import favoriteService from "../../services/api/favoriteService.js";
 import {renderPagination, showPageInfo} from "../../utils/paginationUtils.js";
 import {loadProvinces, loadDistricts, loadWards} from "../../utils/locationUtils.js";
 import {showOrderStatusModal} from "../../utils/orderStatusModal.js";
@@ -43,6 +45,10 @@ document.querySelectorAll('.nav-link[data-section]').forEach(link => {
         // Load data if needed
         if (section === 'orders') {
             loadOrders();
+        } else if (section === 'love') {
+            loadLovedProducts();
+        } else if (section === 'security') {
+            loadSecuritySection();
         }
     });
 });
@@ -712,3 +718,316 @@ document.addEventListener('DOMContentLoaded', async function() {
     const userInfo = AuthState.getUserInfo();
     loadProfileSection(userInfo);
 });
+
+let lovedProducts = [];
+let currentLoveSearchKeyword = '';
+
+async function loadLovedProducts() {
+    try {
+        const result = await favoriteService.getFavoirtiesByUserId(USER_ID)
+        if (result.status === "Success") {
+            lovedProducts = result.data;
+            console.log(lovedProducts);
+        }
+        else showErrorToast(result.message);
+        displayLovedProducts('');
+    } catch (error) {
+        console.error('Error loading loved products:', error);
+        showErrorToast('Cannot load loved products');
+    }
+}
+
+function paginateLovedProducts(filteredProducts, page, size) {
+    const start = (page - 1) * size;
+    const end = start + size;
+    return {
+        content: filteredProducts.slice(start, end),
+        pageable: {
+            pageNumber: page - 1,
+            pageSize: size
+        },
+        totalPages: Math.ceil(filteredProducts.length / size),
+        totalElements: filteredProducts.length
+    };
+}
+
+function displayLovedProducts(searchKeyword = '', p = 1, size = 3) {
+    const container = document.getElementById('loved-products-list');
+    const countBadge = document.getElementById('love-count');
+
+    let filteredProducts = lovedProducts;
+
+    // Filter by search keyword
+    if (searchKeyword.trim() !== '') {
+        const keyword = searchKeyword.toLowerCase();
+        filteredProducts = filteredProducts.filter(product =>
+            product.name.toLowerCase().includes(keyword)
+        );
+    }
+
+    let result = paginateLovedProducts(filteredProducts, p, size);
+    const lovedProductsPagination = {
+        currentPage: result.pageable.pageNumber,
+        size: result.pageable.pageSize,
+        totalPages: result.totalPages,
+        totalElements: result.totalElements
+    }
+
+    console.log(lovedProductsPagination);
+    const productContent = result.content;
+    console.log(productContent);
+
+    countBadge.textContent = productContent.length;
+    container.innerHTML = '';
+
+    if (productContent.length === 0) {
+        const message = searchKeyword.trim() !== ''
+            ? `No products found with keyword "${searchKeyword}"`
+            : 'No loved products yet';
+        container.innerHTML = `
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="bi bi-heart" style="font-size: 3rem; color: #ccc;"></i>
+                    <p class="text-muted mt-3">${message}</p>
+                    ${searchKeyword.trim() === '' ? '<a href="/user/products" class="btn btn-primary mt-2"><i class="bi bi-shop me-2"></i>Start Shopping</a>' : ''}
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    productContent.forEach(product => {
+        const discount = product.price ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+        const productCard = `
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 card-product border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-center position-relative">
+                            ${discount > 0 ? `<span class="badge bg-danger position-absolute top-0 start-0 m-2">${discount}% OFF</span>` : ''}
+                            <button class="btn btn-sm btn-light position-absolute top-0 end-0 m-2 remove-love-btn" data-product-id="${product.productId}">
+                                <i class="bi bi-heart-fill text-danger"></i>
+                            </button>
+                            <a href="/user/product/${product.productId}">
+                                <img src="${product.imageUrl}" alt="${product.name}" class="mb-3 img-fluid" style="height: 200px; object-fit: cover;">
+                            </a>
+                        </div>
+                        <div class="text-small mb-1">
+                            <div class="text-warning">
+                                ${Array(5).fill(0).map((_, i) => 
+                                    `<i class="bi bi-star${i < Math.floor(product.averageRating) ? '-fill' : ''}"></i>`
+                                ).join('')}
+                                <span class="text-muted ms-1">${product.averageRating}</span>
+                            </div>
+                        </div>
+                        <h2 class="fs-6">
+                            <a href="/user/product/${product.productId}" class="text-inherit text-decoration-none">${product.name}</a>
+                        </h2>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <span class="text-dark fw-bold">${formatCurrency(product.price)}</span>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-primary btn-sm w-100 add-to-cart-btn" data-product-id="${product.productId}">
+                                <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.innerHTML += productCard;
+    });
+    renderPagination(lovedProductsPagination, (newPage) => {
+        displayLovedProducts(searchKeyword, newPage + 1, lovedProductsPagination.size);
+    }, 'loved-product-pagination');
+    showPageInfo(lovedProductsPagination, 'loved-product-page-info');
+}
+
+const loveSearchInput = document.getElementById('love-search-input');
+const clearLoveSearchBtn = document.getElementById('clear-love-search-btn');
+
+loveSearchInput?.addEventListener('input', function(e) {
+    const keyword = e.target.value;
+
+    if (keyword.trim() !== '') {
+        clearLoveSearchBtn.style.display = 'block';
+    } else {
+        clearLoveSearchBtn.style.display = 'none';
+    }
+
+    currentLoveSearchKeyword = keyword;
+    displayLovedProducts(currentLoveSearchKeyword);
+});
+
+clearLoveSearchBtn?.addEventListener('click', function() {
+    loveSearchInput.value = '';
+    currentLoveSearchKeyword = '';
+    clearLoveSearchBtn.style.display = 'none';
+    displayLovedProducts('');
+});
+
+// Remove from loved products
+document.addEventListener('click', async function (e) {
+    if (e.target.closest('.remove-love-btn')) {
+        const btn = e.target.closest('.remove-love-btn');
+        const productId = btn.getAttribute('data-product-id');
+        const result = await favoriteService.removeFavorite(productId, USER_ID);
+        if (result.status !== "Success") {
+            showErrorToast(result.message || 'Cannot remove from loved products');
+        }
+        else {
+            displayLovedProducts(currentLoveSearchKeyword);
+            showSuccessToast('Removed from loved products!');
+            await loadLovedProducts();
+        }
+    }
+});
+
+document.addEventListener('click', async function (e) {
+    if (e.target.closest('.add-to-cart-btn')) {
+        const btn = e.target.closest('.add-to-cart-btn');
+        const productId = btn.getAttribute('data-product-id');
+        try {
+            const cart = {
+                userId: USER_ID,
+                productId: productId,
+                quantity: 1
+            }
+            const result = await cartService.addSelectedCartItem(cart);
+            if (result.status === "Success") {
+                showSuccessToast('Added to cart successfully!');
+            }
+            else {
+            showErrorToast(result.message || 'Cannot add to cart');}
+        }
+        catch (error) {
+            console.error('Error adding to cart:', error);
+            showErrorToast('Cannot add to cart');
+        }
+    }
+})
+
+
+
+
+// ==================== SECURITY SECTION ====================
+function loadSecuritySection() {
+    // Initialize password toggle buttons
+    initPasswordToggles();
+}
+
+function initPasswordToggles() {
+    const toggleButtons = [
+        { btnId: 'toggle-current-password', inputId: 'current-password' },
+        { btnId: 'toggle-new-password', inputId: 'new-password' },
+        { btnId: 'toggle-confirm-password', inputId: 'confirm-password' }
+    ];
+
+    toggleButtons.forEach(({ btnId, inputId }) => {
+        const btn = document.getElementById(btnId);
+        const input = document.getElementById(inputId);
+
+        btn?.addEventListener('click', function() {
+            const type = input.type === 'password' ? 'text' : 'password';
+            input.type = type;
+            const icon = this.querySelector('i');
+            icon.classList.toggle('bi-eye');
+            icon.classList.toggle('bi-eye-slash');
+        });
+    });
+}
+
+// Change password form
+document.getElementById('change-password-form')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+
+    // Validation
+    let isValid = true;
+
+    if (!currentPassword) {
+        isValid = false;
+        document.getElementById('current-password').classList.add('is-invalid');
+    } else {
+        document.getElementById('current-password').classList.remove('is-invalid');
+    }
+
+    if (!newPassword || newPassword.length < 6) {
+        isValid = false;
+        document.getElementById('new-password').classList.add('is-invalid');
+    } else {
+        document.getElementById('new-password').classList.remove('is-invalid');
+    }
+
+    if (newPassword !== confirmPassword) {
+        isValid = false;
+        document.getElementById('confirm-password').classList.add('is-invalid');
+        showErrorToast('Passwords do not match!');
+    } else {
+        document.getElementById('confirm-password').classList.remove('is-invalid');
+    }
+
+    if (!isValid) return;
+
+    try {
+        // TODO: Call API to change password
+        // const result = await AuthState.changePassword(currentPassword, newPassword);
+
+        // Mock success
+        showSuccessToast('Password changed successfully!');
+        this.reset();
+    } catch (error) {
+        console.error('Error changing password:', error);
+        showErrorToast('Failed to change password');
+    }
+});
+
+// Two-Factor Authentication toggle
+document.getElementById('toggle-2fa')?.addEventListener('change', async function() {
+    const isEnabled = this.checked;
+
+    try {
+        // TODO: Call API to enable/disable 2FA
+        // const result = await AuthState.toggle2FA(isEnabled);
+
+        showSuccessToast(`Two-Factor Authentication ${isEnabled ? 'enabled' : 'disabled'} successfully!`);
+    } catch (error) {
+        console.error('Error toggling 2FA:', error);
+        showErrorToast('Failed to update 2FA settings');
+        this.checked = !isEnabled; // Revert
+    }
+});
+
+// Delete account
+document.getElementById('confirm-delete-account-btn')?.addEventListener('click', async function() {
+    const password = document.getElementById('delete-password').value;
+    const confirmCheckbox = document.getElementById('confirm-delete');
+
+    if (!password) {
+        showErrorToast('Please enter your password');
+        return;
+    }
+
+    if (!confirmCheckbox.checked) {
+        showErrorToast('Please confirm that you understand this action is permanent');
+        return;
+    }
+
+    try {
+        // TODO: Call API to delete account
+        // const result = await AuthState.deleteAccount(password);
+
+        showSuccessToast('Account deleted successfully. Redirecting...');
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 2000);
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        showErrorToast('Failed to delete account. Please check your password.');
+    }
+});
+
