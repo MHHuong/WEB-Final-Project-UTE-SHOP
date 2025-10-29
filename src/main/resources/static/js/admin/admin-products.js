@@ -1,3 +1,13 @@
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
+
 document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector("#tblProducts");
     const pagination = document.querySelector("#pagination");
@@ -76,7 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ================= LOAD PRODUCTS =================
     function loadProducts(page = 0, url = null) {
         currentPage = page;
-        const apiUrl = url || `/api/admin/products?page=${page}&size=${pageSize}`;
+        const apiUrl = url || `${contextPath}/api/admin/products?page=${page}&size=${pageSize}`;
         fetch(apiUrl)
             .then(res => res.json())
             .then(data => {
@@ -93,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
     searchBtn?.addEventListener("click", () => {
         const keyword = searchInput.value.trim();
         if (keyword)
-            loadProducts(0, `/api/admin/products/search/name?q=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
+            loadProducts(0, `${contextPath}/api/admin/products/search/name?q=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
         else loadProducts();
     });
 
@@ -101,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
     searchShopBtn?.addEventListener("click", () => {
         const shopName = searchShopInput.value.trim();
         if (shopName)
-            loadProducts(0, `/api/admin/products/search/shop?q=${encodeURIComponent(shopName)}&page=0&size=${pageSize}`);
+            loadProducts(0, `${contextPath}/api/admin/products/search/shop?q=${encodeURIComponent(shopName)}&page=0&size=${pageSize}`);
         else loadProducts();
     });
 
@@ -133,7 +143,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const icon = btn.querySelector("i");
             const newStatus = icon.classList.contains("bi-eye-slash-fill") ? 0 : 1;
 
-            fetch(`/api/admin/products/${id}/status?status=${newStatus}`, { method: "PUT" })
+            fetch(`${contextPath}/api/admin/products/${id}/status?status=${newStatus}`, { method: "PUT" })
                 .then(res => res.text())
                 .then(() => {
                     alert("✅ Cập nhật trạng thái thành công!");
@@ -144,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (action === "delete") {
             if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
-                fetch(`/api/admin/products/${id}`, { method: "DELETE" })
+                fetch(`${contextPath}/api/admin/products/${id}`, { method: "DELETE" })
                     .then(res => res.text())
                     .then(() => {
                         alert("✅ Xóa thành công!");
@@ -164,42 +174,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function formatCurrency(amount) {
         if (amount == null || isNaN(amount)) return "-";
-        // Định dạng theo VND
         return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
     }
 
     // ================= LOAD CATEGORY OPTIONS + SELECT2 =================
     function loadCategories() {
-        fetch("/api/admin/categories?page=0&size=100")
+        fetch(`${contextPath}/api/admin/categories?page=0&size=100`)
             .then(res => res.json())
             .then(data => {
                 const select = document.getElementById("categoryFilter");
                 select.innerHTML = `<option value="">— Filter by category —</option>`;
-
-                // ⚠️ Dữ liệu từ Spring Data có thể nằm trong .content
                 const categories = data.content || data;
                 categories.forEach(c => {
                     select.insertAdjacentHTML("beforeend",
                         `<option value="${c.categoryId}">${c.name}</option>`);
                 });
 
-                // ✅ Kích hoạt Select2 có thanh tìm kiếm
                 $(select).select2({
                     placeholder: "— Filter by category —",
                     allowClear: true,
                     width: '100%'
                 });
 
-                // ✅ GẮN SỰ KIỆN SAU KHI KÍCH HOẠT SELECT2
                 $(select).on("change", function () {
                     const cateId = $(this).val();
                     if (cateId)
-                        loadProducts(0, `/api/admin/products?categoryId=${cateId}&page=0&size=${pageSize}`);
+                        loadProducts(0, `${contextPath}/api/admin/products?categoryId=${cateId}&page=0&size=${pageSize}`);
                     else
                         loadProducts();
                 });
-
-
             })
             .catch(err => console.error("Lỗi tải danh mục:", err));
     }

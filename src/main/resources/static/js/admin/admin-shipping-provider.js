@@ -1,3 +1,13 @@
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
+
 // ================== ADMIN SHIPPING PROVIDER JS ==================
 document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector("#tblProviders tbody") || document.querySelector("#tblProviders");
@@ -26,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <td><span class="badge-fee">${Number(p.fee).toLocaleString()} ₫</span></td>
                     <td><span class="badge-days">${p.estimatedDays} ngày</span></td>
                     <td class="text-center">
-                        <a href="/admin/shipping-providers/edit?id=${p.shippingProviderId}" 
+                        <a href="${contextPath}/admin/shipping-providers/edit?id=${p.shippingProviderId}" 
                            class="btn btn-sm btn-outline-primary me-1" title="Sửa">
                            <i class="bi bi-pencil-square"></i>
                         </a>
@@ -58,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ============ LOAD PROVIDERS ============
     function loadProviders(page = 0, url = null) {
         currentPage = page;
-        const apiUrl = url || `/api/admin/shipping-providers?page=${page}&size=${pageSize}`;
+        const apiUrl = url || `${contextPath}/api/admin/shipping-providers?page=${page}&size=${pageSize}`;
         fetch(apiUrl)
             .then(res => res.json())
             .then(data => {
@@ -70,14 +80,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ============ PAGE: LIST ============
-    if (path === "/admin/shipping-providers") {
+    if (path.endsWith("/admin/shipping-providers")) {
         loadProviders();
 
         // --- Search ---
         searchBtn?.addEventListener("click", () => {
             const keyword = searchInput.value.trim();
             if (keyword)
-                loadProviders(0, `/api/admin/shipping-providers?keyword=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
+                loadProviders(0, `${contextPath}/api/admin/shipping-providers?keyword=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
             else loadProviders();
         });
 
@@ -97,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (confirm(`Are you sure you want to delete the shipping provider "${name}" (ID: ${id})?`)) {
                 try {
-                    const res = await fetch(`/api/admin/shipping-providers/${id}`, { method: "DELETE" });
+                    const res = await fetch(`${contextPath}/api/admin/shipping-providers/${id}`, { method: "DELETE" });
                     const msg = await res.text();
 
                     if (!res.ok) alert("❌ " + (msg || "Unable to delete!"));
@@ -115,7 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ============ PAGE: ADD ============
     const form = document.getElementById("providerForm");
-    const isEditPage = path === "/admin/shipping-providers/edit";
+    const isEditPage = path === `${contextPath}/admin/shipping-providers/edit`;
 
     if (form && !isEditPage) {
         const name = document.getElementById("name");
@@ -153,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             try {
-                const res = await fetch("/api/admin/shipping-providers", {
+                const res = await fetch(`${contextPath}/api/admin/shipping-providers`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)
@@ -162,7 +172,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!res.ok) alert("❌ " + (msg || "Failed to add shipping provider!"));
                 else {
                     alert("✅ " + ("Shipping provider added successfully!"));
-                    window.location.href = "/admin/shipping-providers";
+                    window.location.href = `${contextPath}/admin/shipping-providers`;
                 }
             } catch (err) {
                 console.error(err);
@@ -175,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // ============ PAGE: EDIT ============
 document.addEventListener("DOMContentLoaded", function () {
     const path = window.location.pathname;
-    if (path !== "/admin/shipping-providers/edit") return;
+    if (!path.endsWith("/admin/shipping-providers/edit")) return;
 
     const form = document.getElementById("providerForm");
     if (!form) return;
@@ -183,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const providerId = new URLSearchParams(window.location.search).get("id");
     if (!providerId) {
         alert("⚠️ Shipping provider ID not found!");
-        window.location.href = "/admin/shipping-providers";
+        window.location.href = `${contextPath}/admin/shipping-providers`;
         return;
     }
 
@@ -193,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ===== LOAD PROVIDER =====
     function loadProvider() {
-        fetch(`/api/admin/shipping-providers/${providerId}`)
+        fetch(`${contextPath}/api/admin/shipping-providers/${providerId}`)
             .then(res => {
                 if (!res.ok) throw new Error("Shipping provider not found");
                 return res.json();
@@ -206,7 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(err => {
                 alert("⚠️ Failed to load shipping provider data!");
                 console.error(err);
-                window.location.href = "/admin/shipping-providers";
+                window.location.href = `${contextPath}/admin/shipping-providers`;
             });
     }
     loadProvider();
@@ -241,7 +251,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         try {
-            const res = await fetch(`/api/admin/shipping-providers/${providerId}`, {
+            const res = await fetch(`${contextPath}/api/admin/shipping-providers/${providerId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
@@ -251,7 +261,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!res.ok) alert("❌ " + (msg || "Update failed!"));
             else {
                 alert("✅ " + ("Shipping provider updated successfully!"));
-                window.location.href = "/admin/shipping-providers";
+                window.location.href = `${contextPath}/admin/shipping-providers`;
             }
         } catch (err) {
             console.error(err);
