@@ -7,8 +7,217 @@
 <body>
 <div th:replace="admin/_layout :: layout(~{::content})">
     <div th:fragment="content">
-        <div class="page-wrap">
 
+        <style>
+            /* ===================== PRODUCT PAGE BEAUTIFY ===================== */
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(8px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .page-wrap {
+                max-width: 1300px;
+                margin: 0 auto;
+                animation: fadeIn .4s ease-in-out;
+            }
+
+            h3 {
+                font-weight: 700;
+                color: #111827;
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+            }
+
+            h3::before {
+                content: "\f291";
+                font-family: "Font Awesome 6 Free";
+                font-weight: 900;
+                color: #16a34a;
+            }
+
+            .breadcrumb a {
+                text-decoration: none;
+                color: #16a34a;
+                font-weight: 500;
+            }
+
+            /* Card Styling */
+            .card {
+                border-radius: 16px;
+                border: 1px solid #e5e7eb;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                transition: all .25s ease;
+            }
+
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+            }
+
+            /* Input & Selects */
+            .form-control, .form-select {
+                border-radius: 10px;
+                border: 1px solid #d1d5db;
+                transition: all .25s ease;
+            }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #16a34a;
+                box-shadow: 0 0 0 3px rgba(22,163,74,0.25);
+            }
+
+            /* Buttons */
+            .btn-primary {
+                background: linear-gradient(90deg, #16a34a, #22c55e);
+                border: none;
+                font-weight: 600;
+                border-radius: 10px;
+                transition: all .25s ease;
+            }
+
+            .btn-primary:hover {
+                background: linear-gradient(90deg, #15803d, #16a34a);
+                box-shadow: 0 0 12px rgba(22,163,74,0.4);
+            }
+
+            .btn-outline-secondary {
+                border-radius: 10px;
+                transition: all .2s ease;
+            }
+
+            .btn-outline-secondary:hover {
+                background: #f3f4f6;
+            }
+
+            /* Table */
+            .table thead th {
+                background: #f9fafb;
+                color: #475467;
+                font-weight: 600;
+            }
+
+            .table tbody tr:hover {
+                background: #f9fdfb;
+            }
+
+            .product-img {
+                width: 64px;
+                height: 64px;
+                object-fit: cover;
+                border-radius: 8px;
+            }
+
+            /* Status Badges */
+            .badge-active {
+                background: #dcfce7;
+                color: #166534;
+                font-weight: 600;
+                padding: 4px 10px;
+                border-radius: 8px;
+            }
+
+            .badge-draft {
+                background: #fef9c3;
+                color: #92400e;
+                font-weight: 600;
+                padding: 4px 10px;
+                border-radius: 8px;
+            }
+
+            .badge-deactive {
+                background: #fee2e2;
+                color: #991b1b;
+                font-weight: 600;
+                padding: 4px 10px;
+                border-radius: 8px;
+            }
+
+            .price-badge {
+                background: #e0f2ff;
+                color: #0369a1;
+                padding: 5px 12px;
+                border-radius: 10px;
+                font-weight: 600;
+            }
+
+            /* Pagination */
+            #pagination {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 6px;
+            }
+
+            #pagination .btn {
+                min-width: 38px;
+                height: 38px;
+                border-radius: 10px;
+                border: 1px solid #e5e7eb;
+                background: #fff;
+                color: #374151;
+                transition: all 0.25s ease;
+            }
+
+            #pagination .btn:hover {
+                background: #f0fdf4;
+                color: #16a34a;
+                border-color: #16a34a;
+                transform: translateY(-1px);
+            }
+
+            #pagination .btn.active {
+                background: linear-gradient(90deg, #16a34a, #22c55e);
+                color: #fff;
+                border-color: #16a34a;
+                box-shadow: 0 2px 8px rgba(22,163,74,0.25);
+            }
+            /* ======= Fix Select2 Look ======= */
+            .select2-container--default .select2-selection--single {
+                height: 44px !important;
+                border: 1px solid #d1d5db !important;
+                border-radius: 10px !important;
+                display: flex !important;
+                align-items: center !important;
+                padding: 0 0.75rem !important;
+                background-color: #fff !important;
+                transition: all 0.25s ease !important;
+                font-size: 0.95rem !important;
+            }
+
+            .select2-selection__rendered {
+                color: #374151 !important;
+                line-height: 42px !important;
+            }
+
+            .select2-selection__arrow {
+                top: 9px !important;
+                right: 10px !important;
+            }
+
+            .select2-container--default .select2-selection--single:focus,
+            .select2-container--default .select2-selection--single:hover {
+                border-color: #16a34a !important;
+                box-shadow: 0 0 0 3px rgba(22,163,74,0.25) !important;
+            }
+
+            .select2-dropdown {
+                border-radius: 10px !important;
+                border-color: #d1d5db !important;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.08) !important;
+            }
+
+            .select2-results__option--highlighted {
+                background: linear-gradient(90deg, #16a34a, #22c55e) !important;
+                color: #fff !important;
+            }
+
+            .select2-results__option {
+                padding: 8px 12px !important;
+            }
+        </style>
+
+        <div class="page-wrap">
             <!-- Breadcrumb -->
             <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb">
@@ -26,26 +235,29 @@
             <div class="card mb-3">
                 <div class="card-body">
                     <div class="row g-2 align-items-center">
-
                         <!-- Search Product -->
                         <div class="col-md-4">
                             <div class="input-group">
-                                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                                <input id="searchProduct" type="text" class="form-control" placeholder="Search products by name...">
-                                <button id="btnSearch" class="btn btn-primary">Search</button>
+                <span class="input-group-text bg-white border-end-0">
+                  <i class="bi bi-search text-muted"></i>
+                </span>
+                                <input id="searchProduct" type="text" class="form-control border-start-0" placeholder="Search products by name...">
+                                <button id="btnSearch" class="btn btn-primary"><i class="bi bi-search"></i></button>
                             </div>
                         </div>
 
                         <!-- Search Shop -->
                         <div class="col-md-4">
                             <div class="input-group">
-                                <span class="input-group-text bg-white"><i class="bi bi-shop"></i></span>
-                                <input id="searchShop" type="text" class="form-control" placeholder="Search by shop name...">
-                                <button id="btnSearchShop" class="btn btn-secondary">Search Shop</button>
+                <span class="input-group-text bg-white border-end-0">
+                  <i class="bi bi-shop text-muted"></i>
+                </span>
+                                <input id="searchShop" type="text" class="form-control border-start-0" placeholder="Search by shop name...">
+                                <button id="btnSearchShop" class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
                             </div>
                         </div>
 
-                        <!-- ✅ Category Filter có tìm kiếm -->
+                        <!-- Category Filter -->
                         <div class="col-md-2">
                             <select id="categoryFilter" class="form-select">
                                 <option value="">— Filter by category —</option>
@@ -74,21 +286,18 @@
                         <table class="table align-middle">
                             <thead>
                             <tr>
-                                <th><input type="checkbox"></th>
-                                <th>Image</th>
+                                <th class="text-center">Image</th>
                                 <th>Product Name</th>
                                 <th>Category</th>
                                 <th>Shop</th>
                                 <th>Status</th>
                                 <th class="text-center">Price</th>
                                 <th class="text-center">Stock</th>
-                                <th>Create at</th>
+                                <th>Created at</th>
                                 <th class="text-center">Actions</th>
                             </tr>
                             </thead>
-                            <tbody id="tblProducts">
-                            <!-- Render by JS -->
-                            </tbody>
+                            <tbody id="tblProducts"><!-- Render by JS --></tbody>
                         </table>
                     </div>
 
@@ -98,7 +307,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <!-- Toast -->
@@ -113,18 +321,17 @@
 
     </div>
 </div>
-<!-- ✅ Thư viện Select2 -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<!-- JS chính -->
-<script th:src="@{/js/admin/admin-products.js}"></script>
 
-<!-- ✅ Kích hoạt Select2 -->
+<!-- JS -->
+<script th:src="@{/js/admin/admin-products.js}"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const categorySelect = document.querySelector("#categoryFilter");
-
         if (categorySelect) {
             $(categorySelect).select2({
                 placeholder: "— Filter by category —",
@@ -136,53 +343,4 @@
 </script>
 
 </body>
-<style>
-    .page-wrap {
-        max-width: 1300px;
-        margin: 0 auto;
-    }
-    .table thead th {
-        font-weight: 600;
-        color: #475467;
-        background: #f8fafc;
-    }
-    .badge-active {
-        background: #dcfce7;
-        color: #166534;
-        padding: 3px 8px;
-        border-radius: 5px;
-        font-size: .8rem;
-    }
-    .badge-draft {
-        background: #fef9c3;
-        color: #92400e;
-        padding: 3px 8px;
-        border-radius: 5px;
-        font-size: .8rem;
-    }
-    .badge-deactive {
-        background: #fee2e2;
-        color: #991b1b;
-        padding: 3px 8px;
-        border-radius: 5px;
-        font-size: .8rem;
-    }
-    .product-img {
-        width: 64px !important;
-        height: 64px !important;
-        object-fit: cover;
-        display: block;
-    }
-    .price-badge {
-        background-color: #e0f2ff;
-        color: #007bff;
-        padding: 4px 10px;
-        border-radius: 8px;
-        font-weight: 500;
-        font-size: 0.9rem;
-        display: inline-block;
-        min-width: 80px;
-        text-align: center;
-    }
-</style>
 </html>

@@ -32,7 +32,6 @@ document.addEventListener("DOMContentLoaded", function () {
         products.forEach(p => {
             tbody.insertAdjacentHTML("beforeend", `
         <tr>
-          <td><input type="checkbox"></td>
           <td>
             <img src="${p.media?.[0]?.url || '/assets/images/sample/snack.jpg'}"
                  style="width:100px; height:100px; object-fit:cover; border-radius:6px; display:block;">
@@ -146,18 +145,18 @@ document.addEventListener("DOMContentLoaded", function () {
             fetch(`${contextPath}/api/admin/products/${id}/status?status=${newStatus}`, { method: "PUT" })
                 .then(res => res.text())
                 .then(() => {
-                    alert("✅ Cập nhật trạng thái thành công!");
+                    alert("✅ Status updated successfully!");
                     loadProducts(currentPage);
                 })
                 .catch(err => console.error(err));
         }
 
         if (action === "delete") {
-            if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
+            if (confirm("Are you sure you want to delete this product?")) {
                 fetch(`${contextPath}/api/admin/products/${id}`, { method: "DELETE" })
                     .then(res => res.text())
                     .then(() => {
-                        alert("✅ Xóa thành công!");
+                        alert("✅ Deleted successfully!");
                         loadProducts(currentPage);
                     })
                     .catch(err => console.error(err));
