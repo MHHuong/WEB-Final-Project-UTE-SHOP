@@ -3,20 +3,176 @@
 <head th:replace="admin/_layout :: head(~{::title})">
     <title>UTESHOP • Promotions</title>
 </head>
+
 <body>
-
 <div th:replace="admin/_layout :: layout(~{::content})">
-
     <div th:fragment="content">
+
         <style>
-            /* Custom style for Promotion page */
-            .page-wrap {max-width: 1200px; margin: 0 auto;}
-            .card {border-radius: 14px;}
-            .table thead th {font-weight: 600; color: #475467; background: #f8fafc;}
-            .status-badge {font-size: .8rem; border-radius: 6px; padding: 3px 8px;}
-            .status-ongoing {background: #ecfdf3; color: #047857;}
-            .status-upcoming {background: #eff6ff; color: #1d4ed8;}
-            .status-expired {background: #fef2f2; color: #b91c1c;}
+            /* ===================== PROMOTIONS BEAUTIFY ===================== */
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(8px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .page-wrap {
+                max-width: 1200px;
+                margin: 0 auto;
+                animation: fadeIn .4s ease-in-out;
+            }
+
+            h3 {
+                font-weight: 700;
+                color: #111827;
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+            }
+
+            h3::before {
+                content: "\f0a1"; /* megaphone icon */
+                font-family: "Font Awesome 6 Free";
+                font-weight: 900;
+                color: #16a34a;
+            }
+
+            .breadcrumb a {
+                text-decoration: none;
+                color: #16a34a;
+                font-weight: 500;
+            }
+
+            /* Card */
+            .card {
+                border-radius: 16px;
+                border: 1px solid #e5e7eb;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                transition: all .25s ease;
+            }
+
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+            }
+
+            /* Buttons */
+            .btn-primary {
+                background: linear-gradient(90deg, #16a34a, #22c55e);
+                border: none;
+                border-radius: 10px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            }
+
+            .btn-primary:hover {
+                background: linear-gradient(90deg, #15803d, #16a34a);
+                box-shadow: 0 0 12px rgba(22,163,74,0.4);
+            }
+
+            .btn-outline-secondary {
+                border-radius: 10px;
+                transition: all .2s ease;
+            }
+
+            .btn-outline-secondary:hover {
+                background: #f3f4f6;
+            }
+
+            /* Table */
+            .table thead th {
+                font-weight: 600;
+                color: #475467;
+                background: #f9fafb;
+                border-bottom: 2px solid #e5e7eb;
+            }
+
+            .table tbody tr:hover {
+                background: #f9fdfb;
+                transition: all .15s ease-in-out;
+            }
+
+            .table td {
+                vertical-align: middle;
+            }
+
+            /* Status Badges */
+            .status-badge {
+                font-size: .8rem;
+                border-radius: 8px;
+                padding: 5px 10px;
+                font-weight: 600;
+            }
+
+            .status-ongoing {
+                background: #dcfce7;
+                color: #166534;
+            }
+
+            .status-upcoming {
+                background: #e0f2fe;
+                color: #1d4ed8;
+            }
+
+            .status-expired {
+                background: #fee2e2;
+                color: #b91c1c;
+            }
+
+            /* Pagination */
+            #pagination {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 6px;
+            }
+
+            #pagination .btn {
+                min-width: 38px;
+                height: 38px;
+                border-radius: 10px;
+                border: 1px solid #e5e7eb;
+                background: #fff;
+                color: #374151;
+                transition: all 0.25s ease;
+            }
+
+            #pagination .btn:hover {
+                background: #f0fdf4;
+                color: #16a34a;
+                border-color: #16a34a;
+                transform: translateY(-1px);
+            }
+
+            #pagination .btn.active {
+                background: linear-gradient(90deg, #16a34a, #22c55e);
+                color: #fff;
+                border-color: #16a34a;
+                box-shadow: 0 2px 8px rgba(22,163,74,0.25);
+            }
+
+            /* Modal */
+            .modal-content {
+                border-radius: 12px;
+                border: none;
+                box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            }
+
+            .modal-header {
+                background: #fef2f2;
+                color: #b91c1c;
+                border-bottom: 1px solid #fca5a5;
+                border-top-left-radius: 12px;
+                border-top-right-radius: 12px;
+            }
+
+            .toast {
+                border-radius: 10px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                animation: fadeIn .4s ease;
+            }
+            .table td .btn {
+                margin: 0 3px; /* tạo khoảng cách giữa 2 nút */
+            }
         </style>
 
         <div class="page-wrap">
@@ -31,25 +187,27 @@
 
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <h3 class="m-0">Promotion Management</h3>
-                <div class="text-muted">System-wide promotion control</div>
+                <a href="/UTE_SHOP/admin/promotions/add" class="btn btn-primary shadow-sm">
+                    <i class="bi bi-plus-circle"></i> Add Promotion
+                </a>
             </div>
-
-            <a href="/UTE_SHOP/admin/promotions/add" class="btn btn-primary mb-3">
-                <i class="bi bi-plus-circle"></i> Add Promotion
-            </a>
 
             <!-- Toolbar -->
             <div class="card mb-3">
                 <div class="card-body">
                     <div class="row g-2 align-items-center">
-                        <div class="col-12 col-md-6">
+                        <div class="col-md-6">
                             <div class="input-group">
-                                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                                <input id="searchKeyword" type="text" class="form-control" placeholder="Search by title...">
-                                <button id="btnSearch" class="btn btn-primary">Search</button>
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="bi bi-search text-muted"></i>
+                                </span>
+                                <input id="searchKeyword" type="text" class="form-control border-start-0" placeholder="Search by title...">
+                                <button id="btnSearch" class="btn btn-primary">
+                                    <i class="bi bi-search"></i>
+                                </button>
                             </div>
                         </div>
-                        <div class="col-6 col-md-3">
+                        <div class="col-md-3 text-md-end">
                             <button id="btnReload" class="btn btn-outline-secondary w-100">
                                 <i class="bi bi-arrow-clockwise"></i> Reload
                             </button>
@@ -72,14 +230,15 @@
                                 <th>Start Date</th>
                                 <th>End Date</th>
                                 <th>Applied Category</th>
-                                <th style="width:120px">Status</th>
-                                <th style="width:150px" class="text-center">Actions</th>
+                                <th>Status</th>
+                                <th style="width: 170px" class="text-center">Actions</th>
                             </tr>
                             </thead>
                             <tbody><!-- Rendered by JS --></tbody>
                         </table>
                     </div>
 
+                    <!-- Pagination -->
                     <div class="d-flex justify-content-center mt-3">
                         <div id="pagination" class="btn-group"></div>
                     </div>
@@ -90,14 +249,13 @@
         <!-- Delete Modal -->
         <div class="modal fade" id="confirmDel" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
+                <div class="modal-content border-0 shadow">
                     <div class="modal-header">
-                        <h5 class="modal-title">Confirm Deletion</h5>
+                        <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Deletion</h5>
                         <button class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        Are you sure you want to delete the promotion
-                        <b id="delTitle">...</b> (ID: <span id="delId"></span>)?
+                        Are you sure you want to delete promotion <b id="delTitle">...</b> (ID: <span id="delId"></span>)?
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -111,16 +269,16 @@
         <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
             <div id="toast" class="toast align-items-center text-bg-success border-0" role="alert">
                 <div class="d-flex">
-                    <div class="toast-body" id="toastMsg">Success!</div>
+                    <div class="toast-body fw-semibold" id="toastMsg">Success!</div>
                     <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
                 </div>
             </div>
         </div>
 
     </div>
-
 </div>
 
+<!-- JS -->
 <script th:src="@{/js/admin/admin-promotions.js}"></script>
 </body>
 </html>

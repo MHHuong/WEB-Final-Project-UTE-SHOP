@@ -1,78 +1,124 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="admin/_layout :: head(~{::title})">
-    <title>UTESHOP • Add Coupon</title>
+    <title>Edit Category</title>
 </head>
+
 <body>
 <div th:replace="admin/_layout :: layout(~{::content})">
-    <div th:fragment="content">
+    <div th:fragment="content" class="container mt-4">
 
         <style>
-            .page-wrap {max-width: 800px; margin: 0 auto;}
-            .card {box-shadow: 0 2px 8px rgba(0,0,0,0.05);}
+            /* ===================== EDIT CATEGORY BEAUTIFY ===================== */
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            h3 {
+                font-weight: 700;
+                color: #111827;
+                text-align: center;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: .5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            h3::before {
+                content: "\f044"; /* icon pencil-edit */
+                font-family: "Font Awesome 6 Free";
+                font-weight: 900;
+                color: #16a34a;
+            }
+
+            form.card {
+                max-width: 620px;
+                margin: 0 auto;
+                border: 1px solid #e5e7eb;
+                border-radius: 16px;
+                box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+                background: #fff;
+                padding: 2rem;
+                animation: fadeInUp 0.4s ease;
+            }
+
+            .form-label {
+                font-weight: 600;
+                color: #374151;
+            }
+
+            .form-control {
+                border-radius: 10px;
+                border: 1px solid #d1d5db;
+                padding: .55rem .75rem;
+                transition: all 0.25s ease;
+            }
+
+            .form-control:focus {
+                border-color: #16a34a;
+                box-shadow: 0 0 0 3px rgba(22,163,74,0.25);
+            }
+
+            .btn-success {
+                background: linear-gradient(90deg, #16a34a, #22c55e);
+                border: none;
+                border-radius: 10px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            }
+
+            .btn-success:hover {
+                background: linear-gradient(90deg, #15803d, #16a34a);
+                box-shadow: 0 0 12px rgba(22,163,74,0.4);
+            }
+
+            .btn-secondary {
+                border-radius: 10px;
+                background: #f3f4f6;
+                color: #374151;
+                border: 1px solid #d1d5db;
+            }
+
+            .btn-secondary:hover {
+                background: #e5e7eb;
+            }
+
+            .text-end {
+                margin-top: 1.5rem;
+            }
+
+            .container.mt-4 {
+                animation: fadeInUp 0.4s ease-in-out;
+            }
         </style>
 
-        <div class="page-wrap">
-            <!-- Breadcrumb -->
-            <nav aria-label="breadcrumb" class="mb-3">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/UTE_SHOP/admin/dashboard">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="/UTE_SHOP/admin/coupons">App Coupons</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Add Coupon</li>
-                </ol>
-            </nav>
+        <h3>Edit Category</h3>
 
-            <h3 class="mb-3">Add New App Coupon</h3>
-
-            <div class="card">
-                <div class="card-body">
-                    <form id="couponForm">
-                        <div class="mb-3">
-                            <label class="form-label">Code <span class="text-danger">*</span></label>
-                            <input type="text" id="code" class="form-control" placeholder="VD: APP10, SALE50" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Discount Type</label>
-                            <select id="discountType" class="form-select">
-                                <option value="PERCENT">Percent (%)</option>
-                                <option value="AMOUNT">Amount (VND)</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Value <span class="text-danger">*</span></label>
-                            <input type="number" id="value" class="form-control" placeholder="Nhập giá trị giảm" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Minimum Order Amount</label>
-                            <input type="number" id="minOrder" class="form-control" placeholder="Giá trị đơn hàng tối thiểu" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Expired At</label>
-                            <input type="datetime-local" id="expiredAt" class="form-control" required>
-                        </div>
-
-                        <div class="d-flex justify-content-between mt-4">
-                            <a href="/UTE_SHOP/admin/coupons" class="btn btn-outline-secondary px-4">
-                                <i class="bi bi-arrow-left"></i> Back
-                            </a>
-                            <!-- ✅ TYPE BUTTON để không bị reload -->
-                            <button id="btnSaveCoupon" type="button" class="btn btn-primary px-4">
-                                <i class="bi bi-save"></i> Save Coupon
-                            </button>
-                        </div>
-                    </form>
-                </div>
+        <form id="categoryForm" class="card">
+            <div class="mb-3">
+                <label for="categoryName" class="form-label">Category Name</label>
+                <input type="text" id="categoryName" class="form-control" placeholder="Enter category name..." required>
             </div>
-        </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="bi bi-save"></i> Save Changes
+                </button>
+                <a href="/UTE_SHOP/admin/categories" class="btn btn-secondary px-4">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+            </div>
+        </form>
 
     </div>
 </div>
 
 <!-- JS -->
-<script th:src="@{/js/admin/admin-coupons.js}"></script>
+<script th:inline="javascript">
+    const categoryId = /*[[${id}]]*/ null;
+</script>
+<script th:src="@{/js/admin/admin-categories.js}"></script>
 </body>
 </html>

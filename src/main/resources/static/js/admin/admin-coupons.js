@@ -107,11 +107,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const msg = await res.text();
 
             if (res.ok) {
-                alert("✅ Thêm coupon thành công!");
+                alert("✅ Coupon added successfully!");
                 couponForm?.reset();
                 window.location.href = `${contextPath}/admin/coupons`;
             } else {
-                alert("❌ " + (msg || "Không thể lưu coupon!"));
+                alert("❌ " + (msg || "Unable to save coupon!"));
             }
         } catch (err) {
             console.error("Fetch error:", err);
@@ -127,16 +127,16 @@ document.addEventListener("DOMContentLoaded", function () {
         const id = btn.dataset.id;
         const action = btn.dataset.action;
 
-        if (action === "delete" && confirm("Bạn có chắc chắn muốn xóa coupon này?")) {
+        if (action === "delete" && confirm("Are you sure you want to delete this coupon?")) {
             try {
                 const res = await fetch(`${contextPath}/api/admin/coupons/${id}`, { method: "DELETE" });
                 const msg = await res.text();
 
                 if (res.ok) {
-                    alert("✅ " + (msg || "Xóa thành công!"));
+                    alert("✅ " + (msg || "Deleted successfully!"));
                     loadCouponsPage(currentPage);
                 } else {
-                    alert("❌ " + (msg || "Không thể xóa coupon này!"));
+                    alert("❌ " + (msg || "This coupon cannot be removed!"));
                 }
             } catch (err) {
                 console.error(err);

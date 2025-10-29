@@ -160,13 +160,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // ----- Delete User -----
         if (action === "delete") {
-            if (confirm("Bạn có chắc chắn muốn xóa user này?")) {
+            if (confirm("Are you sure you want to delete this user?")) {
                 fetch(`${contextPath}/api/admin/users/${id}`, { method: "DELETE" })
                     .then(async res => {
                         const msg = await res.text();
-                        if (!res.ok) alert("❌ " + (msg || "Xóa thất bại!"));
+                        if (!res.ok) alert("❌ " + (msg || "Delete failed!"));
                         else {
-                            alert("✅ Xóa thành công!");
+                            alert("✅ Deleted successfully!");
                             loadUsers(currentPage);
                         }
                     })
@@ -251,7 +251,7 @@ document.addEventListener("DOMContentLoaded", function () {
             (!id || u.userId != id)
         );
         if (existed) {
-            alert("⚠️ Email này đã tồn tại trong hệ thống!");
+            alert("⚠️ This email already exists in the system!");
             return;
         }
 
@@ -266,7 +266,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const msg = await res.text();
         if (res.ok) {
-            alert("✅ Lưu thành công!");
+            alert("✅ Save successfully!");
             window.location.href = `${contextPath}/admin/customers`;
         } else {
             alert("❌ Lỗi: " + (msg || "Không thể lưu dữ liệu!"));

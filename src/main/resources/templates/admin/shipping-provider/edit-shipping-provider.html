@@ -3,19 +3,108 @@
 <head th:replace="admin/_layout :: head(~{::title})">
   <title>UTESHOP • Edit Shipping Provider</title>
 </head>
+
 <body>
-
 <div th:replace="admin/_layout :: layout(~{::content})">
+  <div th:fragment="content" class="container mt-4">
 
-  <div th:fragment="content">
     <style>
-      .page-wrap {max-width: 800px; margin: 0 auto;}
-      .card {border-radius: 14px;}
-      label {font-weight: 500; margin-bottom: 4px;}
+      /* ===================== EDIT SHIPPING PROVIDER BEAUTIFY ===================== */
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .page-wrap {
+        max-width: 800px;
+        margin: 0 auto;
+        animation: fadeInUp 0.4s ease-in-out;
+      }
+
+      h3 {
+        font-weight: 700;
+        color: #111827;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+      }
+
+      h3::before {
+        content: "\f044"; /* ✏️ edit icon */
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        color: #16a34a;
+      }
+
+      .breadcrumb a {
+        text-decoration: none;
+        color: #16a34a;
+        font-weight: 500;
+      }
+
+      .breadcrumb-item + .breadcrumb-item::before {
+        color: #9ca3af;
+      }
+
+      /* Card */
+      .card {
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+        background: #fff;
+        animation: fadeInUp 0.5s ease;
+      }
+
+      .form-label {
+        font-weight: 600;
+        color: #374151;
+      }
+
+      .form-control {
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        padding: .55rem .75rem;
+        transition: all 0.25s ease;
+      }
+
+      .form-control:focus {
+        border-color: #16a34a;
+        box-shadow: 0 0 0 3px rgba(22,163,74,0.25);
+      }
+
+      /* Buttons */
+      .btn-primary {
+        background: linear-gradient(90deg, #16a34a, #22c55e);
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        background: linear-gradient(90deg, #15803d, #16a34a);
+        box-shadow: 0 0 12px rgba(22,163,74,0.4);
+      }
+
+      .btn-outline-secondary {
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        color: #374151;
+      }
+
+      .btn-outline-secondary:hover {
+        background: #f3f4f6;
+      }
+
+      /* Toast */
+      #toast {
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        animation: fadeInUp .4s ease;
+      }
     </style>
 
     <div class="page-wrap">
-
       <!-- Breadcrumb -->
       <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
@@ -25,13 +114,12 @@
         </ol>
       </nav>
 
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h3 class="m-0">Edit Shipping Provider</h3>
-        <div class="text-muted">Update delivery partner information</div>
-      </div>
+      <h3 class="mb-3">Edit Shipping Provider</h3>
 
       <!-- Form -->
       <form id="providerForm" class="card shadow-sm p-4">
+        <input type="hidden" id="providerId">
+
         <div class="mb-3">
           <label for="name" class="form-label">Provider Name <span class="text-danger">*</span></label>
           <input type="text" id="name" class="form-control" placeholder="Enter provider name" required>
@@ -47,11 +135,11 @@
           <input type="number" id="estimatedDays" class="form-control" placeholder="e.g. 2" min="1" required>
         </div>
 
-        <div class="d-flex justify-content-between">
-          <a href="/UTE_SHOP/admin/shipping-providers" class="btn btn-outline-secondary">
+        <div class="d-flex justify-content-between mt-4">
+          <a href="/UTE_SHOP/admin/shipping-providers" class="btn btn-outline-secondary px-4">
             <i class="bi bi-arrow-left"></i> Back
           </a>
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" class="btn btn-primary px-4">
             <i class="bi bi-save"></i> Update Provider
           </button>
         </div>
@@ -62,14 +150,13 @@
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
       <div id="toast" class="toast align-items-center text-bg-success border-0" role="alert">
         <div class="d-flex">
-          <div class="toast-body" id="toastMsg">Success!</div>
+          <div class="toast-body fw-semibold" id="toastMsg">Provider updated successfully!</div>
           <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
         </div>
       </div>
     </div>
 
   </div>
-
 </div>
 
 <script th:src="@{/js/admin/admin-shipping-provider.js}"></script>

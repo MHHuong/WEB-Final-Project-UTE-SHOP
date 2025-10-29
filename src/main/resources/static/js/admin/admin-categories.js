@@ -32,7 +32,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             tbody.insertAdjacentHTML("beforeend", `
         <tr>
-          <td><input type="checkbox"></td>
           <td>${c.name}</td>
           <td class="text-center">${productCount}</td>
           <td class="text-center">
@@ -106,14 +105,14 @@ document.addEventListener("DOMContentLoaded", function () {
             const id = btn.dataset.id;
             const action = btn.dataset.action;
 
-            if (action === "delete" && confirm("Bạn có chắc chắn muốn xóa danh mục này?")) {
+            if (action === "delete" && confirm("Are you sure you want to delete this category?")) {
                 fetch(`${contextPath}/api/admin/categories/${id}`, { method: "DELETE" })
                     .then(async res => {
                         const msg = await res.text();
                         if (!res.ok) {
-                            alert("❌ " + (msg || "Không thể xóa danh mục này vì có sản phẩm liên kết!"));
+                            alert("❌ " + (msg || "This category cannot be deleted because it contains affiliated products!"));
                         } else {
-                            alert("✅ " + (msg || "Xóa thành công!"));
+                            alert("✅ " + (msg || "Deleted successfully!"));
                             loadCategories(currentPage);
                         }
                     })
@@ -159,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const data = { name: nameInput.value.trim() };
         if (!data.name) {
-            alert("Vui lòng nhập tên danh mục!");
+            alert("Please enter a category name!");
             return;
         }
 
@@ -173,11 +172,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (res.ok) {
-            alert("✅ Lưu danh mục thành công!");
+            alert("✅ Category saved successfully!");
             window.location.href = `${contextPath}/admin/categories`;
         } else {
             const msg = await res.text();
-            alert("❌ Lỗi: " + (msg || "Không thể lưu danh mục!"));
+            alert("❌ Error: " + (msg || "Unable to save category!"));
         }
     });
 });

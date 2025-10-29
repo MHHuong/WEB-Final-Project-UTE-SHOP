@@ -51,9 +51,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void delete(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục!"));
+                .orElseThrow(() -> new RuntimeException("Category not found!"));
         if (!category.getProducts().isEmpty()) {
-            throw new RuntimeException("Không thể xóa danh mục này vì đang chứa sản phẩm!");
+            throw new RuntimeException("This category cannot be deleted because it contains products!");
         }
         categoryRepository.delete(category);
     }
