@@ -49,4 +49,14 @@ public class ShipperPageController {
     public String returnDeliverPage() {
         return "shipper/order-return-deliver";
     }
+
+    @GetMapping("/shipper/history/return/pickup")
+    public String returnPickupHistoryPage() {
+        return "shipper/history-return-pickup";
+    }
+
+    @GetMapping("/shipper/history/return/deliver")
+    public String returnDeliverHistoryPage() {
+        return "shipper/history-return-deliver";
+    }
 }
