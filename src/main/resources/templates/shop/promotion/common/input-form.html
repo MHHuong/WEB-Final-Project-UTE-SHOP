@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="promotionForm(mode)">
+    <div class="row">
+        <div class="col-lg-8 col-12">
+            <div class="card mb-6 card-lg">
+                <div class="card-body p-6">
+                    <h4 class="mb-4 h5">Promotion Information</h4>
+                    <div class="row">
+                        <div class="mb-3 col-lg-6">
+                            <label class="form-label">Title</label>
+                            <input id="promoTitle" type="text" class="form-control" placeholder="e.g. Black Friday 20%"
+                                   required/>
+                        </div>
+
+                        <div class="mb-3 col-lg-6">
+                            <label class="form-label">Apply Category</label>
+                            <select class="form-select" id="promoCategory">
+                                <option value="">All categories</option>
+                            </select>
+                            <!-- có thể tái dùng combobox loader riêng nếu bạn muốn -->
+                        </div>
+
+                        <div class="mb-3 col-lg-12">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="promoDescription" rows="4"
+                                      placeholder="Optional short description..."></textarea>
+                        </div>
+
+                        <div class="mb-3 col-lg-4">
+                            <label class="form-label">Discount (%)</label>
+                            <input id="promoDiscount" type="number" min="0" max="100" step="0.01"
+                                   class="form-control" placeholder="0 - 100" required/>
+                        </div>
+                        <div class="mb-3 col-lg-4">
+                            <label class="form-label">Start date</label>
+                            <input id="promoStart" type="date" class="form-control" required/>
+                        </div>
+                        <div class="mb-3 col-lg-4">
+                            <label class="form-label">End date</label>
+                            <input id="promoEnd" type="date" class="form-control" required/>
+                        </div>
+
+                        <div class="col-12">
+                            <div id="promoAlert" class="alert d-none" role="alert"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột phải: nút submit theo mode giống product -->
+        <div class="col-lg-4 col-12">
+            <div class="card mb-6 card-lg">
+                <div class="card-body p-6">
+                    <h4 class="mb-4 h5">Actions</h4>
+                    <div class="d-grid">
+                        <button id="btnSubmit" class="btn btn-primary"
+                                th:text="${mode} == 'edit' ? 'Save Changes' : 'Create Promotion'"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

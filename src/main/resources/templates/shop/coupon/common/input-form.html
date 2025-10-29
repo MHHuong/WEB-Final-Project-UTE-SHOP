@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="form">
+    <div class="row">
+        <div class="col-12 col-lg-8">
+            <div class="card">
+                <div class="card-header border-bottom-0">
+                    <h5 class="mb-0">Coupon Information</h5>
+                </div>
+                <div class="card-body">
+                    <form id="couponForm" class="needs-validation" novalidate>
+                        <!-- CODE -->
+                        <div class="mb-3">
+                            <label for="code" class="form-label fw-semibold">Code <span
+                                    class="text-danger">*</span></label>
+                            <input id="code" name="code" type="text" class="form-control" placeholder="e.g. HELLO10"
+                                   required/>
+                            <div class="form-text">Not empty and not exist.</div>
+                        </div>
+
+                        <!-- TYPE + VALUE -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="discountType" class="form-label fw-semibold">Type <span
+                                        class="text-danger">*</span></label>
+                                <select id="discountType" name="discountType" class="form-select" required>
+                                    <option value="PERCENT">PERCENT</option>
+                                    <option value="AMOUNT">AMOUNT</option>
+                                </select>
+                                <div class="form-text">PERCENT: 1–100 &nbsp;•&nbsp; AMOUNT: &gt; 0</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="value" class="form-label fw-semibold">Value <span
+                                        class="text-danger">*</span></label>
+                                <input id="value" name="value" type="number" class="form-control" step="1" min="1"
+                                       placeholder="VD: 10 or 20000" required/>
+                                <div class="form-text">If PERCENT → 1–100. If AMOUNT → &gt; 0.</div>
+                            </div>
+                        </div>
+
+                        <!-- MIN ORDER + EXPIRED -->
+                        <div class="row g-3 mt-1">
+                            <div class="col-md-6">
+                                <label for="minOrderAmount" class="form-label fw-semibold">Min order</label>
+                                <input id="minOrderAmount" name="minOrderAmount" type="number" class="form-control"
+                                       step="1000" min="0" placeholder="0"/>
+                                <div class="form-text">Not less than 0.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="expiredAt" class="form-label fw-semibold">Expired date <span
+                                        class="text-danger">*</span></label>
+                                <input id="expiredAt" name="expiredAt" type="datetime-local" class="form-control"
+                                       required/>
+                                <div class="form-text">After today.</div>
+                            </div>
+                        </div>
+
+                        <!-- ACTIONS -->
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="feather-icon icon-save me-1"></i> Save
+                            </button>
+                            <a href="/UTE_SHOP/shop/coupon/coupons" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIDE NOTES giống promotion -->
+        <div class="col-12 col-lg-4">
+            <div class="card">
+                <div class="card-header border-bottom-0">
+                    <h6 class="mb-0">Conditions</h6>
+                </div>
+                <div class="card-body small">
+                    <ol class="ps-3 mb-0">
+                        <li class="mb-2"><b>Code</b>: Not empty, not exist.</li>
+                        <li class="mb-2"><b>Value</b>:
+                            <ul class="mb-0">
+                                <li>PERCENT: 1–100</li>
+                                <li>AMOUNT: &gt; 0</li>
+                            </ul>
+                        </li>
+                        <li class="mb-2"><b>expiredAt</b>: Not today.</li>
+                        <li class="mb-0"><b>minOrderAmount</b>: ≥ 0.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>

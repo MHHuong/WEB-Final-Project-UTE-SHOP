@@ -1,0 +1,451 @@
+<div th:fragment="shop-cart" class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+    <div class="offcanvas-header border-bottom">
+        <div class="text-start">
+            <h5 id="offcanvasRightLabel" class="mb-0 fs-4">Shop Cart</h5>
+            <small>User shop cart</small>
+        </div>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div>
+            <!-- alert -->
+            <ul class="list-group list-group-flush">
+                <!-- Cart items will be dynamically inserted here -->
+            </ul>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation" class="mt-3" id="pagination-container" style="display: none;">
+                <ul class="pagination pagination-sm justify-content-center">
+                    <!-- Pagination buttons will be dynamically inserted here -->
+                </ul>
+            </nav>
+
+            <!-- btn -->
+            <div class="d-flex justify-content-between mt-4">
+                <a href="#" class="btn btn-primary" onclick="{handleContinue()}">Tiếp tục mua sắm</a>
+                <a href="#" class="btn btn-dark" onclick="{handleNavigation()}">Xem chi tiết giỏ hàng</a>
+            </div>
+        </div>
+    </div>
+
+    <script  type="module">
+        import cartService from "/js/services/api/cartService.js";
+        import { showSuccessToast, showErrorToast, showWarningToast, showInfoToast } from "/js/utils/toastUtils.js";
+        import cartBadgeUtils from "/js/utils/cartBadgeUtils.js";
+
+        let cartItems = []
+        let currentPage = 1;
+        let totalPages = 1;
+        let totalElements = 0;
+        const itemsPerPage = 5;
+        const USER_ID = 1;
+
+        async function loadCartItems() {
+            const result = await cartService.getCartItemByUserIdPaginated(USER_ID, currentPage, itemsPerPage);
+            if (result.status === 'Success') {
+                console.log(result.data);
+                const pageData = result.data;
+                cartItems = pageData.content;
+                currentPage = pageData.currentPage;
+                totalPages = pageData.totalPages;
+                totalElements = pageData.totalElements;
+            } else {
+                console.log(result.message);
+                cartItems = [];
+                totalPages = 1;
+                totalElements = 0;
+            }
+        }
+
+        function formatCurrency(amount) {
+            if (isNaN(amount)) return "0 ₫";
+            return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+        }
+
+        // Function to render pagination
+        function renderPagination() {
+            const paginationContainer = document.getElementById('pagination-container');
+            const paginationList = paginationContainer.querySelector('.pagination');
+
+            // Hide pagination if only 1 page or no items
+            if (totalPages <= 1) {
+                paginationContainer.style.display = 'none';
+                return;
+            }
+
+            paginationContainer.style.display = 'block';
+            paginationList.innerHTML = '';
+
+            // Previous button
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<a class="page-link" href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>`;
+            if (currentPage > 1) {
+                prevLi.querySelector('a').addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    currentPage--;
+                    await loadCartItems();
+                    renderCartItems();
+                    renderPagination();
+                });
+            }
+            paginationList.appendChild(prevLi);
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageLi = document.createElement('li');
+                pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                pageLi.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                pageLi.querySelector('a').addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    currentPage = i;
+                    await loadCartItems();
+                    renderCartItems();
+                    renderPagination();
+                });
+                paginationList.appendChild(pageLi);
+            }
+
+            // Next button
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<a class="page-link" href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>`;
+            if (currentPage < totalPages) {
+                nextLi.querySelector('a').addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    currentPage++;
+                    await loadCartItems();
+                    renderCartItems();
+                    renderPagination();
+                });
+            }
+            paginationList.appendChild(nextLi);
+        }
+
+        // Function to attach input spinner events
+        function attachInputSpinnerEvents() {
+            document.querySelectorAll('.input-spinner').forEach(function (spinner) {
+                const input = spinner.querySelector('.quantity-field');
+                const btnMinus = spinner.querySelector('.button-minus');
+                const btnPlus = spinner.querySelector('.button-plus');
+                const cartItemId = spinner.getAttribute('data-cart-item-id');
+
+                // Remove old event listeners if any
+                btnMinus.replaceWith(btnMinus.cloneNode(true));
+                btnPlus.replaceWith(btnPlus.cloneNode(true));
+
+                // Get new references after replacing
+                const newBtnMinus = spinner.querySelector('.button-minus');
+                const newBtnPlus = spinner.querySelector('.button-plus');
+
+                newBtnMinus.addEventListener('click', async function () {
+                    let currentValue = parseInt(input.value);
+                    if (currentValue > 1) {
+                        // Disable buttons
+                        newBtnMinus.disabled = true;
+                        newBtnPlus.disabled = true;
+                        input.disabled = true;
+
+                        input.value = currentValue - 1;
+                        await updateCartQuantity(cartItemId, currentValue - 1);
+
+                        // Re-enable buttons
+                        newBtnMinus.disabled = false;
+                        newBtnPlus.disabled = false;
+                        input.disabled = false;
+                    }
+                });
+
+                newBtnPlus.addEventListener('click', async function () {
+                    let currentValue = parseInt(input.value);
+                    if (currentValue < parseInt(input.max)) {
+                        // Disable buttons
+                        newBtnMinus.disabled = true;
+                        newBtnPlus.disabled = true;
+                        input.disabled = true;
+
+                        input.value = currentValue + 1;
+                        await updateCartQuantity(cartItemId, currentValue + 1);
+
+                        // Re-enable buttons
+                        newBtnMinus.disabled = false;
+                        newBtnPlus.disabled = false;
+                        input.disabled = false;
+                    }
+                });
+            });
+        }
+
+        // Function to update cart quantity
+        async function updateCartQuantity(cartItemId, newQuantity) {
+            try {
+                const result = await cartService.updateCartItem(cartItemId, newQuantity);
+                if (result.status === 'true') {
+                    console.log('Cart updated successfully');
+                    showSuccessToast('Cập nhật số lượng thành công!');
+                    // Reload cart items from backend with current page
+                    await loadCartItems();
+                    renderCartItems();
+                    renderPagination();
+                    // Update cart badge in navbar
+                    await cartBadgeUtils.refreshCartBadge(USER_ID);
+                } else {
+                    console.error('Failed to update cart:', result.message);
+                    showErrorToast('Không thể cập nhật giỏ hàng. Vui lòng thử lại!');
+                    // Reload to reset the UI
+                    await loadCartItems();
+                    renderCartItems();
+                    renderPagination();
+                }
+            } catch (error) {
+                console.error('Error updating cart:', error);
+                showErrorToast('Có lỗi xảy ra khi cập nhật giỏ hàng!');
+                // Reload to reset the UI
+                await loadCartItems();
+                renderCartItems();
+                renderPagination();
+            }
+        }
+
+        function renderCartItems() {
+            const listGroup = document.querySelector('.offcanvas-body ul.list-group');
+            listGroup.innerHTML = ''; // Clear existing items
+            if (cartItems.length === 0) {
+                renderEmptyCart();
+                return;
+            }
+            else cartItems.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item py-3 ps-0 border-top';
+                listItem.innerHTML = `
+                    <div class="row align-items-center">
+                        <div class="col-6 col-md-6 col-lg-7">
+                            <div class="d-flex">
+                                <img src="${item.productResponse.image}" alt="Ecommerce" class="icon-shape icon-xxl" />
+                                <div class="ms-3">
+                                    <a href="pages/shop-single.html" class="text-inherit">
+                                        <h6 class="mb-0">${item.productResponse.productName}</h6>
+                                    </a>
+                                    <div class="mt-2 small lh-1">
+                                        <a href="#" class="text-decoration-none text-inherit remove-item-btn" data-cart-item-id="${item.cartId}">
+                                       <span class="me-1 align-text-bottom">
+                                          <i class="bi bi-trash text-danger"></i>
+                                       </span>
+                                            <span class="text-muted">Remove</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4 col-md-3 col-lg-3">
+                             <div class="input-group input-spinner" data-cart-item-id="${item.cartId}">
+                                <input type="button" value="-" class="button-minus btn btn-sm" data-field="quantity" />
+                                <input type="number" step="1" max="10" value="${item.quantity}" name="quantity" class="quantity-field form-control-sm form-input" />
+                                <input type="button" value="+" class="button-plus btn btn-sm" data-field="quantity" />
+                            </div>
+                        </div>
+                        <div class="col-2 text-lg-end text-start text-md-end col-md-2">
+                            <span class="fw-bold">${formatCurrency(item.productResponse.price*item.quantity)}</span>
+                        </div>
+                    </div>
+                `;
+                listGroup.appendChild(listItem);
+            });
+            // Attach events after rendering
+            attachInputSpinnerEvents();
+            attachRemoveEvents();
+        }
+
+        function renderEmptyCart() {
+            const listGroup = document.querySelector('.offcanvas-body ul.list-group');
+            listGroup.innerHTML = '';
+            listGroup.innerHTML = `
+                <div class="text-center py-8">
+                    <svg class="empty-cart-icon mb-3 d-inline-block align-middle"
+                            width="90"
+                            height="90"
+                            style="transform: translateY(-5px) translateX(-10px)"
+                            viewBox="0 0 231.523 231.523" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" stroke="#ccc">
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier"> <g>
+                            <path d="M107.415,145.798c0.399,3.858,3.656,6.73,7.451,6.73c0.258,0,0.518-0.013,0.78-0.04c4.12-0.426,7.115-4.111,6.689-8.231 l-3.459-33.468c-0.426-4.12-4.113-7.111-8.231-6.689c-4.12,0.426-7.115,4.111-6.689,8.231L107.415,145.798z"></path>
+                            <path d="M154.351,152.488c0.262,0.027,0.522,0.04,0.78,0.04c3.796,0,7.052-2.872,7.451-6.73l3.458-33.468 c0.426-4.121-2.569-7.806-6.689-8.231c-4.123-0.421-7.806,2.57-8.232,6.689l-3.458,33.468 C147.235,148.377,150.23,152.062,154.351,152.488z"></path>
+                            <path d="M96.278,185.088c-12.801,0-23.215,10.414-23.215,23.215c0,12.804,10.414,23.221,23.215,23.221 c12.801,0,23.216-10.417,23.216-23.221C119.494,195.502,109.079,185.088,96.278,185.088z M96.278,216.523 c-4.53,0-8.215-3.688-8.215-8.221c0-4.53,3.685-8.215,8.215-8.215c4.53,0,8.216,3.685,8.216,8.215 C104.494,212.835,100.808,216.523,96.278,216.523z"></path>
+                            <path d="M173.719,185.088c-12.801,0-23.216,10.414-23.216,23.215c0,12.804,10.414,23.221,23.216,23.221 c12.802,0,23.218-10.417,23.218-23.221C196.937,195.502,186.521,185.088,173.719,185.088z M173.719,216.523 c-4.53,0-8.216-3.688-8.216-8.221c0-4.53,3.686-8.215,8.216-8.215c4.531,0,8.218,3.685,8.218,8.215 C181.937,212.835,178.251,216.523,173.719,216.523z"></path>
+                            <path d="M218.58,79.08c-1.42-1.837-3.611-2.913-5.933-2.913H63.152l-6.278-24.141c-0.86-3.305-3.844-5.612-7.259-5.612H18.876 c-4.142,0-7.5,3.358-7.5,7.5s3.358,7.5,7.5,7.5h24.94l6.227,23.946c0.031,0.134,0.066,0.267,0.104,0.398l23.157,89.046 c0.86,3.305,3.844,5.612,7.259,5.612h108.874c3.415,0,6.399-2.307,7.259-5.612l23.21-89.25C220.49,83.309,220,80.918,218.58,79.08z M183.638,165.418H86.362l-19.309-74.25h135.895L183.638,165.418z"></path>
+                            <path d="M105.556,52.851c1.464,1.463,3.383,2.195,5.302,2.195c1.92,0,3.84-0.733,5.305-2.198c2.928-2.93,2.927-7.679-0.003-10.607 L92.573,18.665c-2.93-2.928-7.678-2.927-10.607,0.002c-2.928,2.93-2.927,7.679,0.002,10.607L105.556,52.851z"></path>
+                            <path d="M159.174,55.045c1.92,0,3.841-0.733,5.306-2.199l23.552-23.573c2.928-2.93,2.925-7.679-0.005-10.606 c-2.93-2.928-7.679-2.925-10.606,0.005l-23.552,23.573c-2.928,2.93-2.925,7.679,0.005,10.607 C155.338,54.314,157.256,55.045,159.174,55.045z"></path>
+                            <path d="M135.006,48.311c0.001,0,0.001,0,0.002,0c4.141,0,7.499-3.357,7.5-7.498l0.008-33.311c0.001-4.142-3.356-7.501-7.498-7.502 c-0.001,0-0.001,0-0.001,0c-4.142,0-7.5,3.357-7.501,7.498l-0.008,33.311C127.507,44.951,130.864,48.31,135.006,48.311z"></path>
+                        </g>
+                    </g>
+                    </svg>
+                    <h5>Giỏ hàng trống</h5>
+                    <p class="text-muted">Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm</p>
+                </div>
+            `;
+        }
+
+        // Function to attach remove button events
+        function attachRemoveEvents() {
+            document.querySelectorAll('.remove-item-btn').forEach(btn => {
+                btn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    const cartItemId = this.getAttribute('data-cart-item-id');
+                    if (confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+                        await removeCartItem(cartItemId);
+                    }
+                });
+            });
+        }
+
+        // Function to remove cart item
+        async function removeCartItem(cartItemId) {
+            try {
+                const result = await cartService.removeCartItem(cartItemId);
+                if (result.status === 'true') {
+                    console.log('Item removed successfully');
+                    showSuccessToast('Đã xóa sản phẩm khỏi giỏ hàng!');
+
+                    // Reload cart items from backend
+                    await loadCartItems();
+
+                    // If current page is empty and not the first page, go to previous page
+                    if (cartItems.length === 0 && currentPage > 1) {
+                        currentPage--;
+                        await loadCartItems();
+                    }
+
+                    renderCartItems();
+                    renderPagination();
+                    // Update cart badge in navbar
+                    await cartBadgeUtils.refreshCartBadge(USER_ID);
+                } else {
+                    console.error('Failed to remove item:', result.message);
+                    showErrorToast('Không thể xóa sản phẩm. Vui lòng thử lại!');
+                }
+            } catch (error) {
+                console.error('Error removing item:', error);
+                showErrorToast('Có lỗi xảy ra khi xóa sản phẩm!');
+            }
+        }
+
+        const handleNavigation = () => {
+            window.location.href = `/user/shop-cart`;
+        };
+
+        const handleContinue = () => {
+            const offcanvasElement = document.getElementById('offcanvasRight');
+            const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+            offcanvas.hide();
+        };
+
+        window.handleNavigation = handleNavigation;
+        window.handleContinue = handleContinue;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+           await loadCartItems();
+           renderCartItems();
+           renderPagination();
+           await cartBadgeUtils.refreshCartBadge(USER_ID);
+        });
+    </script>
+    <style>
+        .remove-item-btn {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .remove-item-btn:hover {
+            background-color: #f8d7da;
+            transform: scale(1.05);
+        }
+
+        .remove-item-btn:hover i {
+            transform: scale(1.2);
+        }
+
+        .remove-item-btn:hover .text-muted {
+            color: #dc3545 !important;
+        }
+
+        .remove-item-btn i {
+            transition: transform 0.2s ease;
+        }
+
+        /* Disable state for spinner buttons */
+        .input-spinner input[type="button"]:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .input-spinner input[type="number"]:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            background-color: #f8f9fa;
+        }
+
+        .input-spinner.updating {
+            position: relative;
+        }
+
+        .input-spinner.updating::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Pagination styles */
+        .pagination {
+            margin-bottom: 0;
+        }
+
+        .pagination .page-item .page-link {
+            color: #0aad0a;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #0aad0a;
+            border-color: #0aad0a;
+            color: #fff;
+        }
+
+        .pagination .page-item .page-link:hover {
+            background-color: #0a9d0a;
+            border-color: #0a9d0a;
+            color: #fff;
+        }
+
+        .pagination .page-link {
+            color: #0d6efd;
+            cursor: pointer;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            cursor: not-allowed;
+        }
+    </style>
+</div>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{shop/common/main}">
+<body>
+<!-- main wrapper -->
+<main layout:fragment="content">
+    <div class="container">
+        <!-- row -->
+        <div class="row mb-8">
+            <div class="col-md-12">
+                <!-- page header -->
+                <div>
+                    <h2>Order List</h2>
+                    <!-- breacrumb -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a th:href="@{/shop}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Order List</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <!-- row -->
+        <div class="row">
+            <div class="col-xl-12 col-12 mb-5">
+                <!-- card -->
+                <div class="card h-100 card-lg">
+                    <div class="p-6">
+                        <div class="row justify-content-between">
+                            <div class="col-md-4 col-12 mb-2 mb-md-0">
+                                <!-- form -->
+                                <form class="d-flex" role="search">
+                                    <input id="orderSearch" class="form-control" type="search" placeholder="Search"
+                                           aria-label="Search"/>
+                                </form>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-12">
+                                <!-- select -->
+                                <select id="orderStatusFilter" class="form-select">
+                                    <option value="" selected>Status</option>
+                                    <option value="NEW">New</option>
+                                    <option value="CONFIRMED">Confirmed</option>
+                                    <option value="SHIPPING">Shipping</option>
+                                    <option value="DELIVERED">Delivered</option>
+                                    <option value="RECEIVED">Received</option>
+                                    <option value="CANCELLED">Cancelled</option>
+                                    <option value="RETURNED">Returned</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- card body -->
+                    <div class="card-body p-0">
+                        <!-- table responsive -->
+                        <div class="table-responsive">
+                            <table class="table table-centered table-hover text-nowrap table-borderless mb-0 table-with-checkbox">
+                                <thead class="bg-light">
+                                <tr>
+                                    <th>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="checkAll"/>
+                                            <label class="form-check-label" for="checkAll"></label>
+                                        </div>
+                                    </th>
+                                    <th>Image</th>
+                                    <th>Order Id</th>
+                                    <th>Customer</th>
+                                    <th>Date & Time</th>
+                                    <th>Payment</th>
+                                    <th>Status</th>
+                                    <th>Amount</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody id="ordersTbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="border-top d-md-flex justify-content-between align-items-center p-6">
+                        <span>Showing 1 to 8 of 12 entries</span>
+                        <nav class="mt-2 mt-md-0">
+                            <ul class="pagination mb-0">
+                                <li class="page-item disabled"><a class="page-link" href="#!">Previous</a></li>
+                                <li class="page-item"><a class="page-link active" href="#!">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#!">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#!">3</a></li>
+                                <li class="page-item"><a class="page-link" href="#!">Next</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/UTE_SHOP/assets/js/vendors/order/orders.js"></script>
+</main>
+</body>
+</html>

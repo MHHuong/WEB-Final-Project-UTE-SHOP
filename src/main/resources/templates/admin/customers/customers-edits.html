@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="admin/_layout :: head(~{::title})">
+	<title>Sửa người dùng</title>
+</head>
+<body>
+<div th:replace="admin/_layout :: layout(~{::content})">
+	<div th:fragment="content" class="container mt-4">
+
+		<h3 class="mb-3">Cập nhật người dùng</h3>
+		<form id="userForm" class="card p-4 shadow-sm" style="max-width:600px">
+			<div class="mb-3">
+				<label class="form-label fw-semibold">Email</label>
+				<input id="email" type="email" class="form-control" required>
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label fw-semibold">Họ tên</label>
+				<input id="fullName" type="text" class="form-control">
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label fw-semibold">Số điện thoại</label>
+				<input id="phone" type="text" class="form-control">
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label fw-semibold">Vai trò</label>
+				<select id="role" class="form-select">
+					<option value="USER">USER</option>
+					<option value="SELLER">SELLER</option>
+					<option value="SHIPPER">SHIPPER</option>
+					<option value="ADMIN">ADMIN</option>
+				</select>
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label fw-semibold">Trạng thái</label>
+				<select id="status" class="form-select">
+					<option value="1">Hoạt động</option>
+					<option value="0">Khóa</option>
+				</select>
+			</div>
+
+			<div class="mb-3 position-relative">
+				<label class="form-label fw-semibold">Đổi mật khẩu (tùy chọn)</label>
+				<div class="input-group">
+					<input id="password" type="password" class="form-control" placeholder="Để trống nếu không đổi">
+					<button class="btn btn-outline-secondary" type="button" id="togglePwd">
+						<i class="bi bi-eye"></i>
+					</button>
+				</div>
+			</div>
+
+			<div class="d-flex gap-2">
+				<button type="submit" class="btn btn-primary px-4">Lưu</button>
+				<a href="/admin/customers" class="btn btn-secondary px-4">Hủy</a>
+			</div>
+		</form>
+
+	</div>
+</div>
+</body>
+<script th:src="@{/js/admin/admin-users.js}"></script>
+</html>

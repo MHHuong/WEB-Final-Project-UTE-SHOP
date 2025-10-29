@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{shop/common/main}">
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-12 d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 id="pdName">Product detail</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a th:href="@{/shop}" class="text-inherit">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a th:href="@{/shop/product/products}" class="text-inherit">Products</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Detail</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div>
+                    <a th:href="@{/shop/product/products}" class="btn btn-light">Back</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- LEFT: Gallery -->
+            <div class="col-lg-6">
+                <div id="mainPreview" class="border rounded d-flex align-items-center justify-content-center"
+                     style="aspect-ratio: 1/1; background:#fafafa; overflow:hidden;">
+                    <!-- main media will be injected -->
+                </div>
+
+                <div id="thumbs" class="d-flex gap-2 mt-3 overflow-auto">
+                    <!-- thumbs injected -->
+                </div>
+                <hr class="mt-4">
+
+                <div id="reviewsBlock">
+                    <h5 class="mb-3">Reivews</h5>
+                    <div id="reviewsList" class="d-flex flex-column gap-4"></div>
+
+                    <div class="text-center mt-3">
+                        <button id="loadMoreReviews" class="btn btn-sm btn-outline-secondary d-none">Xem thêm</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Info -->
+            <div class="col-lg-6">
+                <h3 id="pdTitle" class="mb-2"></h3>
+
+                <div class="d-flex align-items-center mb-3">
+                    <span id="avgScore" class="fw-bold me-2" style="min-width:42px;text-align:right">0.0</span>
+                    <div class="rating position-relative" style="font-size:20px; line-height:1;">
+                        <span class="stars-base" style="color:#ddd;">★★★★★</span>
+                        <span class="stars-fill position-absolute top-0 start-0"
+                              style="color:#ffc107; white-space:nowrap; overflow:hidden; width:0%;">★★★★★</span>
+                    </div>
+                    <span id="totalReviews" class="text-muted ms-2">(0 đánh giá)</span>
+                </div>
+
+                <dl class="row mb-0">
+                    <dt class="col-4">Category</dt>
+                    <dd class="col-8" id="pdCategory">—</dd>
+                    <dt class="col-4">Price</dt>
+                    <dd class="col-8" id="pdPrice">—</dd>
+                    <dt class="col-4">Stock</dt>
+                    <dd class="col-8" id="pdStock">—</dd>
+                    <dt class="col-4">Status</dt>
+                    <dd class="col-8" id="pdStatus">—</dd>
+                    <dt class="col-4">Created</dt>
+                    <dd class="col-8" id="pdCreated">—</dd>
+                </dl>
+
+                <div class="mt-3">
+                    <h5>Description</h5>
+                    <p id="pdDesc" class="mb-0 text-muted"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* thumb video overlay */
+        .thumb {
+            width: 72px;
+            height: 72px;
+            cursor: pointer;
+            position: relative;
+            border-radius: .5rem;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .thumb.active {
+            outline: 2px solid #0aad0a;
+        }
+
+        .thumb .play-badge {
+            position: absolute;
+            inset: auto 0 0 auto;
+            right: 4px;
+            bottom: 4px;
+            background: rgba(0, 0, 0, .6);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: .25rem;
+            font-size: 12px;
+        }
+
+        #mainPreview img, #mainPreview video {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        #pdDesc {
+            white-space: pre-line;
+            word-wrap: break-word;
+        }
+
+        .rv-item .rv-head {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+        .rv-item .rv-ava {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .rv-item .rv-name {
+            font-weight: 600;
+        }
+
+        .rv-item .rv-time {
+            color: #6c757d;
+            font-size: .9rem;
+        }
+
+        .rv-item .rv-cmt {
+            white-space: pre-line;
+            margin: .5rem 0 0;
+        }
+
+        .rv-thumbs {
+            display: flex;
+            gap: .5rem;
+            margin-top: .5rem;
+            overflow: auto;
+        }
+
+        .rv-thumb {
+            width: 64px;
+            height: 64px;
+            border-radius: .5rem;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid #eee;
+            position: relative;
+        }
+
+        .rv-thumb video, .rv-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .rv-thumb .play-badge {
+            position: absolute;
+            right: 4px;
+            bottom: 4px;
+            background: rgba(0, 0, 0, .6);
+            color: #fff;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
+
+    <script th:src="@{/assets/js/vendors/product/product-detail.js}" defer></script>
+</main>
+</body>
+</html>

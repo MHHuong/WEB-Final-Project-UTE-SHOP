@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{shop/common/main}">
+<body>
+<!-- main -->
+<main layout:fragment="content">
+    <div class="container">
+        <div class="row mb-8">
+            <div class="col-md-12">
+                <!-- page header -->
+                <div class="d-md-flex justify-content-between align-items-center">
+                    <div>
+                        <h2>Products</h2>
+                        <!-- breacrumb -->
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a th:href="@{/shop}" class="text-inherit">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">Products</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <!-- button -->
+                    <div>
+                        <a th:href="@{/shop/product/add-product}" class="btn btn-primary">Add Product</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- row -->
+        <div class="row">
+            <div class="col-xl-12 col-12 mb-5">
+                <!-- card -->
+                <div class="card h-100 card-lg">
+                    <div class="px-6 py-6">
+                        <div class="row justify-content-between">
+                            <!-- form -->
+                            <div class="col-lg-4 col-md-6 col-12 mb-2 mb-lg-0">
+                                <form class="d-flex" role="search">
+                                    <input id="searchInput" class="form-control" type="search"
+                                           placeholder="Search Products"
+                                           aria-label="Search"/>
+                                </form>
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-12">
+                                <select id="statusFilter" class="form-select">
+                                    <option value="" selected>Status</option>
+                                    <option value="0">In stock</option>
+                                    <option value="1">Out of stock</option>
+                                    <option value="2">Hide</option>
+                                    <option value="3">Deleted</option>
+                                </select>
+                            </div>
+
+                            <div id="bulkBar" class="col-lg-3 col-md-6 col-12 d-none">
+                                <div class="input-group">
+                                    <select id="bulkStatus" class="form-select">
+                                        <option value="" selected>Set status…</option>
+                                        <option value="0">Set: In stock</option>
+                                        <option value="1">Set: Out of stock</option>
+                                        <option value="2">Set: Hide</option>
+                                        <option value="3">Set: Deleted</option>
+                                    </select>
+                                    <button id="btnBulkApply" class="btn btn-outline-primary" type="button" disabled>
+                                        Apply
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- card body -->
+                    <div class="card-body p-0">
+                        <!-- table -->
+                        <div class="table-responsive">
+                            <table class="table table-centered table-hover text-nowrap table-borderless mb-0 table-with-checkbox">
+                                <thead class="bg-light">
+                                <tr>
+                                    <th>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="checkAll"/>
+                                            <label class="form-check-label" for="checkAll"></label>
+                                        </div>
+                                    </th>
+                                    <th>Image</th>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Price</th>
+                                    <th>Create at</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody id="productsTbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="border-top d-md-flex justify-content-between align-items-center px-6 py-6">
+                        <span>Showing 1 to 8 of 12 entries</span>
+                        <nav class="mt-2 mt-md-0">
+                            <ul class="pagination mb-0">
+                                <li class="page-item disabled"><a class="page-link" href="#!">Previous</a></li>
+                                <li class="page-item"><a class="page-link active" href="#!">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#!">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#!">3</a></li>
+                                <li class="page-item"><a class="page-link" href="#!">Next</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script th:src="@{/assets/js/vendors/product/load-products.js}" defer></script>
+    <script th:src="@{/assets/js/vendors/product/delete-product.js}" defer></script>
+    <script th:src="@{/assets/js/vendors/product/bulk-status.js}" defer></script>
+</main>
+</body>
+
+<!-- Mirrored from freshcart.codescandy.com/dashboard/products.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 14 Nov 2024 06:09:13 GMT -->
+</html>
