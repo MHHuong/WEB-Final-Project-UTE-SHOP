@@ -113,15 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
             loadProducts(0, `${contextPath}/api/admin/products/search/shop?q=${encodeURIComponent(shopName)}&page=0&size=${pageSize}`);
         else loadProducts();
     });
-
-    // // ================= FILTER CATEGORY =================
-    // categorySelect?.addEventListener("change", () => {
-    //     const cateId = categorySelect.value;
-    //     if (cateId)
-    //         loadProducts(0, `/api/admin/products?categoryId=${cateId}&page=0&size=${pageSize}`);
-    //     else loadProducts();
-    // });
-
+    
     // ================= RELOAD =================
     reloadBtn?.addEventListener("click", () => {
         searchInput.value = "";
