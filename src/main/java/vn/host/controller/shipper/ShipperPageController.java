@@ -39,4 +39,14 @@ public class ShipperPageController {
     public String editProfilePage() {
         return "shipper/edit-profile";
     }
+
+    @GetMapping("/shipper/orders/return/pickup")
+    public String returnPickupPage() {
+        return "shipper/order-return-pickup";
+    }
+
+    @GetMapping("/shipper/orders/return/deliver")
+    public String returnDeliverPage() {
+        return "shipper/order-return-deliver";
+    }
 }

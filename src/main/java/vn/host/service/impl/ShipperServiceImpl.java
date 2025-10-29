@@ -3,6 +3,7 @@ package vn.host.service.impl;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Subquery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -284,5 +285,153 @@ public class ShipperServiceImpl implements ShipperService {
         }
 
         return shipperRepository.save(s);
+    }
+
+    @Override
+    public Page<Order> listReturnPickup(Shipper me, Pageable pageable) {
+        Area a = resolveAreaFromAddress(me.getAddress());
+        String province = a.province(), district = a.district();
+
+        Specification<Order> spec = (root, cq, cb) -> {
+            List<Predicate> ps = new ArrayList<>();
+            // Trạng thái RETURNED
+            ps.add(cb.equal(root.get("status"), OrderStatus.RETURNED));
+
+            // Chưa có RETURN_PICKUP
+            Subquery<Long> sub = cq.subquery(Long.class);
+            var logRoot = sub.from(OrderShipperLog.class);
+            sub.select(cb.count(logRoot.get("id")));
+            sub.where(
+                    cb.equal(logRoot.get("order"), root),
+                    cb.equal(logRoot.get("action"), ShipperAction.RETURN_PICKUP)
+            );
+            ps.add(cb.equal(sub, 0L));
+
+            // Lọc theo địa chỉ người nhận (order.address)
+            Join<Order, Address> recvAddr = root.join("address", JoinType.INNER);
+            if (StringUtils.hasText(province)) {
+                ps.add(cb.equal(recvAddr.get("province"), province));
+            }
+            if (StringUtils.hasText(district)) {
+                ps.add(cb.equal(recvAddr.get("district"), district));
+            }
+            return cb.and(ps.toArray(new Predicate[0]));
+        };
+
+        return orderRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public Page<Order> listReturnDeliver(Shipper me, Pageable pageable) {
+        Area a = resolveAreaFromAddress(me.getAddress());
+        String province = a.province(), district = a.district();
+
+        Specification<Order> spec = (root, cq, cb) -> {
+            List<Predicate> ps = new ArrayList<>();
+            ps.add(cb.equal(root.get("status"), OrderStatus.RETURNED));
+
+            // ĐÃ có RETURN_PICKUP
+            Subquery<Long> subPickup = cq.subquery(Long.class);
+            var logPickup = subPickup.from(OrderShipperLog.class);
+            subPickup.select(cb.count(logPickup.get("id")));
+            subPickup.where(
+                    cb.equal(logPickup.get("order"), root),
+                    cb.equal(logPickup.get("action"), ShipperAction.RETURN_PICKUP)
+            );
+            ps.add(cb.greaterThan(subPickup, 0L));
+
+            // CHƯA có RETURN_DELIVER
+            Subquery<Long> subDeliver = cq.subquery(Long.class);
+            var logDeliver = subDeliver.from(OrderShipperLog.class);
+            subDeliver.select(cb.count(logDeliver.get("id")));
+            subDeliver.where(
+                    cb.equal(logDeliver.get("order"), root),
+                    cb.equal(logDeliver.get("action"), ShipperAction.RETURN_DELIVER)
+            );
+            ps.add(cb.equal(subDeliver, 0L));
+
+            // Lọc theo địa chỉ SHOP (shop.address là chuỗi => dùng like tail giống CONFIRMED)
+            Join<Order, Shop> shop = root.join("shop", JoinType.INNER);
+            String likeTail = tailLike(district, province);
+            if (likeTail != null) {
+                ps.add(cb.like(shop.get("address"), likeTail));
+            }
+
+            return cb.and(ps.toArray(new Predicate[0]));
+        };
+
+        return orderRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public Order returnPickup(Long orderId, Shipper me) {
+        Order o = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        if (o.getStatus() != OrderStatus.RETURNED)
+            throw new IllegalStateException("Order not in RETURNED state");
+
+        // Chỉ cho phép nếu CHƯA có RETURN_PICKUP
+        boolean existed = orderShipperLogRepository.existsByOrder_OrderIdAndAction(orderId, ShipperAction.RETURN_PICKUP);
+        if (existed) throw new IllegalStateException("Already picked up returned goods");
+
+        // Kiểm tra vùng giao đến khách (đi lấy lại từ người nhận)
+        Area a = resolveAreaFromAddress(me.getAddress());
+        String province = a.province(), district = a.district();
+
+        Address recv = o.getAddress();
+        if (recv != null && StringUtils.hasText(province) && StringUtils.hasText(district)) {
+            if (!province.equals(recv.getProvince()) || !district.equals(recv.getDistrict())) {
+                throw new SecurityException("Order outside your pickup area (receiver)");
+            }
+        }
+
+        // Gán shipper thực hiện hoàn – tái sử dụng field shipper như luồng giao
+        o.setShipper(me);
+        Order saved = orderRepository.save(o);
+
+        orderShipperLogRepository.save(OrderShipperLog.builder()
+                .order(saved)
+                .shipper(me)
+                .action(ShipperAction.RETURN_PICKUP)
+                .build());
+        return saved;
+    }
+
+    @Override
+    public Order returnDeliver(Long orderId, Shipper me) {
+        Order o = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        if (o.getStatus() != OrderStatus.RETURNED)
+            throw new IllegalStateException("Order not in RETURNED state");
+
+        // Phải có RETURN_PICKUP trước và chưa RETURN_DELIVER
+        boolean hasPickup = orderShipperLogRepository.existsByOrder_OrderIdAndAction(orderId, ShipperAction.RETURN_PICKUP);
+        if (!hasPickup) throw new IllegalStateException("This return hasn't been picked up yet");
+        boolean hasDeliver = orderShipperLogRepository.existsByOrder_OrderIdAndAction(orderId, ShipperAction.RETURN_DELIVER);
+        if (hasDeliver) throw new IllegalStateException("Already delivered return");
+
+        // Kiểm tra vùng cửa hàng (trả về shop)
+        Area a = resolveAreaFromAddress(me.getAddress());
+        String province = a.province(), district = a.district();
+
+        Shop shop = o.getShop();
+        String likeTail = tailLike(district, province);
+        if (shop != null && likeTail != null) {
+            String shopAddr = shop.getAddress();
+            if (shopAddr == null || !shopAddr.endsWith(likeTail)) {
+                throw new SecurityException("Shop outside your return-delivery area");
+            }
+        }
+
+        // Có thể vẫn giữ status = RETURNED (đơn đã bị trả), chỉ ghi log RETURN_DELIVER
+        // Nếu bạn muốn đóng vòng đời hoàn trả, có thể cập nhật thêm field/flag khác ở Order, tùy yêu cầu nghiệp vụ.
+        o.setShipper(me);
+        Order saved = orderRepository.save(o);
+
+        orderShipperLogRepository.save(OrderShipperLog.builder()
+                .order(saved)
+                .shipper(me)
+                .action(ShipperAction.RETURN_DELIVER)
+                .build());
+
+        return saved;
     }
 }
