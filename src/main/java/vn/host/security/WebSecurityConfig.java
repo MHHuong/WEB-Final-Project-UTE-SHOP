@@ -41,7 +41,12 @@ public class WebSecurityConfig {
                                 "/admin/**",
                                 "/shop/**",
                                 "/api/**",
-                                "/shipper/**"
+                                "/shipper/**",
+                                "/css/**",
+                                "/js/**",
+                                "/libs/**",
+                                "/images/**",
+                                "/fonts/**"
                         ).permitAll()
                         .requestMatchers("/api/locations/**").permitAll()
                         .requestMatchers("/uploads/**", "/shop/account/shop-register").permitAll()

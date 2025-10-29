@@ -1,11 +1,15 @@
-import cartService from "/js/services/api/cartService.js";
-import { showSuccessToast, showErrorToast, showWarningToast, showInfoToast } from "/js/utils/toastUtils.js";
-import addresses from "/addresses.json" with { type: "json" };
-import addressService from "/js/services/api/addressService.js";
-import orderService from "/js/services/api/orderService.js";
-import couponService from "/js/services/api/couponService.js";
+import cartService from "../../api/cartService.js";
+import { showSuccessToast, showErrorToast, showWarningToast, showInfoToast } from "../../utils/toastUtils.js";
+import paymentService from "../../api/paymentService.js";
+import addressService from "../../api/addressService.js";
+import orderService from "../../api/orderService.js";
+import couponService from "../../api/couponService.js";
 
-const USER_ID = 1;
+import { AuthState } from "../../auth.js";
+
+
+const getUserId = () => AuthState.getUserId() || 1;
+let USER_ID = getUserId();
 let selectedProducts = [];
 let savedAddresses = [];
 let selectedAddressId = null;
@@ -786,4 +790,3 @@ document.addEventListener('DOMContentLoaded', () => {
         removeVoucher();
     });
 });
-

@@ -27,7 +27,7 @@ public class CouponController {
             return new ResponseEntity<>(
                     new ApiResponse(
                             "Success",
-                            "Lấy danh sách mã giảm giá toàn cục thành công",
+                            "Get global coupons successfully",
                             coupons
                     ), HttpStatus.OK
             );
@@ -35,7 +35,7 @@ public class CouponController {
             return new ResponseEntity<>(
                     new ApiResponse(
                             "Error",
-                            "Lấy danh sách mã giảm giá toàn cục thất bại: " + e.getMessage(),
+                            "Get global coupons failed: " + e.getMessage(),
                             null
                     ), HttpStatus.BAD_REQUEST
             );
@@ -45,11 +45,11 @@ public class CouponController {
     @GetMapping("/shop/{shopId}")
     public ResponseEntity<?> getShopCoupons(@PathVariable Long shopId) {
         try {
-            List<Coupon> coupons = couponService.findShopCoupons(shopId); // Replace with actual method to get shop-specific coupons
+            List<Coupon> coupons = couponService.findShopCoupons(shopId);
             return new ResponseEntity<>(
                     new ApiResponse(
                             "Success",
-                            "Lấy danh sách mã giảm giá của cửa hàng thành công",
+                            "Get shop coupons successfully",
                             coupons
                     ), HttpStatus.OK
             );
@@ -57,7 +57,7 @@ public class CouponController {
             return new ResponseEntity<>(
                     new ApiResponse(
                             "Error",
-                            "Lấy danh sách mã giảm giá của cửa hàng thất bại: " + e.getMessage(),
+                            "Get shop coupons successfully: " + e.getMessage(),
                             null
                     ), HttpStatus.BAD_REQUEST
             );

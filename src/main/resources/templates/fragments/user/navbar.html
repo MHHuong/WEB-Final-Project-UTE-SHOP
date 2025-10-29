@@ -145,8 +145,7 @@
                             </a>
                         </div>
                         <div class="list-inline-item me-5">
-                            <a href="/user/profile" class="text-muted">
-                                <svg
+                            <a th:href="@{/user/profile}" class="text-muted">                                <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="20"
                                         height="20"
@@ -477,7 +476,6 @@
             </div>
         </div>
     </nav>
-    <div th:replace="~{fragments/user/modal::user-modal}"></div>
     <div th:replace="~{fragments/user/shopCart::shop-cart}"></div>
     <div th:replace="~{fragments/user/modal::location-modal}"></div>
     <div th:replace="~{fragments/user/modal::quick-view-modal}"></div>
@@ -500,9 +498,10 @@
         }
     </style>
     <script type="module">
-        import cartBadgeUtils from "/js/utils/cartBadgeUtils.js";
+        import cartBadgeUtils from "../UTE_SHOP/js/utils/cartBadgeUtils.js";
+        import {AuthState} from "../UTE_SHOP/js/auth.js";
 
-        const USER_ID = 1;
+        const USER_ID = AuthState.userId;
 
         document.addEventListener('DOMContentLoaded', async () => {
             // Initialize cart badge on page load

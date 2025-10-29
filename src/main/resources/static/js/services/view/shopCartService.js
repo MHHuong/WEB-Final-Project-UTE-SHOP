@@ -1,9 +1,11 @@
-import cartService from "/js/services/api/cartService.js";
-import {showErrorToast, showInfoToast, showSuccessToast} from "/js/utils/toastUtils.js";
-import cartBadgeUtils from "/js/utils/cartBadgeUtils.js";
-import couponService from "/js/services/api/couponService.js";
+import {showErrorToast, showInfoToast, showSuccessToast} from "../../utils/toastUtils.js";
+import cartBadgeUtils from "../../utils/cartBadgeUtils.js";
+import couponService from "../../api/couponService.js";
+import cartService from "../../api/cartService.js";
+import { AuthState } from "../../auth.js";
 
-const USER_ID = 1;
+const getUserId = () => AuthState.getUserId() || 1;
+
 let cartItems = [];
 let selectedItems = new Set();
 let shopVouchers = {}; // Store selected vouchers per shop
@@ -36,7 +38,7 @@ function groupByShop(items) {
 // Load cart items
 async function loadCartItems() {
     try {
-        const result = await cartService.getCartItemByUserId(USER_ID);
+        const result = await cartService.getCartItemByUserId(getUserId());
         if (result.status === 'Success') {
             cartItems = result.data;
             renderCartItems();
@@ -172,7 +174,7 @@ function renderCartItems() {
         if (voucher) {
             const minPrice = voucher.min;
             if (Number(minPrice) >= Number(total)) {
-                showInfoToast(`Mã giảm giá ${voucher.code} vượt quá tổng đơn hàng của cửa hàng ${shop.shopName}. Vui lòng chọn mã khác.`);
+                showInfoToast(`Mã giảm giá ${voucher.code} vượt quá tổng đơn h��ng của cửa hàng ${shop.shopName}. Vui lòng chọn mã khác.`);
                 removeVoucher(shop.shopId);
             }
         }
@@ -415,7 +417,7 @@ async function updateQuantity(cartId, newQuantity) {
         if (result.status === 'Success') {
             showSuccessToast('Cập nhật số lượng thành công!');
             await loadCartItems();
-            await cartBadgeUtils.refreshCartBadge(USER_ID);
+            await cartBadgeUtils.refreshCartBadge(getUserId());
             updateOrderSummary();
         } else {
             showErrorToast('Không thể cập nhật số lượng!');
@@ -436,7 +438,7 @@ window.removeItem = async function(cartId) {
             showSuccessToast('Đã xóa sản phẩm khỏi giỏ hàng!');
             selectedItems.delete(cartId);
             await loadCartItems();
-            await cartBadgeUtils.refreshCartBadge(USER_ID);
+            await cartBadgeUtils.refreshCartBadge(getUserId());
             updateOrderSummary();
         } else {
             showErrorToast('Không thể xóa sản phẩm!');

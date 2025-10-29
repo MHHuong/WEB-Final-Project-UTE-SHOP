@@ -1,9 +1,11 @@
-import {showErrorToast, showSuccessToast} from "/js/utils/toastUtils.js";
-import orderService from "/js/services/api/orderService.js";
-import {showOrderStatusModal} from "/js/utils/orderStatusModal.js";
+import {showErrorToast, showSuccessToast} from "../../utils/toastUtils.js";
+import orderService from "../../api/orderService.js";
+import {showOrderStatusModal} from "../../utils/orderStatusModal.js";
+import { AuthState } from "../../auth.js";
 
 
-
+const getUserId = () => AuthState.getUserId() || 1;
+let userId = getUserId();
 // Get order ID from URL
 const urlParams = new URLSearchParams(window.location.search);
 const orderId = urlParams.get('orderId');
@@ -23,8 +25,9 @@ const STATUS_TEXT = {
 
 
 let stompClient = null;
-function connect(USER_ID) {
-    const userId = USER_ID;
+function connect() {
+    const userId = getUserId();
+    console.log(userId)
     if (!userId) { alert('Enter userId first'); return; }
     const sock = new SockJS('/ws?userId=' + encodeURIComponent(userId));
     stompClient = Stomp.over(sock);
@@ -389,7 +392,6 @@ function formatDateTime(dateString) {
 document.addEventListener('DOMContentLoaded', function() {
     loadOrderDetails();
     if (orderId) {
-        connect(1)
+        connect()
     }
 });
-

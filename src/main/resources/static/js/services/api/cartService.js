@@ -1,4 +1,4 @@
-import apiClient from '/js/utils/apiClient.js';
+import apiClient from '../../utils/apiClient.js';
 
 const cartService = {
     getCartItemByUserId: async function (itemId) {

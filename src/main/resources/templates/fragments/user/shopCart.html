@@ -22,16 +22,16 @@
 
             <!-- btn -->
             <div class="d-flex justify-content-between mt-4">
-                <a href="#" class="btn btn-primary" onclick="{handleContinue()}">Tiếp tục mua sắm</a>
-                <a href="#" class="btn btn-dark" onclick="{handleNavigation()}">Xem chi tiết giỏ hàng</a>
+                <a href="#" class="btn btn-primary" onclick="handleContinue()">Tiếp tục mua sắm</a>
+                <a href="#" class="btn btn-dark" onclick="handleNavigation()">Xem chi tiết giỏ hàng</a>
             </div>
         </div>
     </div>
 
-    <script  type="module">
-        import cartService from "/js/services/api/cartService.js";
-        import { showSuccessToast, showErrorToast, showWarningToast, showInfoToast } from "/js/utils/toastUtils.js";
-        import cartBadgeUtils from "/js/utils/cartBadgeUtils.js";
+    <script type="module">
+        import cartService from "/UTE_SHOP/js/services/api/cartService.js";
+        import { showSuccessToast, showErrorToast, showWarningToast, showInfoToast } from "/UTE_SHOP/js/utils/toastUtils.js";
+        import cartBadgeUtils from "/UTE_SHOP/js/utils/cartBadgeUtils.js";
 
         let cartItems = []
         let currentPage = 1;
@@ -277,175 +277,60 @@
                             <path d="M154.351,152.488c0.262,0.027,0.522,0.04,0.78,0.04c3.796,0,7.052-2.872,7.451-6.73l3.458-33.468 c0.426-4.121-2.569-7.806-6.689-8.231c-4.123-0.421-7.806,2.57-8.232,6.689l-3.458,33.468 C147.235,148.377,150.23,152.062,154.351,152.488z"></path>
                             <path d="M96.278,185.088c-12.801,0-23.215,10.414-23.215,23.215c0,12.804,10.414,23.221,23.215,23.221 c12.801,0,23.216-10.417,23.216-23.221C119.494,195.502,109.079,185.088,96.278,185.088z M96.278,216.523 c-4.53,0-8.215-3.688-8.215-8.221c0-4.53,3.685-8.215,8.215-8.215c4.53,0,8.216,3.685,8.216,8.215 C104.494,212.835,100.808,216.523,96.278,216.523z"></path>
                             <path d="M173.719,185.088c-12.801,0-23.216,10.414-23.216,23.215c0,12.804,10.414,23.221,23.216,23.221 c12.802,0,23.218-10.417,23.218-23.221C196.937,195.502,186.521,185.088,173.719,185.088z M173.719,216.523 c-4.53,0-8.216-3.688-8.216-8.221c0-4.53,3.686-8.215,8.216-8.215c4.531,0,8.218,3.685,8.218,8.215 C181.937,212.835,178.251,216.523,173.719,216.523z"></path>
-                            <path d="M218.58,79.08c-1.42-1.837-3.611-2.913-5.933-2.913H63.152l-6.278-24.141c-0.86-3.305-3.844-5.612-7.259-5.612H18.876 c-4.142,0-7.5,3.358-7.5,7.5s3.358,7.5,7.5,7.5h24.94l6.227,23.946c0.031,0.134,0.066,0.267,0.104,0.398l23.157,89.046 c0.86,3.305,3.844,5.612,7.259,5.612h108.874c3.415,0,6.399-2.307,7.259-5.612l23.21-89.25C220.49,83.309,220,80.918,218.58,79.08z M183.638,165.418H86.362l-19.309-74.25h135.895L183.638,165.418z"></path>
-                            <path d="M105.556,52.851c1.464,1.463,3.383,2.195,5.302,2.195c1.92,0,3.84-0.733,5.305-2.198c2.928-2.93,2.927-7.679-0.003-10.607 L92.573,18.665c-2.93-2.928-7.678-2.927-10.607,0.002c-2.928,2.93-2.927,7.679,0.002,10.607L105.556,52.851z"></path>
-                            <path d="M159.174,55.045c1.92,0,3.841-0.733,5.306-2.199l23.552-23.573c2.928-2.93,2.925-7.679-0.005-10.606 c-2.93-2.928-7.679-2.925-10.606,0.005l-23.552,23.573c-2.928,2.93-2.925,7.679,0.005,10.607 C155.338,54.314,157.256,55.045,159.174,55.045z"></path>
-                            <path d="M135.006,48.311c0.001,0,0.001,0,0.002,0c4.141,0,7.499-3.357,7.5-7.498l0.008-33.311c0.001-4.142-3.356-7.501-7.498-7.502 c-0.001,0-0.001,0-0.001,0c-4.142,0-7.5,3.357-7.501,7.498l-0.008,33.311C127.507,44.951,130.864,48.31,135.006,48.311z"></path>
-                        </g>
+                            <path d="M218.58,79.08c-1.42-1.837-3.611-2.913-5.933-2.913H63.152l-6.278-24.141c-0.86-3.305-3.844-5.612-7.259-5.612H18.876 c-4.142,0-7.5,3.358-7.5,7.5s3.358,7.5,7.5,7.5h24.94l6.227,23.946c0.031,0.134,0.066,0.267,0.104,0.398l23.157,89.046 c0.86,3.305,3.844,5.612,7.259,5.612h108.874c3.415,0,6.399-2.307,7.259-5.612l23.21-89.25C220.49,83.309,220.08,81.917,218.58,79.08z"></path>
+                            </g>
                     </g>
                     </svg>
-                    <h5>Giỏ hàng trống</h5>
-                    <p class="text-muted">Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm</p>
+                    <h5 class="mb-2">Your cart is empty</h5>
+                    <p class="text-muted mb-0">Looks like you haven't added anything to your cart yet.</p>
                 </div>
             `;
         }
 
-        // Function to attach remove button events
         function attachRemoveEvents() {
             document.querySelectorAll('.remove-item-btn').forEach(btn => {
-                btn.addEventListener('click', async function(e) {
+                btn.addEventListener('click', async (e) => {
                     e.preventDefault();
-                    const cartItemId = this.getAttribute('data-cart-item-id');
-                    if (confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
-                        await removeCartItem(cartItemId);
-                    }
+                    const cartItemId = btn.getAttribute('data-cart-item-id');
+                    await removeCartItem(cartItemId);
                 });
             });
         }
 
-        // Function to remove cart item
         async function removeCartItem(cartItemId) {
             try {
-                const result = await cartService.removeCartItem(cartItemId);
-                if (result.status === 'true') {
-                    console.log('Item removed successfully');
+                const result = await cartService.deleteCartItem(cartItemId);
+                if (result.status === 'Success') {
                     showSuccessToast('Đã xóa sản phẩm khỏi giỏ hàng!');
-
-                    // Reload cart items from backend
                     await loadCartItems();
-
-                    // If current page is empty and not the first page, go to previous page
-                    if (cartItems.length === 0 && currentPage > 1) {
-                        currentPage--;
-                        await loadCartItems();
-                    }
-
                     renderCartItems();
                     renderPagination();
-                    // Update cart badge in navbar
                     await cartBadgeUtils.refreshCartBadge(USER_ID);
                 } else {
-                    console.error('Failed to remove item:', result.message);
                     showErrorToast('Không thể xóa sản phẩm. Vui lòng thử lại!');
                 }
             } catch (error) {
-                console.error('Error removing item:', error);
+                console.error('Error removing cart item:', error);
                 showErrorToast('Có lỗi xảy ra khi xóa sản phẩm!');
             }
         }
 
-        const handleNavigation = () => {
-            window.location.href = `/user/shop-cart`;
+        window.handleContinue = function() {
+            const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasRight'));
+            if (offcanvas) {
+                offcanvas.hide();
+            }
         };
 
-        const handleContinue = () => {
-            const offcanvasElement = document.getElementById('offcanvasRight');
-            const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
-            offcanvas.hide();
+        window.handleNavigation = function() {
+            window.location.href = '/UTE_SHOP/user/cart';
         };
 
-        window.handleNavigation = handleNavigation;
-        window.handleContinue = handleContinue;
-
-        document.addEventListener('DOMContentLoaded', async () => {
-           await loadCartItems();
-           renderCartItems();
-           renderPagination();
-           await cartBadgeUtils.refreshCartBadge(USER_ID);
+        // Initialize cart when offcanvas is shown
+        document.getElementById('offcanvasRight').addEventListener('shown.bs.offcanvas', async function () {
+            await loadCartItems();
+            renderCartItems();
+            renderPagination();
         });
     </script>
-    <style>
-        .remove-item-btn {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-
-        .remove-item-btn:hover {
-            background-color: #f8d7da;
-            transform: scale(1.05);
-        }
-
-        .remove-item-btn:hover i {
-            transform: scale(1.2);
-        }
-
-        .remove-item-btn:hover .text-muted {
-            color: #dc3545 !important;
-        }
-
-        .remove-item-btn i {
-            transition: transform 0.2s ease;
-        }
-
-        /* Disable state for spinner buttons */
-        .input-spinner input[type="button"]:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
-        .input-spinner input[type="number"]:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            background-color: #f8f9fa;
-        }
-
-        .input-spinner.updating {
-            position: relative;
-        }
-
-        .input-spinner.updating::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #3498db;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            pointer-events: none;
-        }
-
-        @keyframes spin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        /* Pagination styles */
-        .pagination {
-            margin-bottom: 0;
-        }
-
-        .pagination .page-item .page-link {
-            color: #0aad0a;
-        }
-
-        .pagination .page-item.active .page-link {
-            background-color: #0aad0a;
-            border-color: #0aad0a;
-            color: #fff;
-        }
-
-        .pagination .page-item .page-link:hover {
-            background-color: #0a9d0a;
-            border-color: #0a9d0a;
-            color: #fff;
-        }
-
-        .pagination .page-link {
-            color: #0d6efd;
-            cursor: pointer;
-        }
-
-        .pagination .page-item.disabled .page-link {
-            cursor: not-allowed;
-        }
-    </style>
 </div>

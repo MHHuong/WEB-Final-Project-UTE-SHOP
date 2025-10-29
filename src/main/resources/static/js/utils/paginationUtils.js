@@ -1,11 +1,4 @@
 // Pagination utility functions
-
-/**
- * Render pagination controls
- * @param {Object} paginationData - { currentPage, totalPages, size, totalElements }
- * @param {Function} onPageChange - Callback function when page changes (receives page number)
- * @param {string} containerId - ID of the container to render pagination
- */
 export function renderPagination(paginationData, onPageChange, containerId = 'pagination-container') {
     const { currentPage, totalPages, size, totalElements } = paginationData;
     const container = document.getElementById(containerId);

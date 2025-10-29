@@ -32,7 +32,7 @@ public class PaymentController {
             return new ResponseEntity<ApiResponse>(
                     new ApiResponse(
                             "Success",
-                            "Tạo thanh toán thành công",
+                            "Create payment successfully",
                             paymentUrl
                     ), HttpStatus.OK
             );
@@ -40,7 +40,7 @@ public class PaymentController {
             return new ResponseEntity<ApiResponse>(
                     new ApiResponse(
                             "Error",
-                            "Tạo thanh toán thất bại: " + e.getMessage(),
+                            "Create payment failed: " + e.getMessage(),
                             null
                     ), HttpStatus.PAYMENT_REQUIRED
             );
@@ -53,7 +53,7 @@ public class PaymentController {
             return new ResponseEntity<>(
                     new ApiResponse(
                             "Success",
-                            "Tạo thanh toán thành công",
+                            "Create MoMo payment successfully",
                             paymentService.createMoMoRequest(paymentRequest)
                     ), HttpStatus.OK
             );
@@ -62,7 +62,7 @@ public class PaymentController {
             return new ResponseEntity<>(
             new ApiResponse(
                     "Error",
-                    "Tạo thanh toán thất bại: " + e.getMessage(),
+                    "Create payment failed: " + e.getMessage(),
                     null
             ), HttpStatus.INTERNAL_SERVER_ERROR
             );

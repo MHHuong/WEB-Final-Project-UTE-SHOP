@@ -1,12 +1,16 @@
-import {showErrorToast, showSuccessToast} from "/js/utils/toastUtils.js";
-import addressService from "/js/services/api/addressService.js";
-import orderService from "/js/services/api/orderService.js";
-import {renderPagination, showPageInfo} from "/js/utils/paginationUtils.js";
-import {loadProvinces, loadDistricts, loadWards} from "/js/utils/locationUtils.js";
-import {showOrderStatusModal} from "/js/utils/orderStatusModal.js";
+import {showErrorToast, showSuccessToast} from "../../utils/toastUtils.js";
+import addressService from "../../services/api/addressService.js";
+import orderService from "../../services/api/orderService.js";
+import {renderPagination, showPageInfo} from "../../utils/paginationUtils.js";
+import {loadProvinces, loadDistricts, loadWards} from "../../utils/locationUtils.js";
+import {showOrderStatusModal} from "../../utils/orderStatusModal.js";
 
-const USER_ID = 1;
+import { AuthState } from "../../auth.js";
 
+
+// Hàm lấy USER_ID động
+const getUserId = () => AuthState.getUserId() || 0;
+let USER_ID = 0; // Sẽ được set sau khi AuthState load xong
 let isEditingAddress = false;
 let editingAddressId = null;
 let orders = [];
@@ -43,10 +47,105 @@ document.querySelectorAll('.nav-link[data-section]').forEach(link => {
     });
 });
 
+function loadProfileSection(UserInfo) {
+    console.log(UserInfo);
+    const fullNameInput = document.getElementById('fullName');
+    const emailInput = document.getElementById('email');
+    const phoneInput = document.getElementById('phone');
+
+    const fullName = document.getElementById('user-fullname');
+    const email = document.getElementById('user-email');
+
+    fullNameInput.value = UserInfo.fullName || '';
+    emailInput.value = UserInfo.email || '';
+    phoneInput.value = UserInfo.phone || '';
+
+    fullName.textContent = UserInfo.fullName || 'Người dùng';
+    email.textContent = UserInfo.email || 'Chưa cập nhật email';
+}
+
+document.getElementById('personal-info-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const fullName = document.getElementById('fullName').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    // Validation
+    let isValid = true;
+
+    // Validate fullName
+    if (!fullName) {
+        isValid = false;
+        document.getElementById('fullName').classList.add('is-invalid');
+    } else if (fullName.length < 2) {
+        isValid = false;
+        document.getElementById('fullName').classList.add('is-invalid');
+    } else {
+        document.getElementById('fullName').classList.remove('is-invalid');
+        document.getElementById('fullName').classList.add('is-valid');
+    }
+
+    // Validate phone
+    const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
+    if (!phone) {
+        isValid = false;
+        document.getElementById('phone').classList.add('is-invalid');
+        showErrorToast('Vui lòng nhập số điện thoại');
+    } else if (!phoneRegex.test(phone)) {
+        isValid = false;
+        document.getElementById('phone').classList.add('is-invalid');
+        showErrorToast('Phone number should be valid! 10 digits starting with 0 or +84');
+    } else {
+        document.getElementById('phone').classList.remove('is-invalid');
+        document.getElementById('phone').classList.add('is-valid');
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+        isValid = false;
+        document.getElementById('email').classList.add('is-invalid');
+    }
+    else if (!emailRegex.test(email)) {
+        isValid = false;
+        document.getElementById('email').classList.add('is-invalid');
+        showErrorToast("Email should be valid!");
+    } else {
+        document.getElementById('email').classList.remove('is-invalid');
+        document.getElementById('email').classList.add('is-valid');
+    }
+
+    if (!isValid) {
+        return;
+    }
+
+    try {
+        const user = {
+            fullName,
+            phone,
+            email
+        }
+        const result = await AuthState.updateUserInfo(USER_ID, user);
+        if (result.status === "Success") {
+            showSuccessToast('Update information successfully!');
+            const userInfo = AuthState.getUserInfo();
+            loadProfileSection(userInfo);
+            // Remove validation classes after successful update
+            document.getElementById('fullName').classList.remove('is-valid', 'is-invalid');
+            document.getElementById('phone').classList.remove('is-valid', 'is-invalid');
+            document.getElementById('email').classList.remove('is-valid', 'is-invalid');
+        } else {
+            showErrorToast(result.message || 'Cannot update information');
+        }
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        showErrorToast('Cannot update information');
+    }
+});
 
 // Load Addresses with pagination
 async function loadAddresses(page = 0, size = 4) {
     try {
+        console.log(USER_ID);
         let addresses = [];
         const result = await addressService.getAddressesPaginationByUserId(USER_ID, size, page);
         if (result.status === "Success") {
@@ -340,7 +439,7 @@ function paginateOrders(filteredOrders, page, size) {
 // Search and filter orders
 function searchAndFilterOrders(searchKeyword = '', status = 'all') {
     let filteredOrders = orders;
-    // Filter by status first
+    console.log(USER_ID)
     if (status !== 'all') {
         filteredOrders = filteredOrders.filter(order => order.status === status);
     }
@@ -583,7 +682,14 @@ document.addEventListener('click', async function(e) {
 });
 
 document.addEventListener('DOMContentLoaded', async function() {
-    // Load provinces for address form
+    if (!AuthState.getUserId()) {
+        console.log('Waiting for AuthState to load userId...');
+        await AuthState.fetchUserInfo();
+    }
+
+    USER_ID = AuthState.getUserId() || 0;
+    console.log('USER_ID initialized:', USER_ID);
+
     loadProvinces();
 
     document.getElementById('province').addEventListener('change', (e) => {
@@ -601,4 +707,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Initial load of orders
     await loadOrders();
     await displayOrders();
+
+    // Load profile section
+    const userInfo = AuthState.getUserInfo();
+    loadProfileSection(userInfo);
 });
