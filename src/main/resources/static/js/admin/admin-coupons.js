@@ -1,6 +1,17 @@
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
+
+// ================== ADMIN COUPON JS ==================
 document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector("#tblCoupons");
-    const pagination = document.querySelector("#pagination"); // ✅ thêm
+    const pagination = document.querySelector("#pagination");
     const searchBtn = document.querySelector("#btnSearch");
     const searchInput = document.querySelector("#searchCode");
     const reloadBtn = document.querySelector("#btnReload");
@@ -41,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ============ RENDER PAGINATION ============ ✅ thêm
+    // ============ RENDER PAGINATION ============
     function renderPagination(totalPages, currentPage) {
         pagination.innerHTML = "";
         if (totalPages <= 1) return;
@@ -55,10 +66,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // ============ LOAD COUPONS ============ (phân trang)
+    // ============ LOAD COUPONS ============
     function loadCouponsPage(page = 0, url = null) {
         currentPage = page;
-        const apiUrl = url || `/api/admin/coupons/app?page=${page}&size=${pageSize}`;
+        const apiUrl = url || `${contextPath}/api/admin/coupons/app?page=${page}&size=${pageSize}`;
         fetch(apiUrl)
             .then(res => res.json())
             .then(data => {
@@ -87,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         try {
-            const res = await fetch(`/api/admin/coupons/app`, {
+            const res = await fetch(`${contextPath}/api/admin/coupons/app`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(coupon)
@@ -98,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (res.ok) {
                 alert("✅ Thêm coupon thành công!");
                 couponForm?.reset();
-                window.location.href = "/admin/coupons";
+                window.location.href = `${contextPath}/admin/coupons`;
             } else {
                 alert("❌ " + (msg || "Không thể lưu coupon!"));
             }
@@ -118,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (action === "delete" && confirm("Bạn có chắc chắn muốn xóa coupon này?")) {
             try {
-                const res = await fetch(`/api/admin/coupons/${id}`, { method: "DELETE" });
+                const res = await fetch(`${contextPath}/api/admin/coupons/${id}`, { method: "DELETE" });
                 const msg = await res.text();
 
                 if (res.ok) {
@@ -138,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function () {
     searchBtn?.addEventListener("click", () => {
         const keyword = searchInput.value.trim();
         if (keyword)
-            loadCouponsPage(0, `/api/admin/coupons/search?code=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
+            loadCouponsPage(0, `${contextPath}/api/admin/coupons/search?code=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
         else loadCouponsPage();
     });
 

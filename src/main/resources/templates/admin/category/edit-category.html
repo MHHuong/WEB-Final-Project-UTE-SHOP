@@ -1,33 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="admin/_layout :: head(~{::title})">
-    <title>Edit Category</title>
+    <title>UTESHOP • Add Coupon</title>
 </head>
 <body>
 <div th:replace="admin/_layout :: layout(~{::content})">
-    <div th:fragment="content" class="container mt-5" style="max-width: 600px;">
-        <h3 class="text-center mb-4 fw-bold">Edit Category</h3>
+    <div th:fragment="content">
 
-        <form id="categoryForm" class="card p-4 shadow-sm border-0">
-            <div class="mb-3">
-                <label for="categoryName" class="form-label fw-semibold">Category Name</label>
-                <input type="text" id="categoryName" class="form-control" placeholder="Enter category name" required>
-            </div>
+        <style>
+            .page-wrap {max-width: 800px; margin: 0 auto;}
+            .card {box-shadow: 0 2px 8px rgba(0,0,0,0.05);}
+        </style>
 
-            <div class="text-end">
-                <button type="submit" class="btn btn-success px-4">Save Changes</button>
-                <a href="/admin/categories" class="btn btn-secondary px-4">Cancel</a>
+        <div class="page-wrap">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/UTE_SHOP/admin/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/UTE_SHOP/admin/coupons">App Coupons</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Add Coupon</li>
+                </ol>
+            </nav>
+
+            <h3 class="mb-3">Add New App Coupon</h3>
+
+            <div class="card">
+                <div class="card-body">
+                    <form id="couponForm">
+                        <div class="mb-3">
+                            <label class="form-label">Code <span class="text-danger">*</span></label>
+                            <input type="text" id="code" class="form-control" placeholder="VD: APP10, SALE50" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Discount Type</label>
+                            <select id="discountType" class="form-select">
+                                <option value="PERCENT">Percent (%)</option>
+                                <option value="AMOUNT">Amount (VND)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Value <span class="text-danger">*</span></label>
+                            <input type="number" id="value" class="form-control" placeholder="Nhập giá trị giảm" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Minimum Order Amount</label>
+                            <input type="number" id="minOrder" class="form-control" placeholder="Giá trị đơn hàng tối thiểu" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Expired At</label>
+                            <input type="datetime-local" id="expiredAt" class="form-control" required>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="/UTE_SHOP/admin/coupons" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-arrow-left"></i> Back
+                            </a>
+                            <!-- ✅ TYPE BUTTON để không bị reload -->
+                            <button id="btnSaveCoupon" type="button" class="btn btn-primary px-4">
+                                <i class="bi bi-save"></i> Save Coupon
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
+        </div>
+
     </div>
 </div>
 
-<!-- Truyền ID từ Thymeleaf sang JS -->
-<script th:inline="javascript">
-    const categoryId = /*[[${id}]]*/ null;
-</script>
-
-<!-- File JS dùng chung -->
-<script th:src="@{/js/admin/admin-categories.js}"></script>
+<!-- JS -->
+<script th:src="@{/js/admin/admin-coupons.js}"></script>
 </body>
 </html>

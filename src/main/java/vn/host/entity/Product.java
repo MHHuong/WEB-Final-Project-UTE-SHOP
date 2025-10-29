@@ -55,5 +55,6 @@ public class Product {
     private Set<ProductMedia> media = new HashSet<>();
 
     @OneToMany(mappedBy = "product")
+    @JsonIgnore
     private Set<Review> reviews = new HashSet<>();
 }

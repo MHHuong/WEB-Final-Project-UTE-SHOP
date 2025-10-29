@@ -1,3 +1,15 @@
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        // nếu path đầu tiên là 'api' hoặc rỗng -> root
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
+
+// ==================== LIST & ACTIONS ====================
 document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector("#userTable tbody");
     const pagination = document.querySelector("#pagination");
@@ -32,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 : '<span class="badge bg-danger">Inactive</span>'}
           </td>
           <td class="text-center">
-              <a href="/admin/customers/customers-edits?id=${u.userId}" 
+              <a href="${contextPath}/admin/customers/customers-edits?id=${u.userId}" 
                  class="btn btn-sm btn-outline-primary me-1" title="Edit">
                  <i class="bi bi-pencil-square"></i>
               </a>
@@ -68,8 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ================= LOAD USERS =================
     function loadUsers(page = 0, url = null) {
         currentPage = page;
-
-        let apiUrl = url || `/api/admin/users?page=${page}&size=${pageSize}`;
+        let apiUrl = url || `${contextPath}/api/admin/users?page=${page}&size=${pageSize}`;
         fetch(apiUrl)
             .then(res => res.json())
             .then(data => {
@@ -87,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
     searchBtn.addEventListener("click", () => {
         const keyword = searchInput.value.trim();
         if (keyword)
-            loadUsers(0, `/api/admin/users/search?email=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
+            loadUsers(0, `${contextPath}/api/admin/users/search?email=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
         else loadUsers();
     });
 
@@ -95,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
     roleSelect?.addEventListener("change", () => {
         const role = roleSelect.value;
         if (role)
-            loadUsers(0, `/api/admin/users/role/${role}`);
+            loadUsers(0, `${contextPath}/api/admin/users/role/${role}`);
         else loadUsers();
     });
 
@@ -103,7 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
     statusSelect?.addEventListener("change", () => {
         const status = statusSelect.value;
         if (!status) return loadUsers();
-        fetch(`/api/admin/users?page=0&size=100`) // lấy 1 trang lớn rồi lọc tạm
+        fetch(`${contextPath}/api/admin/users?page=0&size=100`)
             .then(res => res.json())
             .then(data => {
                 const users = (data.content || data).filter(u => u.status == status);
@@ -132,7 +143,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (action === "toggle") {
             const icon = btn.querySelector("i");
             const newStatus = icon.classList.contains("bi-lock-fill") ? 0 : 1;
-            fetch(`/api/admin/users/${id}/status?status=${newStatus}`, { method: "PUT" })
+            fetch(`${contextPath}/api/admin/users/${id}/status?status=${newStatus}`, { method: "PUT" })
                 .then(async res => {
                     const msg = await res.text();
                     if (!res.ok) alert("❌ " + (msg || "Failed to update status!"));
@@ -150,12 +161,12 @@ document.addEventListener("DOMContentLoaded", function () {
         // ----- Delete User -----
         if (action === "delete") {
             if (confirm("Bạn có chắc chắn muốn xóa user này?")) {
-                fetch(`/api/admin/users/${id}`, { method: "DELETE" })
+                fetch(`${contextPath}/api/admin/users/${id}`, { method: "DELETE" })
                     .then(async res => {
                         const msg = await res.text();
                         if (!res.ok) alert("❌ " + (msg || "Xóa thất bại!"));
                         else {
-                            alert("✅ " + ("Xóa thành công!"));
+                            alert("✅ Xóa thành công!");
                             loadUsers(currentPage);
                         }
                     })
@@ -200,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Nếu là trang EDIT thì load user lên form
     if (id) {
-        fetch(`/api/admin/users/${id}`)
+        fetch(`${contextPath}/api/admin/users/${id}`)
             .then(res => {
                 if (!res.ok) throw new Error("Không tìm thấy user!");
                 return res.json();
@@ -215,7 +226,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(err => {
                 alert("Lỗi tải dữ liệu user!");
                 console.error(err);
-                window.location.href = "/admin/customers";
+                window.location.href = `${contextPath}/admin/customers`;
             });
     }
 
@@ -233,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
         // Kiểm tra email trùng
-        const checkRes = await fetch(`/api/admin/users`);
+        const checkRes = await fetch(`${contextPath}/api/admin/users`);
         const users = await checkRes.json();
         const existed = (users.content || users).find(u =>
             u.email.toLowerCase() === data.email.toLowerCase() &&
@@ -245,7 +256,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const method = id ? "PUT" : "POST";
-        const url = id ? `/api/admin/users/${id}` : `/api/admin/users`;
+        const url = id ? `${contextPath}/api/admin/users/${id}` : `${contextPath}/api/admin/users`;
 
         const res = await fetch(url, {
             method,
@@ -255,8 +266,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const msg = await res.text();
         if (res.ok) {
-            alert("✅ " + ("Lưu thành công!"));
-            window.location.href = "/admin/customers";
+            alert("✅ Lưu thành công!");
+            window.location.href = `${contextPath}/admin/customers`;
         } else {
             alert("❌ Lỗi: " + (msg || "Không thể lưu dữ liệu!"));
         }

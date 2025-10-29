@@ -1,3 +1,13 @@
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
+
 // ================== ADMIN SHIPPER JS ==================
 document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector("#tblShippers tbody") || document.querySelector("#tblShippers");
@@ -27,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <td>${s.phone || s.user?.phone || '—'}</td>
                     <td><span class="badge-provider">${s.shippingProvider?.name || '—'}</span></td>
                     <td class="text-center">
-                        <a href="/admin/shippers/edit?id=${s.shipperId}"
+                        <a href="${contextPath}/admin/shippers/edit?id=${s.shipperId}"
                            class="btn btn-sm btn-outline-primary me-1" title="Edit">
                            <i class="bi bi-pencil-square"></i>
                         </a>
@@ -59,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ============ LOAD SHIPPERS ============
     function loadShippers(page = 0, url = null) {
         currentPage = page;
-        const apiUrl = url || `/api/admin/shippers?page=${page}&size=${pageSize}`;
+        const apiUrl = url || `${contextPath}/api/admin/shippers?page=${page}&size=${pageSize}`;
         fetch(apiUrl)
             .then(res => res.json())
             .then(data => {
@@ -71,13 +81,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ============ PAGE: LIST ============
-    if (path === "/admin/shippers") {
+    if (path.endsWith("/admin/shippers")) {
         loadShippers();
 
         searchBtn?.addEventListener("click", () => {
             const keyword = searchInput.value.trim();
             if (keyword)
-                loadShippers(0, `/api/admin/shippers?keyword=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
+                loadShippers(0, `${contextPath}/api/admin/shippers?keyword=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
             else loadShippers();
         });
 
@@ -95,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (confirm(`Are you sure you want to delete shipper "${name}" (ID: ${id})?`)) {
                 try {
-                    const res = await fetch(`/api/admin/shippers/${id}`, { method: "DELETE" });
+                    const res = await fetch(`${contextPath}/api/admin/shippers/${id}`, { method: "DELETE" });
                     const msg = await res.text();
 
                     if (!res.ok) alert("❌ " + (msg || "Unable to delete!"));
@@ -113,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ============ PAGE: ADD ============
     const form = document.getElementById("shipperForm");
-    const isEditPage = path === "/admin/shippers/edit";
+    const isEditPage = path === `${contextPath}/admin/shippers/edit`;
 
     if (form && !isEditPage) {
         const userId = document.getElementById("userId");
@@ -124,7 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // ===== LOAD USERS & PROVIDERS =====
         async function loadUsers() {
             try {
-                const res = await fetch("/api/admin/users?size=100");
+                const res = await fetch(`${contextPath}/api/admin/users?size=100`);
                 const data = await res.json();
                 const users = data.content || data;
                 userId.innerHTML = `<option value="">-- Select Shipper User --</option>`;
@@ -135,7 +145,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     userId.appendChild(opt);
                 });
 
-                // ✅ THÊM: cấu hình Select2 có placeholder và allowClear
                 if (window.$ && $.fn.select2) {
                     $('#userId').select2({
                         placeholder: "-- Select Shipper User --",
@@ -151,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         async function loadProviders() {
             try {
-                const res = await fetch("/api/admin/shipping-providers?size=100");
+                const res = await fetch(`${contextPath}/api/admin/shipping-providers?size=100`);
                 const data = await res.json();
                 const providers = data.content || data;
                 providerId.innerHTML = `<option value="">-- Select Provider --</option>`;
@@ -162,14 +171,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     providerId.appendChild(opt);
                 });
 
-                // ✅ THÊM: cấu hình Select2 có placeholder và allowClear
                 if (window.$ && $.fn.select2) {
                     $('#shippingProviderId').select2({
                         placeholder: "-- Select Provider --",
                         allowClear: true,
                         width: '100%'
                     }).on('select2:clear', function () {
-                        // ✅ Reset lại option đầu tiên, tránh bị render duplicate
                         $(this).val('').trigger('change');
                     });
                 }
@@ -199,7 +206,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             try {
-                const res = await fetch("/api/admin/shippers", {
+                const res = await fetch(`${contextPath}/api/admin/shippers`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)
@@ -208,7 +215,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!res.ok) alert("❌ " + (msg || "Failed to add shipper!"));
                 else {
                     alert("✅ Shipper added successfully!");
-                    window.location.href = "/admin/shippers";
+                    window.location.href = `${contextPath}/admin/shippers`;
                 }
             } catch (err) {
                 console.error(err);
@@ -222,7 +229,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const shipperId = new URLSearchParams(window.location.search).get("id");
         if (!shipperId) {
             alert("⚠️ Shipper ID not found!");
-            window.location.href = "/admin/shippers";
+            window.location.href = `${contextPath}/admin/shippers`;
             return;
         }
 
@@ -231,7 +238,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const providerId = document.getElementById("shippingProviderId");
 
         async function loadProviders() {
-            const res = await fetch("/api/admin/shipping-providers?size=100");
+            const res = await fetch(`${contextPath}/api/admin/shipping-providers?size=100`);
             const data = await res.json();
             const providers = data.content || data;
             providerId.innerHTML = `<option value="">-- Select Provider --</option>`;
@@ -242,28 +249,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 providerId.appendChild(opt);
             });
 
-            // ✅ THÊM: bật Select2 cho trang edit
             if (window.$ && $.fn.select2) {
                 $('#shippingProviderId').select2({
                     placeholder: "-- Select Provider --",
                     allowClear: true,
                     width: '100%'
                 }).on('select2:clear', function () {
-                    // ✅ Reset lại option đầu tiên, tránh bị render duplicate
                     $(this).val('').trigger('change');
                 });
             }
         }
 
         async function loadShipper() {
-            const res = await fetch(`/api/admin/shippers/${shipperId}`);
+            const res = await fetch(`${contextPath}/api/admin/shippers/${shipperId}`);
             if (!res.ok) throw new Error("Shipper not found");
             const s = await res.json();
             companyName.value = s.companyName || "";
             phone.value = s.phone || "";
             await loadProviders();
             providerId.value = s.shippingProvider?.shippingProviderId || "";
-            $('#shippingProviderId').trigger('change'); // ✅ cập nhật Select2 hiển thị đúng
+            $('#shippingProviderId').trigger('change');
         }
 
         loadShipper();
@@ -277,7 +282,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 shippingProvider: { shippingProviderId: parseInt(providerId.value || 0) }
             };
 
-            const res = await fetch(`/api/admin/shippers/${shipperId}`, {
+            const res = await fetch(`${contextPath}/api/admin/shippers/${shipperId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
@@ -287,7 +292,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!res.ok) alert("❌ " + (msg || "Update failed!"));
             else {
                 alert("✅ Shipper updated successfully!");
-                window.location.href = "/admin/shippers";
+                window.location.href = `${contextPath}/admin/shippers`;
             }
         });
     }

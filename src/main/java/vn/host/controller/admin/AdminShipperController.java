@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vn.host.dto.shipper.ShipperRequest;
 import vn.host.entity.Shipper;
 import vn.host.service.ShipperService;
 
@@ -29,22 +30,20 @@ public class AdminShipperController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Shipper shipper) {
+    public ResponseEntity<?> create(@RequestBody ShipperRequest req) {
         try {
-            return ResponseEntity.ok(shipperService.save(shipper));
-        }catch (RuntimeException e) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(e.getMessage());
+            return ResponseEntity.ok(shipperService.save(req));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Shipper> update(
             @PathVariable Long id,
-            @RequestBody Shipper shipper
+            @RequestBody ShipperRequest req
     ) {
-        return ResponseEntity.ok(shipperService.update(id, shipper));
+        return ResponseEntity.ok(shipperService.update(id, req));
     }
 
     @DeleteMapping("/{id}")

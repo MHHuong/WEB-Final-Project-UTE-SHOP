@@ -1,5 +1,6 @@
 package vn.host.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -27,6 +28,7 @@ public class Review {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ProductId", nullable = false)
+    @JsonIgnoreProperties({"reviews", "category", "shop"})
     private Product product;
 
     @Min(1) @Max(5)
