@@ -199,9 +199,9 @@ public class DashboardServiceImpl implements DashboardService {
         );
         List<TopProductVM> topProducts = tops.stream().map(arr -> {
             // arr: [productId, productName, grossRevenue]
-            Long pid = (Long) arr[0];
+            Long pid = ((Number) arr[0]).longValue();
             String name = (String) arr[1];
-            BigDecimal rev = (BigDecimal) arr[2];
+            BigDecimal rev = toBigDecimal(arr[2]);
             return TopProductVM.builder().productId(pid).name(name).revenue(nvl(rev)).build();
         }).collect(Collectors.toList());
 
@@ -225,6 +225,18 @@ public class DashboardServiceImpl implements DashboardService {
                 .recentOrders(recentOrders)
                 .topProducts(topProducts)
                 .build();
+    }
+
+    private static BigDecimal toBigDecimal(Object o) {
+        if (o == null) return BigDecimal.ZERO;
+        if (o instanceof BigDecimal bd) return bd;
+        if (o instanceof Number n) {
+            if (n instanceof Long || n instanceof Integer || n instanceof Short)
+                return BigDecimal.valueOf(n.longValue());
+            return BigDecimal.valueOf(n.doubleValue());
+        }
+        if (o instanceof String s && !s.isBlank()) return new BigDecimal(s);
+        return BigDecimal.ZERO;
     }
 
     // Tính ròng của cả tháng hiện tại (để điền monthRevenue)
