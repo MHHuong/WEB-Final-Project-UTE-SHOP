@@ -12,15 +12,15 @@
 ---
 
 ## Mục lục
-- [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
-- [Tính năng chính](#-tính-năng-chính)
-- [Cấu trúc dự án](#-cấu-trúc-dự-án)
-- [Yêu cầu hệ thống](#-yêu-cầu-hệ-thống)
-- [Hướng dẫn chạy dự án](#-hướng-dẫn-chạy-dự-án)
-- [Cấu hình môi trường](#-cấu-hình-môi-trường)
-- [Phân quyền & vai trò](#-phân-quyền--vai-trò)
-- [API nổi bật](#-api-nổi-bật)
-- [Quy ước đặt tên nhánh Git](#-quy-ước-đặt-tên-nhánh-git)
+- [Công nghệ sử dụng](#công-nghệ-sử-dụng)
+- [Tính năng chính](#tính-năng-chính)
+- [Cấu trúc dự án](#cấu-trúc-dự-án)
+- [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
+- [Hướng dẫn chạy dự án](#hướng-dẫn-chạy-dự-án)
+- [Cấu hình môi trường](#cấu-hình-môi-trường)
+- [Phân quyền & vai trò](#phân-quyền--vai-trò)
+- [API nổi bật](#api-nổi-bật)
+- [Quy ước đặt tên nhánh Git](#quy-ước-đặt-tên-nhánh-git)
 ---
 
 ## Công nghệ sử dụng
