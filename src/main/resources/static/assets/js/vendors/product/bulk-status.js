@@ -62,7 +62,7 @@
         if (!['0', '1', '2', '3'].includes(val) || ids.length === 0) return;
 
         // Cảnh báo riêng cho Deleted (soft delete)
-        if (val === '3' && !confirm(`Đặt ${ids.length} sản phẩm sang "Deleted"?`)) return;
+        if (val === '3' && !confirm(`Set ${ids.length} Product Status "Deleted"?`)) return;
 
         try {
             const res = await fetch(`${BASE}/api/shop/products/status`, {
@@ -86,7 +86,7 @@
             }
         } catch (err) {
             console.error(err);
-            alert('Có lỗi khi cập nhật trạng thái.');
+            alert('Error when updating status.');
         }
     });
 
