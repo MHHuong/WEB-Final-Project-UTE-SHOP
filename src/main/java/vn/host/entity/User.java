@@ -48,7 +48,7 @@ public class User {
     @CreationTimestamp
     private Instant createdAt;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<Address> addresses = new HashSet<>();
 
