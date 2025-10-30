@@ -129,4 +129,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         order by p.name asc
     """)
     Page<Product> search(@Param("q") String q, Pageable pageable);
+
+    Page<Product> findByStatus(int status, Pageable pageable);
 }

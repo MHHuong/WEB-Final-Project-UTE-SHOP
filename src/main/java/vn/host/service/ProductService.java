@@ -66,4 +66,5 @@ public interface ProductService {
     List<SearchSuggestionDTO> suggest(String q, int limit);
 
     Page<Product> search(String q, Pageable pageable);
+    Page<ProductDTO> findActiveProductsAsDTO(int page, int size);
 }
