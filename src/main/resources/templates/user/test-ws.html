@@ -1,226 +1,235 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>WebSocket Per-User Test (JWT)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-    .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    input, button { padding: 10px; margin: 4px 0; border-radius: 4px; border: 1px solid #ddd; }
-    input { width: 100%; box-sizing: border-box; }
-    button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
-    button:hover { background: #0056b3; }
-    button:disabled { background: #ccc; cursor: not-allowed; }
-    .row { margin-bottom: 12px; }
-    label { display: block; font-weight: bold; margin-bottom: 4px; color: #333; }
-    #log { border: 1px solid #ddd; padding: 10px; height: 300px; overflow: auto; background: #fafafa; font-family: monospace; font-size: 12px; }
-    .ok { color: green; }
-    .err { color: #b30000; }
-    .info { color: #0066cc; }
-    .section { margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-radius: 4px; }
-    h2 { color: #333; margin-top: 0; }
-    h3 { color: #555; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
-    .status { padding: 8px; border-radius: 4px; margin: 10px 0; font-weight: bold; }
-    .status.connected { background: #d4edda; color: #155724; }
-    .status.disconnected { background: #f8d7da; color: #721c24; }
-  </style>
+    <meta charset="UTF-8">
+    <title>WebSocket Per-User Test (JWT)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input, button { padding: 10px; margin: 4px 0; border-radius: 4px; border: 1px solid #ddd; }
+        input { width: 100%; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .row { margin-bottom: 12px; }
+        label { display: block; font-weight: bold; margin-bottom: 4px; color: #333; }
+        #log { border: 1px solid #ddd; padding: 10px; height: 300px; overflow: auto; background: #fafafa; font-family: monospace; font-size: 12px; }
+        .ok { color: green; }
+        .err { color: #b30000; }
+        .info { color: #0066cc; }
+        .section { margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-radius: 4px; }
+        h2 { color: #333; margin-top: 0; }
+        h3 { color: #555; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
+        .status { padding: 8px; border-radius: 4px; margin: 10px 0; font-weight: bold; }
+        .status.connected { background: #d4edda; color: #155724; }
+        .status.disconnected { background: #f8d7da; color: #721c24; }
+    </style>
 </head>
 <body>
-  <div class="container">
+<div class="container">
     <h2>🚀 Test WebSocket Per-User Orders (JWT)</h2>
     <div id="statusBar" class="status disconnected">❌ Disconnected</div>
 
     <div class="section">
-      <h3>1️⃣ Connection (JWT Required)</h3>
-      <div class="row">
-        <label>JWT Token (lấy từ localStorage sau khi login):</label>
-        <input id="jwtToken" type="text" placeholder="Paste your JWT token here or leave empty to auto-load from localStorage" />
-        <small style="color: #666;">Token sẽ tự động lấy từ localStorage('token') nếu để trống</small>
-      </div>
-      <div class="row">
-        <button id="connectBtn">🔌 Connect with JWT</button>
-        <button id="disconnectBtn" disabled>🔴 Disconnect</button>
-      </div>
+        <h3>1️⃣ Connection (JWT Required)</h3>
+        <div class="row">
+            <label>JWT Token (lấy từ localStorage sau khi login):</label>
+            <input id="jwtToken" type="text" placeholder="Paste your JWT token here or leave empty to auto-load from localStorage" />
+            <small style="color: #666;">Token sẽ tự động lấy từ localStorage('token') nếu để trống</small>
+        </div>
+        <div class="row">
+            <button id="connectBtn">🔌 Connect with JWT</button>
+            <button id="disconnectBtn" disabled>🔴 Disconnect</button>
+        </div>
     </div>
 
     <div class="section">
-      <h3>2️⃣ Test Send Message</h3>
-      <div class="row">
-        <label>Target User ID (người nhận):</label>
-        <input id="sendUserId" type="text" placeholder="e.g. 1" value="1" />
-      </div>
-      <div class="row">
-        <label>Message:</label>
-        <input id="sendMessage" type="text" placeholder="Test message" value="Hello from WebSocket!" />
-      </div>
-      <div class="row">
-        <button id="sendBtn">📤 Send Test Message (GET)</button>
-      </div>
+        <h3>2️⃣ Test Send Message</h3>
+        <div class="row">
+            <label>Target User ID (người nhận):</label>
+            <input id="sendUserId" type="text" placeholder="e.g. 1" value="1" />
+        </div>
+        <div class="row">
+            <label>Message:</label>
+            <input id="sendMessage" type="text" placeholder="Test message" value="Hello from WebSocket!" />
+        </div>
+        <div class="row">
+            <button id="sendBtn">📤 Send Test Message (GET)</button>
+        </div>
     </div>
 
     <div class="section">
-      <h3>3️⃣ Test Order Status Update</h3>
-      <div class="row">
-        <label>Order ID:</label>
-        <input id="orderId" type="number" placeholder="e.g. 1" value="1" />
-      </div>
-      <div class="row">
-        <label>Status:</label>
-        <select id="status" style="padding: 10px; width: 100%;">
-          <option value="PENDING">PENDING</option>
-          <option value="CONFIRMED">CONFIRMED</option>
-          <option value="PROCESSING">PROCESSING</option>
-          <option value="SHIPPED" selected>SHIPPED</option>
-          <option value="DELIVERED">DELIVERED</option>
-          <option value="CANCELLED">CANCELLED</option>
-        </select>
-      </div>
-      <div class="row">
-        <button id="updateBtn">🔄 Update Order Status (GET)</button>
-      </div>
+        <h3>3️⃣ Test Order Status Update</h3>
+        <div class="row">
+            <label>Order ID:</label>
+            <input id="orderId" type="number" placeholder="e.g. 1" value="1" />
+        </div>
+        <div class="row">
+            <label>Status:</label>
+            <select id="status" style="padding: 10px; width: 100%;">
+                <option value="PENDING">PENDING</option>
+                <option value="CONFIRMED">CONFIRMED</option>
+                <option value="PROCESSING">PROCESSING</option>
+                <option value="SHIPPED" selected>SHIPPED</option>
+                <option value="DELIVERED">DELIVERED</option>
+                <option value="CANCELLED">CANCELLED</option>
+            </select>
+        </div>
+        <div class="row">
+            <button id="updateBtn">🔄 Update Order Status (GET)</button>
+        </div>
     </div>
 
     <h3>📋 Event Log</h3>
     <div id="log"></div>
     <button onclick="document.getElementById('log').innerHTML = ''; log('Log cleared', 'info');" style="margin-top: 10px; background: #6c757d;">🗑️ Clear Log</button>
-  </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-  <script type="module">
-      let stompClient = null;
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script type="module">
+    let stompClient = null;
     function log(msg, cls) {
-      const el = document.createElement('div');
-      if (cls) el.className = cls;
-      const timestamp = new Date().toLocaleTimeString();
-      el.textContent = `[${timestamp}] ${msg}`;
-      const logEl = document.getElementById('log');
-      logEl.appendChild(el);
-      logEl.scrollTop = logEl.scrollHeight;
+        const el = document.createElement('div');
+        if (cls) el.className = cls;
+        const timestamp = new Date().toLocaleTimeString();
+        el.textContent = `[${timestamp}] ${msg}`;
+        const logEl = document.getElementById('log');
+        logEl.appendChild(el);
+        logEl.scrollTop = logEl.scrollHeight;
     }
 
     function updateStatus(connected) {
-      const statusEl = document.getElementById('statusBar');
-      if (connected) {
-        statusEl.textContent = '✅ Connected to WebSocket';
-        statusEl.className = 'status connected';
-      } else {
-        statusEl.textContent = '❌ Disconnected';
-        statusEl.className = 'status disconnected';
-      }
+        const statusEl = document.getElementById('statusBar');
+        if (connected) {
+            statusEl.textContent = '✅ Connected to WebSocket';
+            statusEl.className = 'status connected';
+        } else {
+            statusEl.textContent = '❌ Disconnected';
+            statusEl.className = 'status disconnected';
+        }
     }
 
     function connect() {
-      // Get JWT token from input or localStorage
-      let token = document.getElementById('jwtToken').value.trim();
-      if (!token) {
-        token = localStorage.getItem('token');
+        // Get JWT token from input or localStorage
+        let token = document.getElementById('jwtToken').value.trim();
         if (!token) {
-          alert('⚠️ JWT token not found! Please:\n1. Login first to get token\n2. Or paste token manually');
-          return;
-        }
-        log('✅ Token auto-loaded from localStorage', 'info');
-      }
-
-      log('🔌 Connecting to WebSocket...', 'info');
-      const sock = new SockJS('/ws');
-      stompClient = Stomp.over(sock);
-
-      // Connect with JWT token in header
-      stompClient.connect(
-        {'Authorization': 'Bearer ' + token},
-        function(frame) {
-          log('✅ Connected successfully!', 'ok');
-          log('Frame: ' + JSON.stringify(frame), 'info');
-          updateStatus(true);
-          document.getElementById('connectBtn').disabled = true;
-          document.getElementById('disconnectBtn').disabled = false;
-
-          // Subscribe to per-user queue
-          stompClient.subscribe('/user/queue/orders', function(message) {
-            try {
-              const body = JSON.parse(message.body);
-              log('📦 Received order update: ' + JSON.stringify(body, null, 2), 'ok');
-
-              // Show desktop notification if supported
-              if (Notification.permission === "granted") {
-                new Notification("Order Update", {
-                  body: `Order ${body.orderId}: ${body.status}`,
-                  icon: '/images/favicon/favicon.ico'
-                });
-              }
-            } catch (e) {
-              log('📦 Received (raw): ' + message.body, 'ok');
+            token = localStorage.getItem('authToken');
+            if (!token) {
+                alert('⚠️ JWT token not found! Please:\n1. Login first to get token\n2. Or paste token manually');
+                return;
             }
-          });
-
-          log('👂 Subscribed to /user/queue/orders', 'info');
-
-          // Request notification permission
-          if (Notification.permission === "default") {
-            Notification.requestPermission();
-          }
-        },
-        function(error) {
-          log('❌ STOMP error: ' + JSON.stringify(error), 'err');
-          updateStatus(false);
-          document.getElementById('connectBtn').disabled = false;
-          document.getElementById('disconnectBtn').disabled = true;
+            log('✅ Token auto-loaded from localStorage', 'info');
         }
-      );
+
+        log('🔌 Connecting to WebSocket...', 'info');
+        const socket = new SockJS("http://localhost:8082/UTE_SHOP/ws?token=" + token);
+        stompClient = Stomp.over(socket);
+
+        // Connect with JWT token in header
+        stompClient.connect(
+            {},
+            function(frame) {
+                log('✅ Connected successfully!', 'ok');
+                log('Frame: ' + JSON.stringify(frame), 'info');
+                updateStatus(true);
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('disconnectBtn').disabled = false;
+
+                // Subscribe to per-user queue
+                stompClient.subscribe('/user/queue/orders', function(message) {
+                    console.log('🎉 RAW MESSAGE RECEIVED:', message);
+                    console.log('Message body:', message.body);
+
+                    try {
+                        const body = JSON.parse(message.body);
+                        log('📦 ✨ RECEIVED ORDER UPDATE: ' + JSON.stringify(body, null, 2), 'ok');
+                        console.log('Parsed message:', body);
+
+                        // Visual alert
+                        alert('🎉 Message received!\n\n' + JSON.stringify(body, null, 2));
+
+                        // Show desktop notification if supported
+                        if (Notification.permission === "granted") {
+                            new Notification("Order Update", {
+                                body: `Order ${body.orderId}: ${body.status}`,
+                                icon: '/images/favicon/favicon.ico'
+                            });
+                        }
+                    } catch (e) {
+                        log('📦 Received (raw): ' + message.body, 'ok');
+                        console.log('Parse error:', e);
+                        alert('📦 Message received (raw):\n' + message.body);
+                    }
+                });
+
+                log('👂 Subscribed to /user/queue/orders', 'info');
+
+                // Request notification permission
+                if (Notification.permission === "default") {
+                    Notification.requestPermission();
+                }
+            },
+            function(error) {
+                log('❌ STOMP error: ' + JSON.stringify(error), 'err');
+                updateStatus(false);
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+            }
+        );
     }
 
     function disconnect() {
-      if (stompClient) {
-        stompClient.disconnect(() => {
-          log('🔴 Disconnected', 'ok');
-          updateStatus(false);
-        });
-        stompClient = null;
-      }
-      document.getElementById('connectBtn').disabled = false;
-      document.getElementById('disconnectBtn').disabled = true;
+        if (stompClient) {
+            stompClient.disconnect(() => {
+                log('🔴 Disconnected', 'ok');
+                updateStatus(false);
+            });
+            stompClient = null;
+        }
+        document.getElementById('connectBtn').disabled = false;
+        document.getElementById('disconnectBtn').disabled = true;
     }
 
     async function sendTest() {
-      const userId = document.getElementById('sendUserId').value.trim();
-      const message = document.getElementById('sendMessage').value.trim() || 'TEST';
-      if (!userId) {
-        alert('⚠️ Enter userId to send to');
-        return;
-      }
+        const userId = document.getElementById('sendUserId').value.trim();
+        const message = document.getElementById('sendMessage').value.trim() || 'TEST';
+        if (!userId) {
+            alert('⚠️ Enter userId to send to');
+            return;
+        }
 
-      const url = '/api/status/ws/send?userId=' + encodeURIComponent(userId) + '&message=' + encodeURIComponent(message);
-      log('📤 Sending to userId=' + userId + '...', 'info');
+        const url = '/UTE_SHOP/api/status/ws/send?userId=' + encodeURIComponent(userId) + '&message=' + encodeURIComponent(message);
+        log('📤 Sending to userId=' + userId + '...', 'info');
 
-      try {
-        const res = await fetch(url, { method: 'GET' });
-        const text = await res.text();
-        log('✅ GET ' + url + ' -> ' + res.status + ' ' + text, res.ok ? 'ok' : 'err');
-      } catch (e) {
-        log('❌ Failed to send: ' + e.message, 'err');
-      }
+        try {
+            const res = await fetch(url, { method: 'GET' });
+            const text = await res.text();
+            log('✅ GET ' + url + ' -> ' + res.status + ' ' + text, res.ok ? 'ok' : 'err');
+        } catch (e) {
+            log('❌ Failed to send: ' + e.message, 'err');
+        }
     }
 
     async function updateOrder() {
-      const orderId = document.getElementById('orderId').value.trim();
-      const status = document.getElementById('status').value.trim();
-      if (!orderId || !status) {
-        alert('⚠️ Enter orderId and status');
-        return;
-      }
+        const orderId = document.getElementById('orderId').value.trim();
+        const status = document.getElementById('status').value.trim();
+        if (!orderId || !status) {
+            alert('⚠️ Enter orderId and status');
+            return;
+        }
 
-      const url = '/api/status/ws/order-status?orderId=' + encodeURIComponent(orderId) + '&status=' + encodeURIComponent(status);
-      log('🔄 Updating order ' + orderId + ' to ' + status + '...', 'info');
+        const url = '/UTE_SHOP/api/status/ws/order-status?orderId=' + encodeURIComponent(orderId) + '&status=' + encodeURIComponent(status);
+        log('🔄 Updating order ' + orderId + ' to ' + status + '...', 'info');
 
-      try {
-        const res = await fetch(url, { method: 'GET' });
-        const text = await res.text();
-        log('✅ GET ' + url + ' -> ' + res.status + ' ' + text, res.ok ? 'ok' : 'err');
-      } catch (e) {
-        log('❌ Failed to update: ' + e.message, 'err');
-      }
+        try {
+            const res = await fetch(url, { method: 'GET' });
+            const text = await res.text();
+            log('✅ GET ' + url + ' -> ' + res.status + ' ' + text, res.ok ? 'ok' : 'err');
+        } catch (e) {
+            log('❌ Failed to update: ' + e.message, 'err');
+        }
     }
 
     document.getElementById('connectBtn').addEventListener('click', connect);
@@ -230,14 +239,30 @@
 
     // Auto-load token on page load
     window.addEventListener('load', function() {
-      const token = localStorage.getItem('authToken');
-      console.log(token);
-      if (token) {
-        log('ℹ️ JWT token found in localStorage (ready to connect)', 'info');
-      } else {
-        log('⚠️ No JWT token in localStorage. Please login first or paste token manually.', 'err');
-      }
+        const token = localStorage.getItem('authToken');
+        const userId = localStorage.getItem('userId');
+
+        console.log('=== WebSocket Test Page ===');
+        console.log('Token:', token ? 'Found ✅' : 'Not found ❌');
+        console.log('UserId:', userId || 'Not found');
+
+        // Display current userId
+        const userIdEl = document.getElementById('currentUserId');
+        if (userId) {
+            userIdEl.textContent = userId;
+            // Auto-fill userId in test forms
+            document.getElementById('sendUserId').value = userId;
+        } else {
+            userIdEl.textContent = 'Not logged in';
+        }
+
+        if (token) {
+            log('ℹ️ JWT token found in localStorage (ready to connect)', 'info');
+            log('ℹ️ Your userId: ' + (userId || 'unknown'), 'info');
+        } else {
+            log('⚠️ No JWT token in localStorage. Please login first or paste token manually.', 'err');
+        }
     });
-  </script>
+</script>
 </body>
 </html>
