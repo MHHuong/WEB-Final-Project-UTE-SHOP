@@ -15,7 +15,7 @@ let shippingFeePre = 0
 let shippingMethod = 'STANDARD';
 let shippingProviderId = 1;
 let vouchers = [];
-
+const BASE_URL = window.location.origin
 
 // Format currency
 function formatCurrency(amount) {

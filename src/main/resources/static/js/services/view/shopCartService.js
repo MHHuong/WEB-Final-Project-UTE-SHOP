@@ -9,7 +9,7 @@ let cartItems = [];
 let selectedItems = new Set();
 let shopVouchers = {}; // Store selected vouchers per shop
 let USER_ID = localStorage.getItem("userId");
-
+const BASE_URL = window.location.origin
 
 
 
