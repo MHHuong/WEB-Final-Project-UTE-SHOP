@@ -117,4 +117,16 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
                 WHERE m.type = 'IMAGE'
             """)
     List<ProductResponse> findAllProductsOrder();
+    @Query("""
+        select p from Product p
+        where lower(p.name) like lower(concat('%', :q, '%'))
+        order by p.name asc
+    """)
+    List<Product> searchSuggest(@Param("q") String q, Pageable pageable);
+    @Query("""
+        select p from Product p
+        where lower(p.name) like lower(concat('%', :q, '%'))
+        order by p.name asc
+    """)
+    Page<Product> search(@Param("q") String q, Pageable pageable);
 }

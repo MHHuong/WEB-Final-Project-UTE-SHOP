@@ -13,6 +13,7 @@ import vn.host.dto.common.ProductDTO;
 import vn.host.dto.common.PageResult;
 import vn.host.dto.product.ProductDetailVM;
 import vn.host.dto.product.ProductListItemVM;
+import vn.host.dto.product.SearchSuggestionDTO;
 import vn.host.dto.review.RatingSummary;
 import vn.host.entity.Product;
 import vn.host.entity.ProductMedia;
@@ -42,11 +43,6 @@ public class ProductServiceImpl implements ProductService {
     private final ShopRepository shops;
     private final ProductMediaRepository mediaRepo;
     private final ReviewService reviewService;
-//    @Autowired
-//    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService) {
-//        this.productRepository = productRepository;
-//        this.categoryService = categoryService;
-//    }
 
     @Override
     public void deleteById(Long id) {
@@ -336,5 +332,24 @@ public class ProductServiceImpl implements ProductService {
                 summary.getAvg(),
                 summary.getTotal()
         );
+    }
+    @Override
+    public List<SearchSuggestionDTO> suggest(String q, int limit) {
+        if (!StringUtils.hasText(q)) return List.of();
+        var page = PageRequest.of(0, limit);
+        return productRepository.searchSuggest(q.trim(), page).stream()
+                .map(p -> SearchSuggestionDTO.builder()
+                        .productId(p.getProductId())
+                        .name(p.getName())
+                        .imageUrl(resolveThumb(p.getProductId()))
+                        .url("/products/" + p.getProductId())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public Page<Product> search(String q, Pageable pageable) {
+        String kw = (q == null) ? "" : q.trim();
+        return productRepository.search(kw, pageable);
     }
 }
