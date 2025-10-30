@@ -18,7 +18,7 @@
             headers: {'Authorization': `Bearer ${token}`}
         });
         if (!res.ok) {
-            alert('Tải lịch sử thất bại');
+            alert('Load failed');
             return;
         }
         const data = await res.json();

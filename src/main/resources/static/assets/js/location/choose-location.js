@@ -84,7 +84,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     const provinceName = $province.options[$province.selectedIndex]?.text || '';
                     if (!detail || !$ward.value || !$district.value || !$province.value) {
                         e.preventDefault();
-                        alert('Vui lòng chọn tỉnh, huyện, xã và nhập địa chỉ cụ thể.');
+                        alert('Please choose particular province, district, ward and detail.');
                         return;
                     }
                     $address.value = `${detail}, ${wardName}, ${districtName}, ${provinceName}`;
