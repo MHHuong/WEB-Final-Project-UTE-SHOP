@@ -3,6 +3,7 @@ package vn.host.controller.shipper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import vn.host.dto.common.PageResult;
@@ -18,6 +19,7 @@ import vn.host.util.sharedenum.ShipperAction;
 
 @RestController
 @RequestMapping("/api/shipper")
+@PreAuthorize("hasRole('SHIPPER')")
 @RequiredArgsConstructor
 public class ShipperController {
 
