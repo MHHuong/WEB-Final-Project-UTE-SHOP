@@ -40,11 +40,8 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final ReviewMediaService reviewMediaService;
     private final ProductMediaService productMediaService;
-    private final UserRepository userRepo;
-    private final OrderRepository orderRepo;
-    private final ProductRepository productRepo;
-    private final ReviewRepository reviewRepo;
-    private final ReviewMediaRepository reviewMediaRepo;
+    private final OrderService orderService;
+    private final ProductService productService;
 
     // Lấy user từ Authentication (giống ShopController của bạn)
     private User authedUser(Authentication auth) {
@@ -219,10 +216,10 @@ public class ReviewController {
 
         // 1) Xác thực user
         String email = auth.getName();
-        User user = userRepo.findByEmail(email).orElseThrow(() -> new NoSuchElementException("User not found"));
+        User user = userService.findByEmail(email);
 
         // 2) Kiểm tra order thuộc user & đã RECEIVED
-        Order order = orderRepo.findById(orderId).orElseThrow(() -> new NoSuchElementException("Order not found"));
+        Order order = orderService.findById(orderId);
         if (!order.getUser().getUserId().equals(user.getUserId())) {
             return ResponseEntity.status(403).body(Map.of("message", "Order not belong to user"));
         }
@@ -236,9 +233,9 @@ public class ReviewController {
             return ResponseEntity.badRequest().body(Map.of("message", "Product not in this order"));
         }
 
-        Product product = productRepo.findById(productId).orElseThrow(() -> new NoSuchElementException("Product not found"));
+        Product product = productService.findById(productId);
 
-        Optional<Review> existed = reviewRepo.findFirstByUser_UserIdAndProduct_ProductIdOrderByCreatedAtDesc(
+        Optional<Review> existed = reviewService.findFirstByUser_UserIdAndProduct_ProductIdOrderByCreatedAtDesc(
                 user.getUserId(), productId);
         if (existed.isPresent()) {
             return updateReview(auth, existed.get().getReviewId(), rating, comment, files);
@@ -251,7 +248,7 @@ public class ReviewController {
                 .rating(rating)
                 .comment(comment)
                 .build();
-        review = reviewRepo.save(review);
+        review = reviewService.save(review);
 
         // 5) Lưu file (nếu có)
         if (files != null && !files.isEmpty()) {
@@ -284,13 +281,13 @@ public class ReviewController {
                         .url(publicUrl)
                         .type(mediaType)
                         .build();
-                reviewMediaRepo.save(rm);
+                reviewMediaService.save(rm);
             }
         }
 
         // 6) Trả về item VM gọn nhẹ
         Review finalReview = review;
-        List<ReviewMediaRes> mediaResList = reviewMediaRepo.findByReview_ReviewId(finalReview.getReviewId()).stream()
+        List<ReviewMediaRes> mediaResList = reviewMediaService.findByReview_ReviewId(finalReview.getReviewId()).stream()
                 .map(m -> ReviewMediaRes.builder()
                         .id(m.getReviewMediaId())
                         .url(m.getUrl())
@@ -320,16 +317,16 @@ public class ReviewController {
             return ResponseEntity.status(401).body(Collections.singletonMap("message", "Unauthenticated"));
         }
         String email = auth.getName();
-        User user = userRepo.findByEmail(email).orElseThrow(() -> new NoSuchElementException("User not found"));
+        User user = userService.findByEmail(email);
 
-        Optional<Review> opt = reviewRepo.findFirstByUser_UserIdAndProduct_ProductIdOrderByCreatedAtDesc(
+        Optional<Review> opt = reviewService.findFirstByUser_UserIdAndProduct_ProductIdOrderByCreatedAtDesc(
                 user.getUserId(), productId);
 
         if (opt.isEmpty()) {
             return ResponseEntity.ok().body(null); // không có review
         }
         Review r = opt.get();
-        List<ReviewMediaRes> media = reviewMediaRepo.findByReview_ReviewId(r.getReviewId())
+        List<ReviewMediaRes> media = reviewMediaService.findByReview_ReviewId(r.getReviewId())
                 .stream().map(m -> ReviewMediaRes.builder()
                         .id(m.getReviewMediaId())
                         .url(m.getUrl())
@@ -363,9 +360,9 @@ public class ReviewController {
             return ResponseEntity.status(401).body(Collections.singletonMap("message", "Unauthenticated"));
         }
         String email = auth.getName();
-        User user = userRepo.findByEmail(email).orElseThrow(() -> new NoSuchElementException("User not found"));
+        User user = userService.findByEmail(email);
 
-        Review r = reviewRepo.findById(reviewId).orElseThrow(() -> new NoSuchElementException("Review not found"));
+        Review r = reviewService.findById(reviewId);
         if (!r.getUser().getUserId().equals(user.getUserId())) {
             return ResponseEntity.status(403).body(Collections.singletonMap("message", "Not owner"));
         }
@@ -373,11 +370,11 @@ public class ReviewController {
         // cập nhật rating/comment
         r.setRating(rating);
         r.setComment(comment);
-        reviewRepo.save(r);
+        Review saved = reviewService.save(r);
 
         // Nếu có files mới => xoá media cũ & thêm mới
         if (files != null && !files.isEmpty()) {
-            reviewMediaRepo.deleteByReview_ReviewId(r.getReviewId());
+            reviewMediaService.deleteByReview_ReviewId(r.getReviewId());
 
             Path root = uploadsRoot();
             Path dir = root.resolve(Path.of("reviews", String.valueOf(user.getUserId()), String.valueOf(r.getReviewId()))).normalize();
@@ -406,12 +403,12 @@ public class ReviewController {
                         .url(publicUrl)
                         .type(mediaType)
                         .build();
-                reviewMediaRepo.save(rm);
+                reviewMediaService.save(rm);
             }
         }
 
         // trả về lại item đã cập nhật
-        List<ReviewMediaRes> media = reviewMediaRepo.findByReview_ReviewId(r.getReviewId()).stream()
+        List<ReviewMediaRes> media = reviewMediaService.findByReview_ReviewId(r.getReviewId()).stream()
                 .map(m -> ReviewMediaRes.builder().id(m.getReviewMediaId()).url(m.getUrl()).type(m.getType().name()).build())
                 .toList();
 

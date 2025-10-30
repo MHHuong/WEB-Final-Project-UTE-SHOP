@@ -18,7 +18,30 @@ let editingAddressId = null;
 let orders = [];
 let currentOrderStatus = 'all'; // Track current filter status
 let currentSearchKeyword = ''; // Track current search keyword
-const BASE_URL = window.location.origin
+const BASE_URL = window.location.origin;
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part; // -> '/UTE_SHOP'
+    } catch (e) {
+        return '';
+    }
+})();
+
+function buildUrl(p) {
+    if (!p) return '';
+    if (/^https?:\/\//i.test(p)) return p;
+
+    const rel = p.startsWith('/') ? p : '/' + p;
+
+    if (contextPath && rel.startsWith(contextPath + '/')) {
+        return BASE_URL + rel;
+    }
+
+    return BASE_URL + (contextPath || '') + rel;
+}
+
 // Pagination state for addresses
 let addressPagination = {
     currentPage: 0,
@@ -805,14 +828,6 @@ function displayLovedProducts(searchKeyword = '', p = 1, size = 3) {
         return;
     }
 
-    function buildUrl(p) {
-        if (!p) return '/assets/images/sample/snack.jpg';
-        if (/^https?:\/\//i.test(p)) return p; // http / https giữ nguyên
-        if (p.startsWith(BASE_URL + contextPath + '/')) return p;
-        if (p.startsWith('/')) return BASE_URL + contextPath + p;
-        return BASE_URL + contextPath + '/' + p.replace(/^\/+/, '');
-    }
-
     productContent.forEach(product => {
         const discount = product.price ? Math.round((1 - product.price / product.price) * 100) : 0;
         const productCard = `
@@ -1091,7 +1106,7 @@ document.addEventListener('click', function (e) {
                         const isVideo = (m.type || '').toLowerCase() === 'video';
                         const node = document.createElement(isVideo ? 'video' : 'img');
                         if (isVideo) node.controls = true;
-                        node.src = m.url;
+                        node.src = buildUrl(m.url);
                         node.style.width = '100px';
                         node.style.height = '100px';
                         node.style.objectFit = 'cover';

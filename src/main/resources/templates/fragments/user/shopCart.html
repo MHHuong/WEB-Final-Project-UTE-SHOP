@@ -1,4 +1,5 @@
-<div th:fragment="shop-cart" class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+<div th:fragment="shop-cart" class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight"
+     aria-labelledby="offcanvasRightLabel">
     <div class="offcanvas-header border-bottom">
         <div class="text-start">
             <h5 id="offcanvasRightLabel" class="mb-0 fs-4">Shop Cart</h5>
@@ -36,9 +37,14 @@
         </div>
     </div>
 
-    <script  type="module">
+    <script type="module">
         import cartService from "/UTE_SHOP/js/services/api/cartService.js";
-        import { showSuccessToast, showErrorToast, showWarningToast, showInfoToast } from "/UTE_SHOP/js/utils/toastUtils.js";
+        import {
+            showSuccessToast,
+            showErrorToast,
+            showWarningToast,
+            showInfoToast
+        } from "/UTE_SHOP/js/utils/toastUtils.js";
         import cartBadgeUtils from "/UTE_SHOP/js/utils/cartBadgeUtils.js";
         import {AuthState} from "/UTE_SHOP/js/auth.js";
 
@@ -211,6 +217,7 @@
         }
 
         const BASE_URL = window.location.origin
+
         function buildUrl(p) {
             if (!p) return '/assets/images/sample/snack.jpg';
             if (/^https?:\/\//i.test(p)) return p; // http / https giữ nguyên
@@ -342,6 +349,7 @@
         function attachRemoveEvents() {
             document.querySelectorAll('.remove-item-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
                     e.preventDefault();
                     const cartItemId = btn.getAttribute('data-cart-item-id');
                     await removeCartItem(cartItemId);
@@ -367,14 +375,14 @@
             }
         }
 
-        window.handleContinue = function() {
+        window.handleContinue = function () {
             const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasRight'));
             if (offcanvas) {
                 offcanvas.hide();
             }
         };
 
-        window.handleNavigation = function() {
+        window.handleNavigation = function () {
             window.location.href = '/UTE_SHOP/user/shop-cart';
         };
 
@@ -452,8 +460,12 @@
         }
 
         @keyframes spin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
         }
 
         /* Pagination styles */
