@@ -18,18 +18,49 @@
 
     <style>
         /* Vùng slider ảnh to */
-        .product-slider { position: relative; overflow: hidden; }
-        #productSlider .zoom img { width: 100%; height: auto; display: block; }
+        .product-slider {
+            position: relative;
+            overflow: hidden;
+        }
+
+        #productSlider .zoom img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
 
         /* Dải thumbnail bên dưới */
-        .product-thumbs { margin-top: .75rem; }
-        .thumbs-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: .5rem; }
-        .thumb {
-            border: 2px solid transparent; border-radius: .5rem; overflow: hidden; cursor: pointer;
-            aspect-ratio: 1 / 1; display: block;
+        .product-thumbs {
+            margin-top: .75rem;
         }
-        .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .thumb.active { border-color: #198754; } /* màu viền khi chọn */
+
+        .thumbs-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: .5rem;
+        }
+
+        .thumb {
+            border: 2px solid transparent;
+            border-radius: .5rem;
+            overflow: hidden;
+            cursor: pointer;
+            aspect-ratio: 1 / 1;
+            display: block;
+        }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .thumb.active {
+            border-color: #198754;
+        }
+
+        /* màu viền khi chọn */
     </style>
 </head>
 
@@ -49,7 +80,8 @@
                         <li class="breadcrumb-item" th:if="${product.categoryName != null}">
                             <a th:href="@{'/categories/' + ${product.categoryId}}" th:text="${product.categoryName}">Category</a>
                         </li>
-                        <li class="breadcrumb-item active" aria-current="page" th:text="${product.name}">Product Name</li>
+                        <li class="breadcrumb-item active" aria-current="page" th:text="${product.name}">Product Name
+                        </li>
                     </ol>
                 </nav>
             </div>
@@ -98,13 +130,19 @@
 
                         <div class="mb-4">
                             <small class="text-warning">
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-half"></i>
+                                  <span th:each="star : ${#numbers.sequence(1,5)}">
+                                    <i class="bi"
+                                       th:classappend="${
+                                           star <= T(java.lang.Math).floor(product.avgRating)
+                                               ? 'bi-star-fill text-warning'
+                                               : (star - product.avgRating < 1 && star > product.avgRating
+                                                   ? 'bi-star-half text-warning'
+                                                   : 'bi-star text-warning')
+                                       }"></i>
+                                  </span>
                             </small>
-                            <a href="#reviews-tab-pane" class="ms-2" th:text="'(' + ${product.totalReviews} + ' reviews)'">(0 reviews)</a>
+                            <a href="#reviews-tab-pane" class="ms-2"
+                               th:text="'(' + ${product.totalReviews} + ' reviews)'">(0 reviews)</a>
                         </div>
 
                         <div class="fs-4">
@@ -143,12 +181,19 @@
                         <div>
                             <table class="table table-borderless mb-0">
                                 <tbody>
-                                <tr><td>Product Code:</td><td th:text="${product.productId}">FBB00255</td></tr>
-                                <tr><td>Availability:</td><td th:text="${product.stock > 0 ? 'In Stock' : 'Out of Stock'}">In Stock</td></tr>
-                                <tr th:if="${product.categoryName != null}">
-                                    <td>Type:</td><td th:text="${product.categoryName}">Fruits</td>
+                                <tr>
+                                    <td>Product Code:</td>
+                                    <td th:text="${product.productId}">FBB00255</td>
                                 </tr>
-<!--                                <tr><td>Seller:</td><td th:text="${product.shopId}"><small>01 day shipping. <span class="text-muted">[Seller Name]</span></small></td></tr>-->
+                                <tr>
+                                    <td>Availability:</td>
+                                    <td th:text="${product.stock > 0 ? 'In Stock' : 'Out of Stock'}">In Stock</td>
+                                </tr>
+                                <tr th:if="${product.categoryName != null}">
+                                    <td>Type:</td>
+                                    <td th:text="${product.categoryName}">Fruits</td>
+                                </tr>
+                                <!--                                <tr><td>Seller:</td><td th:text="${product.shopId}"><small>01 day shipping. <span class="text-muted">[Seller Name]</span></small></td></tr>-->
                                 </tbody>
                             </table>
                         </div>
@@ -168,11 +213,13 @@
                     <ul class="nav nav-pills nav-lb-tab" id="myTab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="product-tab" data-bs-toggle="tab"
-                                    data-bs-target="#product-tab-pane" type="button" role="tab">Product Details</button>
+                                    data-bs-target="#product-tab-pane" type="button" role="tab">Product Details
+                            </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="reviews-tab" data-bs-toggle="tab"
-                                    data-bs-target="#reviews-tab-pane" type="button" role="tab">Reviews</button>
+                                    data-bs-target="#reviews-tab-pane" type="button" role="tab">Reviews
+                            </button>
                         </li>
                     </ul>
 
@@ -192,8 +239,10 @@
                                 <div class="row">
                                     <div class="col-md-8">
                                         <div class="mb-10">
-                                            <div th:if="${#lists.isEmpty(reviews)}" class="text-center p-5 border rounded">
-                                                <p class="mb-0">This product has no reviews yet. Be the first to write one!</p>
+                                            <div th:if="${#lists.isEmpty(reviews)}"
+                                                 class="text-center p-5 border rounded">
+                                                <p class="mb-0">This product has no reviews yet. Be the first to write
+                                                    one!</p>
                                             </div>
 
                                             <div th:each="review : ${reviews}" class="d-flex border-bottom pb-6 mb-6">
@@ -201,20 +250,25 @@
                                                      alt="User avatar" class="rounded-circle avatar-lg"/>
                                                 <div class="ms-5">
                                                     <h6 th:text="${review.userName}">[Reviewer Name]</h6>
-                                                    <p class="small text-muted" th:text="${#temporals.format(review.createdAt, 'dd MMMM yyyy')}">01 January 2025</p>
+                                                    <p class="small text-muted"
+                                                       th:text="${#temporals.format(review.createdAt, 'dd MMMM yyyy')}">
+                                                        01 January 2025</p>
 
                                                     <div class="mb-2">
                             <span th:each="star : ${#numbers.sequence(1, 5)}">
-                              <i class="bi" th:classappend="${star <= review.rating} ? 'bi-star-fill text-warning' : 'bi-star text-warning'"></i>
+                              <i class="bi"
+                                 th:classappend="${star <= review.rating} ? 'bi-star-fill text-warning' : 'bi-star text-warning'"></i>
                             </span>
                                                     </div>
 
                                                     <p th:text="${review.comment}">[Review comment]</p>
 
                                                     <div class="d-flex">
-                                                        <div th:each="media : ${review.media}" class="border icon-shape icon-lg border-2 ms-1"
+                                                        <div th:each="media : ${review.media}"
+                                                             class="border icon-shape icon-lg border-2 ms-1"
                                                              th:with="u=${#strings.startsWith(media.url, '/uploads') ? media.url : '/uploads/' + media.url}">
-                                                            <img th:src="@{${u}}" alt="Review media" class="img-fluid" th:if="${media.type == 'IMAGE'}"/>
+                                                            <img th:src="@{${u}}" alt="Review media" class="img-fluid"
+                                                                 th:if="${media.type == 'IMAGE'}"/>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -265,10 +319,12 @@
 
         // === Đồng bộ thumbnail ===
         const thumbs = Array.from(document.querySelectorAll('#productThumbs .thumb'));
+
         function setActiveThumb(i) {
             thumbs.forEach(t => t.classList.remove('active'));
             if (thumbs[i]) thumbs[i].classList.add('active');
         }
+
         thumbs.forEach(t => {
             t.addEventListener('click', () => {
                 const idx = Number(t.getAttribute('data-index') || 0);
@@ -300,8 +356,8 @@
                 autoplay: true,
                 autoplaySpeed: 10000,
                 responsive: [
-                    { breakpoint: 1200, settings: { slidesToShow: 2, slidesToScroll: 2 } },
-                    { breakpoint: 768, settings: { slidesToShow: 1, slidesToScroll: 1 } }
+                    {breakpoint: 1200, settings: {slidesToShow: 2, slidesToScroll: 2}},
+                    {breakpoint: 768, settings: {slidesToShow: 1, slidesToScroll: 1}}
                 ]
             });
         } else {
@@ -353,7 +409,7 @@
 
                     const logoutButton = document.getElementById('nav-logout-button');
                     if (logoutButton) {
-                        logoutButton.addEventListener('click', function(e) {
+                        logoutButton.addEventListener('click', function (e) {
                             e.preventDefault();
                             localStorage.removeItem(TOKEN_KEY);
                             localStorage.removeItem('userId');
