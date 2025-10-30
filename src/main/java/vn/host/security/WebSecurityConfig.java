@@ -36,7 +36,6 @@ public class WebSecurityConfig {
                                         "/shop-grid",
                                         "/shop-grid/**",
                                         "/user/**",
-                                        "/shop/**",
                                         "/products/**",
                                         "/payment/**",
                                         "/ws/**",
@@ -45,7 +44,10 @@ public class WebSecurityConfig {
                                         "/js/**",
                                         "/libs/**",
                                         "/images/**",
-                                        "/fonts/**"
+                                        "/fonts/**",
+                                        "/addresses.json",
+                                        "/shipper/register",
+                                        "/shop/register"
                                 ).permitAll()
                                 .requestMatchers(
                                         "/assets/**",
@@ -60,15 +62,16 @@ public class WebSecurityConfig {
                                         "/api/auth/otp/**",
                                         "/api/auth/password/reset"
                                 ).permitAll()
-                        .requestMatchers("/api/locations/**").permitAll()
-                        .requestMatchers("/api/status/**").permitAll()
-                        .requestMatchers("/uploads/**", "/shop/account/shop-register").permitAll()
-                        .requestMatchers("/api/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
-//                        .requestMatchers("/admin/**").hasRole("ADMIN")
-//                        .requestMatchers("/shop/**").hasRole("SELLER")
+                                .requestMatchers("/api/locations/**").permitAll()
+                                .requestMatchers("/api/status/**").permitAll()
+                                .requestMatchers("/uploads/**", "/shop/account/shop-register").permitAll()
+                                .requestMatchers("/api/**").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/shop/**").hasRole("SELLER")
+                                .requestMatchers("/shipper/**").hasRole("SHIPPER")
 //                        .requestMatchers("/user/**").authenticated()
-                        .anyRequest().authenticated()
+                                .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> {
                     oauth.loginPage("/login");
