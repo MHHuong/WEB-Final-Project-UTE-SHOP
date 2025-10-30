@@ -49,7 +49,7 @@
         const res = await fetch(url, {headers: {'Authorization': `Bearer ${token}`}});
         if (!res.ok) {
             console.error('Load failed', res.status);
-            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Không tải được dữ liệu</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Cannot load data</td></tr>`;
             return;
         }
         const data = await res.json();

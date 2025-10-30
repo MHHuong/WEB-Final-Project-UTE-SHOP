@@ -45,7 +45,9 @@ public class WebSecurityConfig {
                                         "/libs/**",
                                         "/images/**",
                                         "/fonts/**",
-                                        "/addresses.json"
+                                        "/addresses.json",
+                                        "/shipper/register",
+                                        "/shop/register"
                                 ).permitAll()
                                 .requestMatchers(
                                         "/assets/**",
