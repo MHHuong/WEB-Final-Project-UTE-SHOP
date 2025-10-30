@@ -95,6 +95,7 @@ public class ShipperServiceImpl implements ShipperService {
 
         return shipperRepository.save(existing);
     }
+
     @Override
     public void delete(Long id) {
         Shipper existing = findById(id);
@@ -395,15 +396,12 @@ public class ShipperServiceImpl implements ShipperService {
         boolean hasDeliver = orderShipperLogRepository.existsByOrder_OrderIdAndAction(orderId, ShipperAction.RETURN_DELIVER);
         if (hasDeliver) throw new IllegalStateException("Already delivered return");
 
-        Area a = resolveAreaFromAddress(me.getAddress());
-        String province = a.province(), district = a.district();
-
-        Shop shop = o.getShop();
-        String likeTail = tailLike(district, province);
-        if (shop != null && likeTail != null) {
-            String shopAddr = shop.getAddress();
-            if (shopAddr == null || !shopAddr.endsWith(likeTail)) {
-                throw new SecurityException("Shop outside your return-delivery area");
+        Area shipperArea = resolveAreaFromAddress(me.getAddress());
+        String shopAddrStr = (o.getShop() != null) ? o.getShop().getAddress() : null;
+        Area shopArea = resolveAreaFromAddress(shopAddrStr);
+        if (StringUtils.hasText(shipperArea.province()) && StringUtils.hasText(shipperArea.district())) {
+            if (!shipperArea.province().equals(shopArea.province()) || !shipperArea.district().equals(shopArea.district())) {
+                throw new SecurityException("Order outside your pickup area (shop)");
             }
         }
         o.setShipper(me);
