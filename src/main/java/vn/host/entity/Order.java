@@ -1,5 +1,6 @@
 package vn.host.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -26,14 +27,17 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserId", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "addresses", "shops", "shipper"})
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ShopId", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "products", "owner"})
     private Shop shop;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AddressId", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "user"})
     private Address address;
 
     @Enumerated(EnumType.STRING)
@@ -41,10 +45,12 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ShippingProviderId", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "shippers"})
     private ShippingProvider shippingProvider;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ShipperId")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "orders", "user"})
     private Shipper shipper;
 
     @ManyToMany
@@ -66,6 +72,7 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CouponId")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "orders"})
     private Coupon coupon;
 
     @Column(columnDefinition = "TEXT")
