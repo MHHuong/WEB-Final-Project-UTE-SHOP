@@ -61,4 +61,6 @@ public interface ProductService {
     List<ProductResponse> findAllProductOrder();
 
     ProductDetailVM getProductDetailVM(Long productId);
+
+    Page<ProductDTO> findActiveProductsAsDTO(int page, int size);
 }

@@ -23,6 +23,7 @@
     <section>
     </section>
 
+    <!-- index.html -->
     <section class="my-lg-14 my-8">
         <div class="container">
             <div class="row">
@@ -31,11 +32,60 @@
                 </div>
             </div>
 
+            <!-- Grid sản phẩm -->
             <div class="row g-4 row-cols-lg-5 row-cols-2 row-cols-md-3">
                 <div class="col" th:each="product : ${popularProducts}">
-                    <div th:replace="~{fragments/product-card :: product-card(product=${product})}"></div>
+                    <!-- Nếu bạn đang dùng fragment product-card -->
+                    <div th:replace="~{fragments/product-card :: product-card(${product})}"></div>
+                    <!-- Hoặc render trực tiếp ảnh, tên, giá giống code hiện tại của bạn -->
                 </div>
             </div>
+
+            <!-- Pagination -->
+            <div class="row mt-4" th:if="${popularPage != null and popularPage.totalPages > 1}">
+                <div class="col">
+                    <nav aria-label="Popular products pages">
+                        <ul class="pagination justify-content-center">
+
+                            <!-- Prev -->
+                            <li class="page-item" th:classappend="${popularPage.first} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/(page=${popularPage.number - 1}, size=${popularPage.size})}"
+                                   aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+
+                            <!-- Page numbers -->
+                            <li class="page-item"
+                                th:each="i : ${#numbers.sequence(0, popularPage.totalPages - 1)}"
+                                th:classappend="${i} == ${popularPage.number} ? 'active'">
+                                <a class="page-link"
+                                   th:text="${i + 1}"
+                                   th:href="@{/(page=${i}, size=${popularPage.size})}">1</a>
+                            </li>
+
+                            <!-- Next -->
+                            <li class="page-item" th:classappend="${popularPage.last} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/(page=${popularPage.number + 1}, size=${popularPage.size})}"
+                                   aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+
+                    <!-- Info nhỏ -->
+                    <div class="text-center text-muted small">
+                        <span th:text="'Page ' + ${popularPage.number + 1} + ' / ' + ${popularPage.totalPages}"></span>
+                        <span> • </span>
+                        <span th:text="'Total: ' + ${popularPage.totalElements} + ' products'"></span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
     <section>

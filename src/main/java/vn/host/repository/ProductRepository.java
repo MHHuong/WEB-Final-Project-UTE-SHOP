@@ -117,4 +117,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
                 WHERE m.type = 'IMAGE'
             """)
     List<ProductResponse> findAllProductsOrder();
+
+    Page<Product> findByStatus(int status, Pageable pageable);
 }

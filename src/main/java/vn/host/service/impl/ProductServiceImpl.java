@@ -1,10 +1,7 @@
 package vn.host.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -336,5 +333,19 @@ public class ProductServiceImpl implements ProductService {
                 summary.getAvg(),
                 summary.getTotal()
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> findActiveProductsAsDTO(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Product> productPage = productRepository.findByStatus(0, pageable);
+
+        List<ProductDTO> content = productPage.getContent()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(content, pageable, productPage.getTotalElements());
     }
 }
