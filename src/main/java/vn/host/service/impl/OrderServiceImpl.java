@@ -10,6 +10,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import vn.host.config.api.GeoCodeApi;
 import vn.host.config.api.RouteApi;
+import vn.host.dto.order.OrderReturnResponse;
 import vn.host.entity.*;
 import vn.host.model.request.OrderItemRequest;
 import vn.host.model.request.OrderRequest;
@@ -389,5 +390,29 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<Order> findAll(Specification<Order> spec, Pageable pageable) {
         return orderRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public Page<OrderReturnResponse> findAllReturnOrdersDto(Pageable pageable) {
+        List<OrderStatus> statuses = List.of(
+                OrderStatus.REQUEST_RETURN,
+                OrderStatus.RETURNING,
+                OrderStatus.RETURNED
+        );
+
+        Page<Order> orders = orderRepository.findByStatusIn(statuses, pageable);
+
+        return orders.map(order -> OrderReturnResponse.builder()
+                .orderId(order.getOrderId())
+                .shopName(order.getShop() != null ? order.getShop().getShopName() : null)
+                .userName(order.getUser() != null ? order.getUser().getFullName() : null)
+                .totalAmount(order.getTotalAmount())
+                .status(order.getStatus())
+                .paymentMethod(order.getPaymentMethod() != null ? order.getPaymentMethod().name() : null)
+                .createdAt(order.getCreatedAt() != null
+                        ? order.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime()
+                        : null)
+                .note(order.getNote())
+                .build());
     }
 }

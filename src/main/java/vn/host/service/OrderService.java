@@ -3,6 +3,7 @@ package vn.host.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import vn.host.dto.order.OrderReturnResponse;
 import vn.host.entity.Order;
 import vn.host.entity.Payment;
 import vn.host.model.request.OrderRequest;
@@ -46,4 +47,7 @@ public interface OrderService {
     void save(Order order);
 
     Page<Order> findAll(Specification<Order> spec, Pageable pageable);
+
+    Page<OrderReturnResponse> findAllReturnOrdersDto(Pageable pageable);
+
 }

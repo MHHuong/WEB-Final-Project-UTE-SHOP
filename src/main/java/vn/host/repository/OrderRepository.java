@@ -201,4 +201,7 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     Order findTopByUser_UserIdAndShop_ShopIdOrderByOrderIdDesc(Long userId, Long shopId);
 
     List<Order> findAllOrderByAddress_AddressId(Long addressId);
+
+    Page<Order> findByStatusIn(List<OrderStatus> statuses, Pageable pageable);
+
 }
