@@ -108,7 +108,24 @@
     <div th:replace="~{fragments/user/profile/address::address-modal}"></div>
     <div th:replace="~{fragments/user/modal::status-modal}"></div>
     <script type="module" th:src="@{/js/services/view/profileService.js}"></script>
+    <script>
+        const toggleButton = document.querySelector('.dropdown-toggle');
+        const menu = document.querySelector('.dropdown-menu');
 
+        toggleButton.addEventListener('click', function(event) {
+            event.preventDefault();
+
+            // Kiểm tra trạng thái hiện tại
+            const isExpanded = this.getAttribute('aria-expanded') === 'true';
+
+            // Thay đổi thuộc tính aria-expanded
+            // Nếu nó đang mở (true) thì đặt lại là đóng (false), và ngược lại
+            this.setAttribute('aria-expanded', !isExpanded);
+
+            // Thêm logic để hiển thị/ẩn menu ở đây (ví dụ: thêm/bỏ class 'show' cho menu)
+            menu.classList.toggle('show');
+        });
+    </script>
     <style>
         .avatar-xl {
             width: 100px;
@@ -154,6 +171,10 @@
 
         .nav-pills .nav-link.active {
             background-color: #0aad0a;
+        }
+        .dropdown-menu {
+            position: absolute;
+            right: -100px;
         }
     </style>
 </main>
