@@ -10,6 +10,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import vn.host.config.api.GeoCodeApi;
 import vn.host.config.api.RouteApi;
+import vn.host.dto.order.OrderReturnResponse;
 import vn.host.entity.*;
 import vn.host.model.request.OrderItemRequest;
 import vn.host.model.request.OrderRequest;
@@ -194,10 +195,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updateStatus(Long orderId, String status, String reason) {
+    public void updateStatus(Long orderId, String status, String reason, String bankAccountInfo) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
-        if (order.getStatus() != OrderStatus.NEW && OrderStatus.valueOf(status) == OrderStatus.CANCELLED) {
+        if ((order.getStatus() != OrderStatus.NEW && order.getStatus() != OrderStatus.CONFIRMED && OrderStatus.valueOf(status) == OrderStatus.CANCELLED)) {
             throw new RuntimeException("Only NEW orders can be cancelled");
         }
         order.setStatus(Enum.valueOf(vn.host.util.sharedenum.OrderStatus.class, status));
@@ -215,14 +216,32 @@ public class OrderServiceImpl implements OrderService {
 
         if (reason != null && !reason.trim().isEmpty()) {
             String currentNotes = order.getNote() != null ? order.getNote() : "";
-            String newNotes = currentNotes + "\n[" + status + "] Lý do: " + reason;
+            String newNotes = currentNotes + "\n[" + status + "] Lý do: " + reason
+                    + "\n[Tài khoản ngân hàng]" + bankAccountInfo;
             order.setNote(newNotes.trim());
         }
         orderRepository.save(order);
 
         Long userId = order.getUser().getUserId();
         OrderStatusMessage message = new OrderStatusMessage(order.getOrderId(), userId, order.getStatus().name());
+        Long shopId = order.getShop().getOwner().getUserId();
+        OrderStatusMessage messageShop = new OrderStatusMessage(order.getOrderId(), shopId, order.getStatus().name());
+        List<Shipper> shippers = order.getShippingProvider().getShippers().stream().toList();
+        for (Shipper shipper : shippers) {
+            OrderStatusMessage messageShipper = new OrderStatusMessage(order.getOrderId(), shipper.getUser().getUserId(), order.getStatus().name());
+            messagingTemplate.convertAndSendToUser(String.valueOf(shipper.getUser().getUserId()), "/queue/orders", messageShipper);
+        }
+        System.out.println("📤 Sending WebSocket message:");
+        System.out.println("   → To userId: " + userId);
+        System.out.println("   → Order ID: " + order.getOrderId());
+        System.out.println("   → Status: " + order.getStatus().name());
+        System.out.println("   → Destination: /user/" + userId + "/queue/orders");
+
         messagingTemplate.convertAndSendToUser(String.valueOf(userId), "/queue/orders", message);
+        messagingTemplate.convertAndSendToUser(String.valueOf(shopId), "/queue/orders", messageShop);
+
+        System.out.println("✅ WebSocket message sent!");
+
         emailService.sendOrderStatusEmail(order, order.getUser(), order.getStatus());
     }
 
@@ -389,5 +408,58 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<Order> findAll(Specification<Order> spec, Pageable pageable) {
         return orderRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public Page<OrderReturnResponse> findAllReturnOrdersDto(Pageable pageable) {
+        List<OrderStatus> statuses = List.of(
+                OrderStatus.REQUEST_RETURN,
+                OrderStatus.RETURNING,
+                OrderStatus.RETURNED,
+                OrderStatus.CANCELLED
+        );
+
+        Page<Order> orders = orderRepository.findByStatusIn(statuses, pageable);
+
+        return orders.map(order -> OrderReturnResponse.builder()
+                .orderId(order.getOrderId())
+                .shopName(order.getShop() != null ? order.getShop().getShopName() : null)
+                .userName(order.getUser() != null ? order.getUser().getFullName() : null)
+                .totalAmount(order.getTotalAmount())
+                .status(order.getStatus())
+                .paymentMethod(order.getPaymentMethod() != null ? order.getPaymentMethod().name() : null)
+                .createdAt(order.getCreatedAt() != null
+                        ? order.getCreatedAt().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime()
+                        : null)
+                .note(order.getNote())
+                .build());
+    }
+
+    @Override
+    @Transactional
+    public void updateStatusFast(Long orderId, String newStatus, String note) {
+        try {
+            OrderStatus status = OrderStatus.valueOf(newStatus);
+            orderRepository.updateOrderStatusFast(orderId, status, note);
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi cập nhật trạng thái nhanh: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Page<OrderReturnResponse> searchReturnOrdersByCustomer(String keyword, Pageable pageable) {
+        Page<Order> orders;
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            orders = orderRepository.findAllReturnOrders(pageable);
+        } else {
+            orders = orderRepository.findByUser_FullNameContainingIgnoreCaseAndStatusIn(
+                    keyword,
+                    List.of(OrderStatus.REQUEST_RETURN, OrderStatus.RETURNING, OrderStatus.RETURNED, OrderStatus.CANCELLED),
+                    pageable
+            );
+        }
+
+        return orders.map(OrderReturnResponse::fromEntity);
     }
 }

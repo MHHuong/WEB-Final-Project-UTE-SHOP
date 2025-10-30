@@ -1,12 +1,26 @@
+import { API_BASE_URL } from '../config.js';
+
 const apiClient = {
-        baseUrl: '/api',
+        baseUrl: API_BASE_URL,
+
+        // Helper: Get auth token from localStorage
+        getAuthHeaders() {
+            const token = localStorage.getItem('authToken');
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            return headers;
+        },
 
         get: function(endpoint, params = {}) {
             return $.ajax({
                 url: this.baseUrl + endpoint,
                 method: 'GET',
                 data: params,
-                contentType: 'application/json',
+                headers: this.getAuthHeaders(),
             })
         },
 
@@ -15,7 +29,7 @@ const apiClient = {
                 url: this.baseUrl + endpoint,
                 method: 'POST',
                 data: JSON.stringify(data),
-                contentType: 'application/json',
+                headers: this.getAuthHeaders(),
             });
         },
 
@@ -24,7 +38,7 @@ const apiClient = {
                 url: this.baseUrl + endpoint,
                 method: 'PUT',
                 data: JSON.stringify(data),
-                contentType: 'application/json',
+                headers: this.getAuthHeaders(),
             });
         },
 
@@ -32,7 +46,7 @@ const apiClient = {
             return $.ajax({
                 url: this.baseUrl + endpoint,
                 method: 'DELETE',
-                contentType: 'application/json',
+                headers: this.getAuthHeaders(),
             });
         }
 }

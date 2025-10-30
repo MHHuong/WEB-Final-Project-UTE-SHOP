@@ -21,7 +21,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             "LEFT JOIN FETCH p.media " +
             "LEFT JOIN FETCH p.reviews " +
             "LEFT JOIN FETCH p.category " +
-            "LEFT JOIN FETCH p.shop")
+            "LEFT JOIN FETCH p.shop " +
+            "WHERE p.status = 0")
     List<Product> findAllWithDetails();
 
     @Query("SELECT p FROM Product p " +
@@ -29,7 +30,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             "LEFT JOIN FETCH p.reviews " +
             "LEFT JOIN FETCH p.category " +
             "LEFT JOIN FETCH p.shop " +
-            "WHERE p.productId = :id")
+            "WHERE p.productId = :id AND p.status = 0")
     Product findByIdWithDetails(@Param("id") long id);
 
     @Query("SELECT DISTINCT p FROM Product p " +
@@ -37,64 +38,56 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             "LEFT JOIN FETCH p.reviews " +
             "LEFT JOIN FETCH p.category " +
             "LEFT JOIN FETCH p.shop " +
-            "WHERE p.shop.shopId = :shopId")
+            "WHERE p.shop.shopId = :shopId AND p.status = 0")
     List<Product> findByShopIdWithDetails(@Param("shopId") long shopId);
 
-    @Query("SELECT DISTINCT p FROM Product p " +
-            "LEFT JOIN FETCH p.media " +
-            "LEFT JOIN FETCH p.reviews " +
-            "LEFT JOIN FETCH p.category " +
-            "LEFT JOIN FETCH p.shop " +
-            "WHERE p.category.categoryId = :categoryId")
-    List<Product> findByCategoryIdWithDetails(@Param("categoryId") long categoryId);
-
-    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category LEFT JOIN FETCH p.reviews",
-            countQuery = "SELECT count(p) FROM Product p")
+    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c WHERE p.status = 0",
+            countQuery = "SELECT count(p) FROM Product p WHERE p.status = 0")
     Page<Product> findAll(Pageable pageable);
 
-    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c LEFT JOIN FETCH p.reviews WHERE c.name = :categoryName",
-            countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c WHERE c.name = :categoryName")
+    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c WHERE c.name = :categoryName AND p.status = 0",
+            countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c WHERE c.name = :categoryName AND p.status = 0")
     Page<Product> findByCategoryName(String categoryName, Pageable pageable);
 
-    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c LEFT JOIN FETCH p.reviews WHERE c.categoryId = :categoryId",
-            countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c WHERE c.categoryId = :categoryId")
+    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c WHERE c.categoryId = :categoryId AND p.status = 0",
+            countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c WHERE c.categoryId = :categoryId AND p.status = 0")
     Page<Product> findByCategoryId(Long categoryId, Pageable pageable);
 
-    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c LEFT JOIN FETCH p.reviews WHERE c.categoryId IN :categoryIds",
-            countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c WHERE c.categoryId IN :categoryIds")
+    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c WHERE c.categoryId IN :categoryIds AND p.status = 0",
+            countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c WHERE c.categoryId IN :categoryIds AND p.status = 0")
     Page<Product> findByCategoryIdsIn(@Param("categoryIds") Set<Long> categoryIds, Pageable pageable);
 
-    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c LEFT JOIN FETCH p.reviews " +
+    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c " +
             "WHERE (:minPrice IS NULL OR p.price >= :minPrice) " +
-            "AND (:maxPrice IS NULL OR p.price <= :maxPrice)",
+            "AND (:maxPrice IS NULL OR p.price <= :maxPrice) AND p.status = 0",
             countQuery = "SELECT count(p) FROM Product p " +
                     "WHERE (:minPrice IS NULL OR p.price >= :minPrice) " +
-                    "AND (:maxPrice IS NULL OR p.price <= :maxPrice)")
+                    "AND (:maxPrice IS NULL OR p.price <= :maxPrice) AND p.status = 0")
     Page<Product> findAllWithPriceFilter(@Param("minPrice") BigDecimal minPrice,
                                          @Param("maxPrice") BigDecimal maxPrice,
                                          Pageable pageable);
 
-    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c LEFT JOIN FETCH p.reviews " +
+    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c " +
             "WHERE c.categoryId IN :categoryIds " +
             "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
-            "AND (:maxPrice IS NULL OR p.price <= :maxPrice)",
+            "AND (:maxPrice IS NULL OR p.price <= :maxPrice) AND p.status = 0",
             countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c " +
                     "WHERE c.categoryId IN :categoryIds " +
                     "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
-                    "AND (:maxPrice IS NULL OR p.price <= :maxPrice)")
+                    "AND (:maxPrice IS NULL OR p.price <= :maxPrice) AND p.status = 0")
     Page<Product> findByCategoryIdsInAndPriceFilter(@Param("categoryIds") Set<Long> categoryIds,
                                                     @Param("minPrice") BigDecimal minPrice,
                                                     @Param("maxPrice") BigDecimal maxPrice,
                                                     Pageable pageable);
 
-    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c LEFT JOIN FETCH p.reviews " +
+    @Query(value = "SELECT p FROM Product p LEFT JOIN FETCH p.category c " +
             "WHERE c.categoryId = :categoryId " +
             "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
-            "AND (:maxPrice IS NULL OR p.price <= :maxPrice)",
+            "AND (:maxPrice IS NULL OR p.price <= :maxPrice) AND p.status = 0",
             countQuery = "SELECT count(p) FROM Product p LEFT JOIN p.category c " +
                     "WHERE c.categoryId = :categoryId " +
                     "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
-                    "AND (:maxPrice IS NULL OR p.price <= :maxPrice)")
+                    "AND (:maxPrice IS NULL OR p.price <= :maxPrice) AND p.status = 0")
     Page<Product> findByCategoryIdAndPriceFilter(@Param("categoryId") Long categoryId,
                                                  @Param("minPrice") BigDecimal minPrice,
                                                  @Param("maxPrice") BigDecimal maxPrice,

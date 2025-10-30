@@ -12,6 +12,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Entity
 @Table(name = "favorites")
+@Builder
 public class Favorite {
     @EmbeddedId
     private FavoriteId id;

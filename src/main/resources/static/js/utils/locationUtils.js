@@ -1,4 +1,4 @@
-import addresses from "/addresses.json" with {type: "json"};
+import addresses from "../../addresses.json" with {type: "json"};
 const locationData = addresses;
 let selectedDistricts = [];
 

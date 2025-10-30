@@ -182,6 +182,11 @@
     html {
       scroll-behavior: smooth;
     }
+
+    .text-primary {
+      color: var(--primary);
+    }
+
   </style>
 </head>
 
@@ -191,8 +196,8 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="brand">
-      <i class="fa-solid fa-store"></i>
-      <strong>UTESHOP Admin</strong>
+      <img th:src="@{/assets/images/logo/uteshop-logo.svg}" alt="UTESHOP Logo" style="height:32px; width:auto;">
+      <strong style="color: var(--primary);">Admin</strong>
     </div>
     <nav class="p-3">
 
@@ -224,6 +229,13 @@
         <i class="bi bi-person-rolodex"></i>Shippers
       </a>
 
+      <div class="mt-3 mb-2 text-uppercase small text-muted">ORDER MANAGEMENT</div>
+
+      <a class="nav-link [[${#httpServletRequest.requestURI.contains('/admin/orders/returns')} ? 'active' : '']]"
+         href="/UTE_SHOP/admin/orders/returns">
+        <i class="bi bi-arrow-return-left"></i>Return Orders
+      </a>
+
       <div class="mt-3 mb-2 text-uppercase small text-muted">SITE SETTINGS</div>
 
       <a class="nav-link [[${#httpServletRequest.requestURI.contains('/admin/coupons')} ? 'active' : '']]" href="/UTE_SHOP/admin/coupons">
@@ -240,6 +252,11 @@
         <i class="bi bi-life-preserver"></i>Support Ticket
         <span class="badge badge-soft ms-2">Coming Soon</span>
       </span>
+
+      <!-- LOGOUT -->
+      <a id="nav-logout-button" class="nav-link text-danger" href="/UTE_SHOP/admin/logout">
+        <i class="bi bi-box-arrow-right"></i>Sign Out
+      </a>
     </nav>
   </aside>
 
@@ -255,6 +272,7 @@
         </div>
       </div>
 
+
       <div class="ms-auto d-flex align-items-center gap-3">
         <a href="#" class="text-reset position-relative" title="Notifications">
           <i class="bi bi-bell fs-5"></i>
@@ -269,7 +287,6 @@
           </a>
           <ul class="dropdown-menu dropdown-menu-end">
             <li><a class="dropdown-item" href="/admin/profile"><i class="bi bi-person me-2"></i>Profile</a></li>
-            <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
           </ul>
         </div>
       </div>
@@ -282,5 +299,26 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const logoutBtn = document.getElementById("nav-logout-button");
+
+    logoutBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      // Xóa toàn bộ token và dữ liệu lưu tạm
+      localStorage.removeItem("ACCESS_TOKEN");
+      localStorage.removeItem("REFRESH_TOKEN");
+      sessionStorage.clear();
+      localStorage.clear();
+
+      // (Nếu bạn có session server side, có thể gọi API logout ở đây)
+      // fetch("/UTE_SHOP/api/auth/logout", { method: "POST" }).catch(()=>{});
+
+      // Quay về trang chính
+      window.location.href = "http://localhost:8082/UTE_SHOP";
+    });
+  });
+</script>
 </body>
 </html>

@@ -9,10 +9,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import vn.host.dto.shipper.ShipperRequest;
 import vn.host.entity.*;
+import vn.host.model.websocket.OrderStatusMessage;
 import vn.host.repository.*;
 import vn.host.service.ShipperService;
 import vn.host.util.sharedenum.OrderStatus;
@@ -33,6 +35,7 @@ public class ShipperServiceImpl implements ShipperService {
     private final ShippingProviderRepository shippingProviderRepository;
     private final OrderRepository orderRepository;
     private final OrderShipperLogRepository orderShipperLogRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     public Page<Shipper> getAll(String keyword, int page, int size) {
@@ -95,6 +98,7 @@ public class ShipperServiceImpl implements ShipperService {
 
         return shipperRepository.save(existing);
     }
+
     @Override
     public void delete(Long id) {
         Shipper existing = findById(id);
@@ -234,7 +238,7 @@ public class ShipperServiceImpl implements ShipperService {
     public Order deliver(Long orderId, Shipper me) {
         Order o = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("Order not found"));
         if (o.getStatus() != OrderStatus.SHIPPING) throw new IllegalStateException("Order not in SHIPPING state");
-        if (o.getShipper() == null || !o.getShipper().getShipperId().equals(me.getShipperId())) {
+        if (o.getShipper() == null) {
             throw new SecurityException("You are not assigned to this order");
         }
 
@@ -381,6 +385,17 @@ public class ShipperServiceImpl implements ShipperService {
                 .shipper(me)
                 .action(ShipperAction.RETURN_PICKUP)
                 .build());
+        List<Long> receivers = new ArrayList<>();
+        List<Shipper> shippers = o.getShippingProvider().getShippers().stream().toList();
+        for (Shipper shipper : shippers) {
+            receivers.add(shipper.getUser().getUserId());
+        }
+        receivers.add(o.getShop().getOwner().getUserId());
+        receivers.add(o.getUser().getUserId());
+        for (Long receiverId : receivers) {
+            OrderStatusMessage payload = new OrderStatusMessage(null, receiverId.toString().matches("\\d+") ? receiverId : null, o.getStatus().toString());
+            messagingTemplate.convertAndSendToUser(receiverId.toString(), "/queue/orders", payload);
+        }
         return saved;
     }
 
@@ -395,15 +410,12 @@ public class ShipperServiceImpl implements ShipperService {
         boolean hasDeliver = orderShipperLogRepository.existsByOrder_OrderIdAndAction(orderId, ShipperAction.RETURN_DELIVER);
         if (hasDeliver) throw new IllegalStateException("Already delivered return");
 
-        Area a = resolveAreaFromAddress(me.getAddress());
-        String province = a.province(), district = a.district();
-
-        Shop shop = o.getShop();
-        String likeTail = tailLike(district, province);
-        if (shop != null && likeTail != null) {
-            String shopAddr = shop.getAddress();
-            if (shopAddr == null || !shopAddr.endsWith(likeTail)) {
-                throw new SecurityException("Shop outside your return-delivery area");
+        Area shipperArea = resolveAreaFromAddress(me.getAddress());
+        String shopAddrStr = (o.getShop() != null) ? o.getShop().getAddress() : null;
+        Area shopArea = resolveAreaFromAddress(shopAddrStr);
+        if (StringUtils.hasText(shipperArea.province()) && StringUtils.hasText(shipperArea.district())) {
+            if (!shipperArea.province().equals(shopArea.province()) || !shipperArea.district().equals(shopArea.district())) {
+                throw new SecurityException("Order outside your pickup area (shop)");
             }
         }
         o.setShipper(me);
@@ -414,7 +426,17 @@ public class ShipperServiceImpl implements ShipperService {
                 .shipper(me)
                 .action(ShipperAction.RETURN_DELIVER)
                 .build());
-
+        List<Long> receivers = new ArrayList<>();
+        List<Shipper> shippers = o.getShippingProvider().getShippers().stream().toList();
+        for (Shipper shipper : shippers) {
+            receivers.add(shipper.getUser().getUserId());
+        }
+        receivers.add(o.getShop().getOwner().getUserId());
+        receivers.add(o.getUser().getUserId());
+        for (Long receiverId : receivers) {
+            OrderStatusMessage payload = new OrderStatusMessage(null, receiverId.toString().matches("\\d+") ? receiverId : null, o.getStatus().toString());
+            messagingTemplate.convertAndSendToUser(receiverId.toString(), "/queue/orders", payload);
+        }
         return saved;
     }
 }

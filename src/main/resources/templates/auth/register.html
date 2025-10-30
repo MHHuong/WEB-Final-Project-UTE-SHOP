@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"> <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register - UTE-SHOP E-commerce</title> <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+                                                        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+    <style>
+        :root {
+            --primary-green: #099309;
+            --light-green: #f4f9f4;
+            --dark-green: #077d07;
+        }
+
+        body, html {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .login-wrapper {
+            min-height: 100vh;
+        }
+
+        .login-form-col {
+            background: linear-gradient(135deg, var(--light-green) 0%, #ffffff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .login-form-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: #fff;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            animation: fadeInCard 0.8s ease-out;
+            border: 1px solid #eee;
+        }
+
+        .login-image-col {
+            min-height: 100vh;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .login-image-col img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        @keyframes fadeInCard {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-text {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary-green);
+            text-align: center;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            color: #333;
+        }
+
+        .page-title {
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-green);
+            border-color: var(--primary-green);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-green);
+            border-color: var(--dark-green);
+        }
+
+        /* Nút gửi OTP */
+        .btn-send-otp {
+            border-color: var(--primary-green);
+            color: var(--primary-green);
+        }
+
+        .btn-send-otp:hover {
+            background-color: var(--primary-green);
+            color: white;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 0.25rem rgba(9, 147, 9, 0.25);
+        }
+
+        .input-group-text {
+            background-color: #f8f9fa;
+            border-right: none;
+            color: var(--primary-green);
+        }
+
+        .form-control.with-icon, .form-select.with-icon {
+            border-left: none;
+        }
+
+        .form-control.with-icon:focus, .form-select.with-icon:focus {
+            position: relative;
+            z-index: 2;
+        }
+
+        a {
+            color: var(--primary-green);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 500;
+        }
+
+        a:hover {
+            color: var(--dark-green);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid login-wrapper p-0">
+    <div class="row g-0 min-vh-100">
+
+        <div class="col-lg-4 d-none d-lg-block login-image-col">
+            <img src="https://images.unsplash.com/photo-1556742111-a301076d9d18?q=80&w=1740&auto=format&fit=crop"
+                 alt="E-commerce shopping">
+        </div>
+
+        <div class="col-lg-8 col-md-12 login-form-col">
+
+            <div class="login-form-container">
+                <div class="logo-text">
+                    UTE-<span>SHOP</span>
+                </div>
+                <h3 class="page-title">Create your E-commerce Account</h3> <div id="alertPlaceholder"></div>
+
+                <form id="registerForm">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                                <input type="text" class="form-control with-icon" id="fullName" placeholder="Full Name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+                                <input type="tel" class="form-control with-icon" id="phone" placeholder="Phone Number" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <label for="email" class="form-label">Email and Verification</label> <div class="mb-3 input-group">
+                    <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                    <input type="email" class="form-control with-icon" id="email" placeholder="Email Address" required>
+                    <button class="btn btn-outline-success btn-send-otp" type="button" id="sendOtpButton">
+                        Send OTP </button>
+                </div>
+
+                    <div class="mb-3 input-group" id="otpGroup" style="display: none;">
+                        <span class="input-group-text"><i class="fa-solid fa-shield-halved"></i></span>
+                        <input type="text" class="form-control with-icon" id="otp" placeholder="Enter 6-digit OTP code" required>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                                <input type="password" class="form-control with-icon" id="password"
+                                       placeholder="Password (at least 6 characters)" required> </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-check-double"></i></span>
+                                <input type="password" class="form-control with-icon" id="confirmPassword"
+                                       placeholder="Confirm Password" required> </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid my-3">
+                        <button type="submit" class="btn btn-primary btn-lg">Register</button> </div>
+
+                    <div class="text-center">
+                        Already have an account? <a th:href="@{/login}">Log in now</a> </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+<script th:inline="javascript">
+    const contextPath = /*[[@{/}]]*/ '/';
+
+    const registerApiUrl = contextPath + 'api/auth/register';
+    const registrationOtpApiUrl = contextPath + 'api/auth/otp/register';
+    const loginUrl = contextPath + 'login';
+
+    const registerForm = document.getElementById('registerForm');
+    const alertPlaceholder = document.getElementById('alertPlaceholder');
+
+    const sendOtpButton = document.getElementById('sendOtpButton');
+    const otpGroup = document.getElementById('otpGroup');
+    const emailInput = document.getElementById('email');
+    const otpInput = document.getElementById('otp');
+
+    const showAlert = (message, type = 'danger') => {
+        alertPlaceholder.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+    };
+    sendOtpButton.addEventListener('click', async () => {
+        const email = emailInput.value;
+        if (!email) {
+            showAlert('Please enter your email before sending OTP.');
+            return;
+        }
+        sendOtpButton.disabled = true;
+        sendOtpButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
+
+        try {
+            const response = await fetch(registrationOtpApiUrl, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email: email})
+            });
+
+            if (response.ok) {
+                showAlert('OTP sent to your email. Please check (including your spam folder).', 'success');
+                otpGroup.style.display = 'flex';
+                emailInput.readOnly = true;
+                sendOtpButton.innerHTML = 'Sent';
+            } else {
+                const errorData = await response.json();
+                showAlert(errorData.message || 'Failed to send OTP. Email might already exist.');
+                sendOtpButton.disabled = false;
+                sendOtpButton.innerHTML = 'Send OTP';
+            }
+        } catch (error) {
+            console.error('Error sending OTP:', error);
+            showAlert('Server connection error while sending OTP.');
+            sendOtpButton.disabled = false;
+            sendOtpButton.innerHTML = 'Send OTP';
+        }
+    });
+
+
+    registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        alertPlaceholder.innerHTML = '';
+
+        const fullName = document.getElementById('fullName').value;
+        const phone = document.getElementById('phone').value;
+        const role = "USER";
+        const email = emailInput.value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const otp = otpInput.value;
+
+        if (otpGroup.style.display === 'none' || !otp) {
+            showAlert('Please send and enter the OTP code before registering.');
+            return;
+        }
+
+        if (password.length < 6) {
+            showAlert('Password must be at least 6 characters long!');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            showAlert('Password and confirmation password do not match!');
+            return;
+        }
+
+        const registerRequest = {
+            fullName: fullName,
+            phone: phone,
+            role: role,
+            email: email,
+            password: password,
+            confirmPassword: confirmPassword,
+            otp: otp
+        };
+
+        try {
+            const response = await fetch(registerApiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(registerRequest)
+            });
+
+            if (response.ok) {
+                showAlert('Registration successful! Redirecting to login page...', 'success');
+                setTimeout(() => {
+                    window.location.href = loginUrl;
+                }, 2000);
+
+            } else {
+                const errorData = await response.json();
+                showAlert(errorData.message || 'Registration failed. Please try again.');
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('Could not connect to the server. Please try again later.');
+        }
+    });
+</script>
+</body>
+</html>

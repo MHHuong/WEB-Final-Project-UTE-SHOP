@@ -1,3 +1,4 @@
+import cartService from "../services/api/cartService.js";
 
 const CartBadgeUtils = {
     updateCartBadge(quantity) {
@@ -15,8 +16,7 @@ const CartBadgeUtils = {
 
     async refreshCartBadge(userId) {
         try {
-            const response = await fetch(`/api/carts/${userId}`);
-            const result = await response.json();
+            const result = await cartService.getCartItemByUserId(userId);
             if (result.status === 'Success' && result.data) {
                 const totalQuantity = result.data.length;
                 this.updateCartBadge(totalQuantity);
@@ -34,5 +34,3 @@ const CartBadgeUtils = {
 }
 
 export default CartBadgeUtils;
-
-

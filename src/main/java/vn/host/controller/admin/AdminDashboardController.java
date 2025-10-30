@@ -123,4 +123,9 @@ public class AdminDashboardController {
         return "admin/shippers/edit-shipper";
     }
 
+    //ORDERS
+    @GetMapping("/orders/returns")
+    public String orderPage() {
+        return "admin/orders/orders";
+    }
 }

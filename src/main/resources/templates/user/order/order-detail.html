@@ -15,8 +15,8 @@
                             <div th:replace="~{fragments/user/order/status::failed}"></div>
                             <div th:replace="~{fragments/user/order/status::order-timeline}"></div>
                             <div class="d-flex justify-content-center align-items-center gap-2 mb-4">
-                                <span class="text-muted">Mã đơn hàng:</span>
-                                <strong class="text-primary fs-5" id="order-code">Đang tải...</strong>
+                                <span class="text-muted">Order Id:</span>
+                                <strong class="text-primary fs-5" id="order-code">Loading...</strong>
                             </div>
                         </div>
                     </div>
@@ -26,7 +26,7 @@
                         <div class="card-header bg-light border-0 py-3">
                             <h5 class="mb-0">
                                 <i class="bi bi-receipt text-primary me-2"></i>
-                                Chi Tiết Đơn Hàng
+                                Order Details
                             </h5>
                         </div>
                         <div class="card-body">
@@ -34,7 +34,7 @@
                             <div id="order-items-container" class="mb-3">
                                 <div class="text-center py-3">
                                     <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                        <span class="visually-hidden">Đang tải...</span>
+                                        <span class="visually-hidden">Loading...</span>
                                     </div>
                                 </div>
                             </div>
@@ -44,20 +44,20 @@
                             <!-- Order Summary -->
                             <div class="order-summary">
                                 <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Tạm tính:</span>
+                                    <span class="text-muted">Subtotal: </span>
                                     <span id="subtotal-amount">0₫</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Phí vận chuyển:</span>
+                                    <span class="text-muted">Delivery Cost:</span>
                                     <span id="shipping-amount">0₫</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
-                                    <span class="text-muted">Giảm giá:</span>
+                                    <span class="text-muted">Discount:</span>
                                     <span class="text-danger" id="discount-amount">-0₫</span>
                                 </div>
                                 <hr>
                                 <div class="d-flex justify-content-between mb-0">
-                                    <h5 class="mb-0">Tổng cộng:</h5>
+                                    <h5 class="mb-0">Total:</h5>
                                     <h5 class="mb-0 text-primary" id="total-amount">0₫</h5>
                                 </div>
                             </div>
@@ -72,25 +72,25 @@
                                 <div class="card-header bg-light border-0 py-3">
                                     <h6 class="mb-0">
                                         <i class="bi bi-truck text-primary me-2"></i>
-                                        Thông Tin Giao Hàng
+                                        Delivery Information
                                     </h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="mb-2">
-                                        <small class="text-muted">Người nhận:</small>
-                                        <p class="mb-1 fw-medium" id="receiver-name">Đang tải...</p>
+                                        <small class="text-muted">Receiver's Name:</small>
+                                        <p class="mb-1 fw-medium" id="receiver-name">Loading...</p>
                                     </div>
                                     <div class="mb-2">
-                                        <small class="text-muted">Số điện thoại:</small>
-                                        <p class="mb-1" id="receiver-phone">Đang tải...</p>
+                                        <small class="text-muted">Phone Number:</small>
+                                        <p class="mb-1" id="receiver-phone">Loading...</p>
                                     </div>
                                     <div class="mb-2">
-                                        <small class="text-muted">Địa chỉ:</small>
-                                        <p class="mb-1" id="shipping-address">Đang tải...</p>
+                                        <small class="text-muted">Address:</small>
+                                        <p class="mb-1" id="shipping-address">Loading...</p>
                                     </div>
                                     <div>
-                                        <small class="text-muted">Phương thức vận chuyển:</small>
-                                        <p class="mb-0" id="shipping-method">Đang tải...</p>
+                                        <small class="text-muted">Shipping Method:</small>
+                                        <p class="mb-0" id="shipping-method">Loading...</p>
                                     </div>
                                 </div>
                             </div>
@@ -102,23 +102,23 @@
                                 <div class="card-header bg-light border-0 py-3">
                                     <h6 class="mb-0">
                                         <i class="bi bi-credit-card text-primary me-2"></i>
-                                        Thông Tin Thanh Toán
+                                        Payment Information
                                     </h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="mb-2">
-                                        <small class="text-muted">Phương thức thanh toán:</small>
-                                        <p class="mb-1 fw-medium" id="payment-method">Đang tải...</p>
+                                        <small class="text-muted">Paying Method:</small>
+                                        <p class="mb-1 fw-medium" id="payment-method">Loading...</p>
                                     </div>
                                     <div class="mb-2">
-                                        <small class="text-muted">Trạng thái thanh toán:</small>
+                                        <small class="text-muted">Paying status:</small>
                                         <p class="mb-1">
-                                            <span class="badge bg-warning" id="payment-status">Chưa thanh toán</span>
+                                            <span class="badge bg-warning" id="payment-status">Haven't Paid Yet</span>
                                         </p>
                                     </div>
                                     <div>
-                                        <small class="text-muted">Thời gian đặt hàng:</small>
-                                        <p class="mb-0" id="order-time">Đang tải...</p>
+                                        <small class="text-muted">Order Time:</small>
+                                        <p class="mb-0" id="order-time">Loading...</p>
                                     </div>
                                 </div>
                             </div>
@@ -129,13 +129,13 @@
                     <div class="card border-0 shadow-sm" id="action-buttons-card">
                         <div class="card-body text-center py-4">
                             <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center" id="order-actions">
-                                <a href="/user/profile" class="btn btn-primary btn-lg px-5">
+                                <a th:href="@{/user/profile}" class="btn btn-primary btn-lg px-5">
                                     <i class="bi bi-list-ul me-2"></i>
-                                    Xem Đơn Hàng Của Tôi
+                                    Watch Order History
                                 </a>
-                                <a href="/user" class="btn btn-outline-primary btn-lg px-5">
+                                <a th:href="@{/user}" class="btn btn-outline-primary btn-lg px-5">
                                     <i class="bi bi-house me-2"></i>
-                                    Tiếp Tục Mua Sắm
+                                    Continue Shopping
                                 </a>
                             </div>
                         </div>
@@ -146,11 +146,11 @@
                         <div class="d-flex">
                             <i class="bi bi-info-circle me-3 fs-4"></i>
                             <div>
-                                <h6 class="alert-heading mb-2">Lưu ý quan trọng</h6>
+                                <h6 class="alert-heading mb-2">Important Information</h6>
                                 <ul class="mb-0 small ps-3" id="info-list">
-                                    <li>Bạn sẽ nhận được email xác nhận đơn hàng trong vài phút.</li>
-                                    <li>Vui lòng kiểm tra thông tin đơn hàng và liên hệ với chúng tôi nếu có bất kỳ thắc mắc nào.</li>
-                                    <li>Đơn hàng sẽ được giao trong thời gian dự kiến theo phương thức vận chuyển bạn đã chọn.</li>
+                                    <li>You’ll receive an order confirmation email shortly.</li>
+                                    <li>Please check your order details and contact us if you have any questions.</li>
+                                    <li>Your order will be delivered within the estimated timeframe based on your chosen shipping method.</li>
                                 </ul>
                             </div>
                         </div>
@@ -462,11 +462,11 @@
     }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-<script type="module" src="/js/services/view/showResultService.js"></script>
-<script type="module" src="/js/services/view/orderDetailService.js"></script>
+    <script th:src="@{/js/vendors/jquery.min.js}"></script>
+    <script th:src="@{/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/libs/simplebar/dist/simplebar.min.js}"></script>
+<script type="module" th:src="@{/js/services/view/showResultService.js}"></script>
+<script type="module" th:src="@{/js/services/view/orderDetailService.js}"></script>
 
 </main>
 </html>
-

@@ -17,9 +17,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const searchShopInput = document.querySelector("#searchShop");
     const categorySelect = document.querySelector("#categoryFilter");
     const reloadBtn = document.querySelector("#btnReload");
+    const BASE_URL = window.location.origin; // tự động lấy http://localhost:8082
 
     let currentPage = 0;
     const pageSize = 10;
+
+    // ================= URL BUILDER =================
+    function buildUrl(p) {
+        if (!p) return '/assets/images/sample/snack.jpg';
+        if (/^https?:\/\//i.test(p)) return p; // http / https giữ nguyên
+        if (p.startsWith(BASE_URL + contextPath + '/')) return p;
+        if (p.startsWith('/')) return BASE_URL + contextPath + p;
+        return BASE_URL + contextPath + '/' + p.replace(/^\/+/, '');
+    }
 
     // ================= RENDER PRODUCT LIST =================
     function renderProducts(products) {
@@ -30,32 +40,32 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         products.forEach(p => {
+            const imgSrc = buildUrl(p.media?.[0]?.url);
+
             tbody.insertAdjacentHTML("beforeend", `
         <tr>
           <td>
-            <img src="${p.media?.[0]?.url || '/assets/images/sample/snack.jpg'}"
+            <img src="${imgSrc}"
                  style="width:100px; height:100px; object-fit:cover; border-radius:6px; display:block;">
           </td>
           <td>${p.name}</td>
           <td>${p.category ? p.category.name : '-'}</td>
           <td>${p.shop ? p.shop.shopName : '-'}</td>
           <td>
-            ${p.status === 2
+            ${[0,1,2].includes(p.status)
                 ? '<span class="badge bg-success">Active</span>'
                 : '<span class="badge bg-danger">Inactive</span>'}
           </td>
-        <td class="text-center">
-          <span class="price-badge">
-            ${formatCurrency(p.price)}
-          </span>
-        </td>          
-        <td class="text-center">${p.stock || 0}</td>
+          <td class="text-center">
+            <span class="price-badge">${formatCurrency(p.price)}</span>
+          </td>          
+          <td class="text-center">${p.stock || 0}</td>
           <td>${formatDate(p.createdAt)}</td>
           <td class="text-center">
               <button class="btn btn-sm btn-outline-warning me-1" 
                       data-id="${p.productId}" data-action="toggle" 
-                      title="${p.status ===  2? 'Hide product' : 'Show product'}">
-                  <i class="bi ${p.status === 2 ? 'bi-eye-slash-fill' : 'bi-eye-fill'}"></i>
+                      title="${[0,1,2].includes(p.status) ? 'Hide product' : 'Show product'}">
+                  <i class="bi ${[0,1,2].includes(p.status) ? 'bi-eye-slash-fill' : 'bi-eye-fill'}"></i>
               </button>
               <button class="btn btn-sm btn-outline-danger" 
                       data-id="${p.productId}" data-action="delete" 
@@ -132,7 +142,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (action === "toggle") {
             const icon = btn.querySelector("i");
-            const newStatus = icon.classList.contains("bi-eye-slash-fill") ? 3 : 2;
+            // Nếu đang active (0,1,2) thì chuyển sang 3 (inactive)
+            // Nếu đang inactive (3) thì chuyển sang 2 (active)
+            const newStatus = [0,1,2].some(s => icon.classList.contains("bi-eye-slash-fill")) ? 3 : 2;
 
             fetch(`${contextPath}/api/admin/products/${id}/status?status=${newStatus}`, { method: "PUT" })
                 .then(res => res.text())

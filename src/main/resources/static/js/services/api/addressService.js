@@ -1,4 +1,4 @@
-import apiClient from '/js/utils/apiClient.js';
+import apiClient from '../../utils/apiClient.js';
 
 const addressService = {
     getAddressesByUserId : async function (userId ) {
@@ -6,7 +6,7 @@ const addressService = {
             return await apiClient.get(`/addresses/${userId}`);
         } catch (error) {
             console.error('Lỗi khi lấy địa chỉ:', error);
-            throw error;
+
         }
     },
 

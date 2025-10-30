@@ -1,3 +1,5 @@
+import {showErrorToast, showSuccessToast} from "../../../../js/utils/toastUtils.js";
+
 (function () {
     const BASE = '/UTE_SHOP';
     const token = localStorage.getItem('authToken');
@@ -20,8 +22,6 @@
 
     const badge = st => {
         switch (String(st).toUpperCase()) {
-            case 'REQUEST_RETURN':
-                return 'bg-warning text-dark';
             case 'RETURNING':
                 return 'bg-info';
             case 'RETURNED':
@@ -33,13 +33,6 @@
 
     function actionsHtml(o) {
         const st = String(o.status).toUpperCase();
-        if (st === 'REQUEST_RETURN') {
-            return `
-        <div class="d-flex gap-2 justify-content-end">
-          <button class="btn btn-sm btn-outline-secondary btn-reject" data-id="${o.orderId}">Reject</button>
-          <button class="btn btn-sm btn-primary btn-approve" data-id="${o.orderId}">Approve Return</button>
-        </div>`;
-        }
         if (st === 'RETURNING') {
             // Hiển thị nút Confirm khi confirmable
             return `
@@ -93,7 +86,7 @@
         const q = (searchInput?.value || '').trim();
         if (q) params.set('q', q);
 
-        const st = (statusFilter?.value || 'REQUEST_RETURN').trim();
+        const st = (statusFilter?.value || 'RETURNING').trim();
         if (st) params.set('status', st);
 
         params.set('page', String(page));
@@ -202,6 +195,47 @@
         }
     });
 
-    // init
-    load().catch(console.error);
+    const userId = localStorage.getItem('userId');
+    let stompClient = null;
+
+    function connect() {
+        let token = localStorage.getItem("authToken");
+        if (!token) {
+            showErrorToast("Please log in to continue");
+            window.location.href = '/UTE_SHOP/login';
+            return;
+        }
+        const socket = new SockJS("http://localhost:8082/UTE_SHOP/ws?token=" + token);
+        stompClient = Stomp.over(socket);
+        stompClient.connect(
+            {},
+            function (frame) {
+                stompClient.subscribe('/user/queue/orders', function (message) {
+                    try {
+                        const body = JSON.parse(message.body);
+                        if (Number(body.userId) === Number(userId)) {
+                            load();
+                            showSuccessToast(`Order #${body.orderId} status updated to ${body.status}`);
+                        }
+                    } catch (e) {
+                        console.log('Parse error:', e);
+                        alert('📦 Message received (raw):\n' + message.body);
+                    }
+                });
+                if (Notification.permission === "default") {
+                    Notification.requestPermission();
+                }
+            },
+            function (error) {
+                log('❌ STOMP error: ' + JSON.stringify(error), 'err');
+                updateStatus(false);
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        load();
+        connect();
+    });
 })();

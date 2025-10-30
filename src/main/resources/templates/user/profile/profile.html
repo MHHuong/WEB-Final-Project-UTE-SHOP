@@ -3,22 +3,6 @@
       layout:decorate="~{user/user-layout}">
 <body>
 <main layout:fragment="content">
-    <div class="mt-4">
-        <div class="container">
-            <!-- Breadcrumb -->
-            <div class="row">
-                <div class="col-12">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="/static">Trang chủ</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Trang cá nhân</li>
-                        </ol>
-                    </nav>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Profile Section -->
     <section class="mb-lg-14 mb-8 mt-8">
         <div class="container">
@@ -29,7 +13,10 @@
                         <div class="card-body">
                             <div class="text-center mb-4">
                                 <div class="position-relative d-inline-block">
-                                    <img src="/images/avatar/avatar-1.jpg" alt="User Avatar" class="rounded-circle avatar-xl mb-3" id="user-avatar">
+                                    <img th:src="@{/images/avatar/avatar-1.jpg}"
+                                         alt="User Avatar"
+                                         class="rounded-circle avatar-xl mb-3"
+                                         id="user-avatar">
                                     <button class="btn btn-sm btn-light rounded-circle position-absolute bottom-0 end-0" style="width: 35px; height: 35px;">
                                         <i class="bi bi-camera"></i>
                                     </button>
@@ -40,13 +27,19 @@
                             <hr>
                             <nav class="nav flex-column">
                                 <a class="nav-link active" href="#" data-section="personal-info">
-                                    <i class="bi bi-person me-2"></i>Thông tin cá nhân
+                                    <i class="bi bi-person me-2"></i>Personal Info
                                 </a>
                                 <a class="nav-link" href="#" data-section="orders">
-                                    <i class="bi bi-bag me-2"></i>Đơn đặt hàng
+                                    <i class="bi bi-bag me-2"></i>Orders
+                                </a>
+                                <a class="nav-link" href="#" data-section="love">
+                                    <i class="bi bi-heart me-2"></i>Loved Products
+                                </a>
+                                <a class="nav-link" href="#" data-section="security">
+                                    <i class="bi bi-shield-lock me-2"></i>Security
                                 </a>
                                 <a class="nav-link text-danger" href="#" id="logout-btn">
-                                    <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
                                 </a>
                             </nav>
                         </div>
@@ -59,26 +52,35 @@
                     <div id="personal-info-section" class="content-section">
                         <div class="card border-0 shadow-sm">
                             <div class="card-header bg-white">
-                                <h4 class="mb-0">Thông tin cá nhân</h4>
+                                <h4 class="mb-0">Personal Info</h4>
                             </div>
                             <div class="card-body">
-                                <form id="personal-info-form">
+                                <form id="personal-info-form" class="needs-validation" novalidate>
                                     <div class="row g-3">
                                         <div class="col-md-6">
-                                            <label for="fullName" class="form-label">Họ và tên</label>
+                                            <label for="fullName" class="form-label">Fullname</label>
                                             <input type="text" class="form-control" id="fullName" required>
+                                            <div class="invalid-feedback">
+                                                Please enter your full name.
+                                            </div>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="email" class="form-label">Email</label>
                                             <input type="email" class="form-control" id="email" readonly>
+                                            <div class="invalid-feedback">
+                                                Please enter a valid email address.
+                                            </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="phone" class="form-label">Số điện thoại</label>
+                                            <label for="phone" class="form-label">Phone</label>
                                             <input type="tel" class="form-control" id="phone">
+                                            <div class="invalid-feedback">
+                                                Please enter a valid phone number.
+                                            </div>
                                         </div>
                                         <div class="col-12">
-                                            <button type="submit" class="btn btn-primary">
-                                                <i class="bi bi-save me-2"></i>Cập nhật thông tin
+                                            <button type="submit" class="btn btn-primary" id="save-personal-info-btn">
+                                                <i class="bi bi-save me-2"></i>Save Changes
                                             </button>
                                         </div>
                                     </div>
@@ -92,6 +94,12 @@
 
                     <!-- Orders Section -->
                     <div th:replace="~{fragments/user/profile/order-view::order-view}"></div>
+
+                    <!-- Loved Products Section -->
+                    <div th:replace="~{fragments/user/profile/loved-products::loved-products-view}"></div>
+
+                    <!-- Security Section -->
+                    <div th:replace="~{fragments/user/profile/security::security-view}"></div>
                 </div>
             </div>
         </div>
@@ -99,7 +107,7 @@
 
     <div th:replace="~{fragments/user/profile/address::address-modal}"></div>
     <div th:replace="~{fragments/user/modal::status-modal}"></div>
-    <script type="module" src="/js/services/view/profileService.js"></script>
+    <script type="module" th:src="@{/js/services/view/profileService.js}"></script>
 
     <style>
         .avatar-xl {

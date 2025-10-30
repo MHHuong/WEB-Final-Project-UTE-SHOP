@@ -30,7 +30,7 @@
             }
         } catch (err) {
             console.error(err);
-            alert('Có lỗi khi xoá sản phẩm.');
+            alert('Error when deleting product.');
         }
     });
 })();
