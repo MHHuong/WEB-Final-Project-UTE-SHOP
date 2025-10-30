@@ -27,22 +27,16 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                                    WebSocketHandler wsHandler,
                                    Map<String, Object> attributes) {
 
-        System.out.println("🔍 WebSocket handshake started...");
-        System.out.println("   URI: " + request.getURI());
-
         String token = null;
 
-        // Method 1: Try to get token from Authorization header (most common for STOMP over WebSocket)
         List<String> authHeaders = request.getHeaders().get("Authorization");
         if (authHeaders != null && !authHeaders.isEmpty()) {
             String authHeader = authHeaders.get(0);
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
-                System.out.println("✅ Token found in Authorization header");
             }
         }
 
-        // Method 2: Try to get token from query parameter (fallback for SockJS)
         if (token == null) {
             String query = request.getURI().getQuery();
             if (query != null && query.contains("token=")) {
@@ -50,7 +44,6 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                 for (String param : params) {
                     if (param.startsWith("token=")) {
                         token = param.substring(6);
-                        System.out.println("✅ Token found in query parameter");
                         break;
                     }
                 }
@@ -66,25 +59,22 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
-                
+
                 Object userIdObj = claims.get("userId");
                 String userId = userIdObj != null ? String.valueOf(userIdObj) : null;
 
                 if (userId == null) {
                     userId = claims.getSubject();
                 }
-
-                System.out.println("🔑 WebSocket handshake SUCCESS - userId: " + userId);
-                System.out.println("   (Subject was: " + claims.getSubject() + ")");
                 attributes.put("userId", userId);
                 return true;
             } catch (Exception e) {
-                System.err.println("❌ Failed to parse JWT token: " + e.getMessage());
+                System.err.println("Failed to parse JWT token: " + e.getMessage());
                 return false;
             }
         }
 
-        System.err.println("⚠️ No JWT token found in WebSocket handshake");
+        System.err.println("No JWT token found in WebSocket handshake");
         System.err.println("   Headers: " + request.getHeaders().keySet());
         return false; // Reject connection if no valid token
     }
@@ -93,9 +83,9 @@ public class JwtHandshakeInterceptor implements HandshakeInterceptor {
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
                                WebSocketHandler wsHandler, Exception exception) {
         if (exception != null) {
-            System.err.println("❌ WebSocket handshake failed: " + exception.getMessage());
+            System.err.println("WebSocket handshake failed: " + exception.getMessage());
         } else {
-            System.out.println("✅ WebSocket handshake completed");
+            System.out.println("WebSocket handshake completed");
         }
     }
 }
