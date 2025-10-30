@@ -20,8 +20,6 @@
 
     const badge = st => {
         switch (String(st).toUpperCase()) {
-            case 'REQUEST_RETURN':
-                return 'bg-warning text-dark';
             case 'RETURNING':
                 return 'bg-info';
             case 'RETURNED':
@@ -33,13 +31,6 @@
 
     function actionsHtml(o) {
         const st = String(o.status).toUpperCase();
-        if (st === 'REQUEST_RETURN') {
-            return `
-        <div class="d-flex gap-2 justify-content-end">
-          <button class="btn btn-sm btn-outline-secondary btn-reject" data-id="${o.orderId}">Reject</button>
-          <button class="btn btn-sm btn-primary btn-approve" data-id="${o.orderId}">Approve Return</button>
-        </div>`;
-        }
         if (st === 'RETURNING') {
             // Hiển thị nút Confirm khi confirmable
             return `
@@ -93,7 +84,7 @@
         const q = (searchInput?.value || '').trim();
         if (q) params.set('q', q);
 
-        const st = (statusFilter?.value || 'REQUEST_RETURN').trim();
+        const st = (statusFilter?.value || 'RETURNING').trim();
         if (st) params.set('status', st);
 
         params.set('page', String(page));
