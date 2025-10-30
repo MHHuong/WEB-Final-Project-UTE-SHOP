@@ -46,7 +46,7 @@
             headers: {'Authorization': 'Bearer ' + token}
         });
         if (!res.ok) {
-            alert('Không tải được đơn');
+            alert('Load failed');
             return;
         }
         const o = await res.json();

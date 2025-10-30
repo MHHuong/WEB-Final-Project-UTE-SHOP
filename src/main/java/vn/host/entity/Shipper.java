@@ -44,5 +44,6 @@ public class Shipper {
     private Set<Order> assignedOrders = new HashSet<>();
 
     @ManyToMany(mappedBy = "shippers")
+    @JsonIgnore
     private Set<Order> orders = new LinkedHashSet<>();
 }

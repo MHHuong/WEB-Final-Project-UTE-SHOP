@@ -22,15 +22,15 @@
 
     function buildDetail(it) {
         detailDl.innerHTML = `
-      <dt class="col-sm-3">Mã đơn</dt><dd class="col-sm-9">#${fmt(it.orderId)}</dd>
-      <dt class="col-sm-3">Sản phẩm</dt><dd class="col-sm-9">${fmt(it.productName)}</dd>
-      <dt class="col-sm-3">Trạng thái</dt><dd class="col-sm-9">${fmt(it.status)}</dd>
-      <dt class="col-sm-3">Đơn vị VC</dt><dd class="col-sm-9">${fmt(it.shippingProvider)}</dd>
+      <dt class="col-sm-3">Order Id</dt><dd class="col-sm-9">#${fmt(it.orderId)}</dd>
+      <dt class="col-sm-3">Product</dt><dd class="col-sm-9">${fmt(it.productName)}</dd>
+      <dt class="col-sm-3">Status</dt><dd class="col-sm-9">${fmt(it.status)}</dd>
+      <dt class="col-sm-3">Shipping Provider</dt><dd class="col-sm-9">${fmt(it.shippingProvider)}</dd>
       <dt class="col-sm-3">Shop</dt><dd class="col-sm-9">${fmt(it.shopName)}</dd>
-      <dt class="col-sm-3">Người nhận</dt><dd class="col-sm-9">${fmt(it.receiverName)}</dd>
-      <dt class="col-sm-3">SĐT</dt><dd class="col-sm-9">${fmt(it.receiverPhone)}</dd>
-      <dt class="col-sm-3">Địa chỉ</dt><dd class="col-sm-9" style="word-break:break-word">${fmt(it.receiverAddress)}</dd>
-      <dt class="col-sm-3">Thu COD</dt><dd class="col-sm-9">${money(it.amountForCOD)}</dd>
+      <dt class="col-sm-3">Receiver</dt><dd class="col-sm-9">${fmt(it.receiverName)}</dd>
+      <dt class="col-sm-3">Phone</dt><dd class="col-sm-9">${fmt(it.receiverPhone)}</dd>
+      <dt class="col-sm-3">Address</dt><dd class="col-sm-9" style="word-break:break-word">${fmt(it.receiverAddress)}</dd>
+      <dt class="col-sm-3">COD</dt><dd class="col-sm-9">${money(it.amountForCOD)}</dd>
     `;
     }
 
@@ -38,7 +38,7 @@
         const url = `${BASE}/api/shipper/orders/shipping?page=${page}&size=${size}&sort=${encodeURIComponent(sort)}`;
         const res = await fetch(url, {headers: {'Authorization': `Bearer ${token}`}});
         if (!res.ok) {
-            alert('Tải danh sách thất bại');
+            alert('Load failed');
             return;
         }
         const data = await res.json();
@@ -101,7 +101,7 @@
     }
 
     async function deliver(orderId) {
-        if (!confirm('Xác nhận đã giao thành công?')) return;
+        if (!confirm('Confirm delivered?')) return;
         const res = await fetch(`${BASE}/api/shipper/orders/${orderId}/deliver`, {
             method: 'POST', headers: {'Authorization': `Bearer ${token}`}
         });

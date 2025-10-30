@@ -261,7 +261,7 @@
             }
         } catch (err) {
             console.error(err);
-            alert('Có lỗi khi xoá promotion.');
+            alert('Error when deleting promotion.');
         }
     });
     // Kick off

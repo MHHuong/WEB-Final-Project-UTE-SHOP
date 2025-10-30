@@ -36,7 +36,6 @@ public class WebSecurityConfig {
                                         "/shop-grid",
                                         "/shop-grid/**",
                                         "/user/**",
-                                        "/shop/**",
                                         "/products/**",
                                         "/payment/**",
                                         "/ws/**",
@@ -46,7 +45,9 @@ public class WebSecurityConfig {
                                         "/libs/**",
                                         "/images/**",
                                         "/fonts/**",
-                                        "/addresses.json"
+                                        "/addresses.json",
+                                        "/shipper/register",
+                                        "/shop/register"
                                 ).permitAll()
                                 .requestMatchers(
                                         "/assets/**",
@@ -66,8 +67,9 @@ public class WebSecurityConfig {
                                 .requestMatchers("/uploads/**", "/shop/account/shop-register").permitAll()
                                 .requestMatchers("/api/**").authenticated()
                                 .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
-//                        .requestMatchers("/admin/**").hasRole("ADMIN")
-//                        .requestMatchers("/shop/**").hasRole("SELLER")
+                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/shop/**").hasRole("SELLER")
+                                .requestMatchers("/shipper/**").hasRole("SHIPPER")
 //                        .requestMatchers("/user/**").authenticated()
                                 .anyRequest().authenticated()
                 )
