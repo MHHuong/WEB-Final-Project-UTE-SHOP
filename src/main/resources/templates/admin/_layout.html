@@ -224,6 +224,13 @@
         <i class="bi bi-person-rolodex"></i>Shippers
       </a>
 
+      <div class="mt-3 mb-2 text-uppercase small text-muted">ORDER MANAGEMENT</div>
+
+      <a class="nav-link [[${#httpServletRequest.requestURI.contains('/admin/orders/returns')} ? 'active' : '']]"
+         href="/UTE_SHOP/admin/orders/returns">
+        <i class="bi bi-arrow-return-left"></i>Return Orders
+      </a>
+
       <div class="mt-3 mb-2 text-uppercase small text-muted">SITE SETTINGS</div>
 
       <a class="nav-link [[${#httpServletRequest.requestURI.contains('/admin/coupons')} ? 'active' : '']]" href="/UTE_SHOP/admin/coupons">
