@@ -253,7 +253,9 @@
                 listItem.className = 'list-group-item border-0 p-0 mb-3';
                 listItem.innerHTML = `
                     <div class="cart-item p-3 border rounded">
-                        <div class="d-flex gap-3">
+                        <div class="d-flex gap-3" onclick="{
+                            window.location.href = '/UTE_SHOP/products/${item.productResponse.productId}'
+                        }">
                             <div class="flex-shrink-0">
                                 <img src="${item.productResponse.image}"
                                      alt="${item.productResponse.productName}"

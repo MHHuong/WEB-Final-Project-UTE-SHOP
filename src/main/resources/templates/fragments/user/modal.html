@@ -401,7 +401,7 @@
                             class="form-control"
                             id="cancel-reason"
                             rows="3"
-                            placeholder="Vui lòng nhập lý do..."
+                            placeholder="Please provide the reason for cancellation..."
                             maxlength="500"></textarea>
                     <small class="text-muted">
                         Limited to 500 characters.
@@ -411,17 +411,16 @@
                     </div>
                 </div>
 
-                <div id="account-section" style="display: none;">
-                    <label for="cancel-reason" class="form-label">
+                <div id="account-section" style="display: none; margin-top: 1rem;">
+                    <label for="account-reason" class="form-label">
                         Bank Account for Refund
                         <span class="text-danger">*</span>
                     </label>
-                    <textarea
+                    <input
                             class="form-control"
                             id="account-reason"
-                            rows="3"
-                            placeholder="Vui lòng nhập lý do..."
-                            maxlength="500"></textarea>
+                            placeholder="Please provide your bank account info..."
+                            maxlength="500">
                     <small class="text-muted">
                         If you are requesting a refund, please provide your bank account details.
                     </small>

@@ -19,7 +19,7 @@
 <div th:replace="~{fragments/user/modal::vocher-modal}"></div>
 <main layout:fragment="content"></main>
 </body>
-<footer th:replace="~{fragments/user/footer::footer}"></footer>
+<footer th:replace="~{fragments/layout :: footer}" class="footer"></footer>
 
 <script th:src="@{/js/vendors/jquery.min.js}"></script>
 <script th:src="@{/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
@@ -124,11 +124,51 @@
 </script>
 <script type="module">
     import cartBadgeUtils from /*[[@{/js/utils/cartBadgeUtils.js}]]*/ '/UTE_SHOP/js/utils/cartBadgeUtils.js';
+    import {showInfoToast} from "/UTE_SHOP/js/utils/toastUtils.js";
+
     document.addEventListener("DOMContentLoaded", function () {
         const user_id = localStorage.getItem('userId');
         if (user_id) {
             cartBadgeUtils.initCartBadge(user_id);
         }
+        connect(user_id);
     });
+
+    let stompClient = null;
+    function connect(user_id) {
+        let token = localStorage.getItem("authToken");
+        if (!token) {
+            return;
+        }
+        const socket = new SockJS("http://localhost:8082/UTE_SHOP/ws?token=" + token);
+        stompClient = Stomp.over(socket);
+        stompClient.connect(
+            {},
+            function(frame) {
+                stompClient.subscribe('/user/queue/orders', function(message) {
+                    try {
+                        const body = JSON.parse(message.body);
+                        console.log('Received message:', body);
+                        if (body.orderId !== null && Number(body.userId) === Number(user_id)) {
+                            showInfoToast("You have received an update for your order: #" + body.orderId + " - Status: " + body.status);
+                        }
+                        else if (Number(body.userId) === Number(user_id)) {
+                            showInfoToast("You have a new message: " + body.status);
+                        }
+                    } catch (e) {
+                        console.log('Parse error:', e);
+                        alert('📦 Message received (raw):\n' + message.body);
+                    }
+                });
+                if (Notification.permission === "default") {
+                    Notification.requestPermission();
+                }
+            },
+            function(error) {
+                log('STOMP error: ' + JSON.stringify(error), 'err');
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+            });
+    }
 </script>
 </html>

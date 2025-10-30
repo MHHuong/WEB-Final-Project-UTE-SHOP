@@ -1,7 +1,6 @@
 import orderService from '../services/api/orderService.js';
 import {showErrorToast, showSuccessToast} from "../../js/utils/toastUtils.js";
 
-// Map trạng thái tiếng Việt
 const statusMap = {
     'NEW': { label: 'Pending', class: 'bg-warning' },
     'CONFIRMED': { label: 'Confirmed', class: 'bg-info' },
@@ -39,12 +38,21 @@ export function showOrderStatusModal(orderId, oldStatus, newStatus, onSuccess = 
     // Hiển thị/ẩn phần lý do
     const reasonSection = document.getElementById('reason-section');
     const cancelReason = document.getElementById('cancel-reason');
+
     const warningText = document.getElementById('warning-text');
+
+    const accountSection = document.getElementById('account-section');
+    const bankId = document.getElementById('account-reason');
 
     if (newStatus === 'CANCELLED' || newStatus === 'RETURNED') {
         reasonSection.style.display = 'block';
         cancelReason.value = '';
         cancelReason.classList.remove('is-invalid');
+
+
+        accountSection.style.display = 'block';
+        bankId.value = '';
+        bankId.classList.remove('is-invalid');
 
         if (newStatus === 'CANCELLED') {
             warningText.textContent = 'Please provide a reason for cancelling the order so we can improve our service.';
@@ -55,6 +63,11 @@ export function showOrderStatusModal(orderId, oldStatus, newStatus, onSuccess = 
         reasonSection.style.display = 'none';
         cancelReason.value = '';
         cancelReason.classList.remove('is-invalid');
+
+        accountSection.style.display = 'none';
+        bankId.value = '';
+        bankId.classList.remove('is-invalid');
+
         warningText.textContent = 'Are you sure you want to change the order status?';
     }
 
@@ -67,7 +80,11 @@ export function showOrderStatusModal(orderId, oldStatus, newStatus, onSuccess = 
 async function confirmStatusChange() {
     const reasonSection = document.getElementById('reason-section');
     const cancelReason = document.getElementById('cancel-reason');
+
+    const accountSection = document.getElementById('account-section');
+    const bankId = document.getElementById('account-reason');
     let reason = '';
+    let bankInfo = '';
 
     // Validate lý do nếu cần
     if (reasonSection.style.display !== 'none') {
@@ -79,22 +96,33 @@ async function confirmStatusChange() {
         cancelReason.classList.remove('is-invalid');
     }
 
+    // Validate account id nếu cần
+    if (accountSection.style.display !== 'none') {
+        bankInfo = bankId.value.trim();
+        console.log(bankId);
+        if (!bankInfo) {
+            bankId.classList.add('is-invalid');
+            return;
+        }
+        bankId.classList.remove('is-invalid');
+    }
+
     // Disable nút xác nhận
     const confirmBtn = document.getElementById('confirm-status-change-btn');
     const originalBtnText = confirmBtn.innerHTML;
     confirmBtn.disabled = true;
     confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Processing...';
-
     try {
 
         const result = await orderService.updateStatusOrderWithReason(
             currentOrderId,
             currentNewStatus,
-            reason
+            reason,
+            bankInfo
         );
 
         if (result.status === "Success") {
-            showSuccessToast('Cập nhật trạng thái đơn hàng thành công!');
+            showSuccessToast('Order status updated successfully.');
 
             // Đóng modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('orderStatusConfirmModal'));
@@ -134,6 +162,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    const bankId = document.getElementById('account-reason');
+    if (bankId) {
+        bankId.addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.classList.remove('is-invalid');
+            }
+        });
+    }
 
     // Reset modal khi đóng
     const modal = document.getElementById('orderStatusConfirmModal');
@@ -143,6 +179,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (cancelReason) {
                 cancelReason.value = '';
                 cancelReason.classList.remove('is-invalid');
+            }
+            const bankId = document.getElementById('account-reason');
+            if (bankId) {
+                bankId.value = '';
+                bankId.classList.remove('is-invalid');
             }
         });
     }

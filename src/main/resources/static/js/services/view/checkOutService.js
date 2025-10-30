@@ -230,12 +230,20 @@ function renderProducts() {
         return;
     }
 
+    function buildUrl(p) {
+        if (!p) return '/assets/images/sample/snack.jpg';
+        if (/^https?:\/\//i.test(p)) return p; // http / https giữ nguyên
+        if (p.startsWith(BASE_URL + contextPath + '/')) return p;
+        if (p.startsWith('/')) return BASE_URL + contextPath + p;
+        return BASE_URL + contextPath + '/' + p.replace(/^\/+/, '');
+    }
+
     let html = '';
     selectedProducts.forEach(item => {
         html += `
                     <div class="product-item-checkout">
                         <div class="d-flex align-items-start">
-                            <img src="${item.productResponse.image}" class="product-img-checkout me-3"
+                            <img src="${buildUrl(item.productResponse.image)}" class="product-img-checkout me-3"
                                  alt="${item.productResponse.productName}">
                             <div class="flex-grow-1">
                                 <h6 class="mb-1">${item.productResponse.productName}</h6>

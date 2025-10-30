@@ -47,7 +47,7 @@ const orderService = {
         }
     },
 
-    updateStatusOrderWithReason: async function (orderId, status, reason = '') {
+    updateStatusOrderWithReason: async function (orderId, status, reason = '', bankInfo = '') {
         try {
             if (!orderId || !status) {
                 return new Error('orderId và status không được để trống');
@@ -58,6 +58,9 @@ const orderService = {
             });
             if (reason) {
                 params.append('reason', reason);
+            }
+            if (bankInfo) {
+                params.append('bankInfo', bankInfo);
             }
             return await apiClient.put(`/orders/status?${params.toString()}`);
         } catch (error) {

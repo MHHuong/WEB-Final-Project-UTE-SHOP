@@ -74,9 +74,10 @@ public class OrderController {
     public ResponseEntity<?> updateStatus(
             @RequestParam("order") Long id,
             @RequestParam("status") String status,
-            @RequestParam(value = "reason", required = false) String reason) {
+            @RequestParam(value = "reason", required = false) String reason,
+            @RequestParam(value = "bankInfo", required = false) String bankAccountInfo) {
         try {
-            orderService.updateStatus(id, status, reason);
+            orderService.updateStatus(id, status, reason, bankAccountInfo);
             return new ResponseEntity<>(
                     new ApiResponse(
                             "Success",
@@ -100,7 +101,7 @@ public class OrderController {
         try {
             String[] orderIds = orderIdsStr.split(",");
             for (String orderId : orderIds) {
-                orderService.updateStatus(Long.parseLong(orderId.trim()), status, null);
+                orderService.updateStatus(Long.parseLong(orderId.trim()), status, null, null);
             }
             return new ResponseEntity<>(
                     new ApiResponse(

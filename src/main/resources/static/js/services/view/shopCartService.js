@@ -89,6 +89,14 @@ function renderEmptyCart() {
             `;
 }
 
+function buildUrl(p) {
+    if (!p) return '/assets/images/sample/snack.jpg';
+    if (/^https?:\/\//i.test(p)) return p; // http / https giữ nguyên
+    if (p.startsWith(BASE_URL + contextPath + '/')) return p;
+    if (p.startsWith('/')) return BASE_URL + contextPath + p;
+    return BASE_URL + contextPath + '/' + p.replace(/^\/+/, '');
+}
+
 // Render cart items grouped by shop
 function renderCartItems() {
     const container = document.getElementById('cart-items-container');
@@ -205,7 +213,7 @@ function renderProductItem(item) {
                         </div>
                         <div class="col-5">
                             <div class="d-flex align-items-center">
-                                <img src="${item.productResponse.image}" class="product-img me-3" alt="${item.productResponse.productName}">
+                                <img src="${buildUrl(item.productResponse.image)}" class="product-img me-3" alt="${item.productResponse.productName}">
                                 <div>
                                     <h6 class="mb-1">${item.productResponse.productName}</h6>
                                     <small class="text-muted">Mã SP: ${item.productResponse.productId}</small>
@@ -245,7 +253,7 @@ function renderProductItem(item) {
                                        data-shop-id="${item.productResponse.shopId}" ${isSelected ? 'checked' : ''}>
                                 <label class="form-check-label" for="item-mobile-${item.cartId}"></label>
                             </div>
-                            <img src="${item.productResponse.image}" class="product-img me-3" alt="${item.productResponse.productName}">
+                            <img src="${buildUrl(item.productResponse.image)}" class="product-img me-3" alt="${item.productResponse.productName}">
                             <div class="flex-grow-1">
                                 <h6 class="mb-1">${item.productResponse.productName}</h6>
                                 <small class="text-muted d-block mb-2">Mã SP: ${item.productResponse.productId}</small>

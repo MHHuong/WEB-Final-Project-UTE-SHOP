@@ -11,7 +11,7 @@ const orderId = urlParams.get('orderId');
 
 
 // Order status mapping
-const STATUS_ORDER = ['NEW', 'CONFIRMED', 'SHIPPING', 'DELIVERED', 'RECEIVED'];
+const STATUS_ORDER = ['NEW', 'CONFIRMED', 'SHIPPING', 'DELIVERED', 'RECEIVED','CANCELLED', 'REQUEST_RETURN', 'RETURNING', 'RETURNED'];
 const STATUS_TEXT = {
     'NEW': 'New Order',
     'CONFIRMED': 'Confirmed',
@@ -19,8 +19,11 @@ const STATUS_TEXT = {
     'DELIVERED': 'Delivered',
     'RECEIVED': 'Received',
     'CANCELLED': 'Cancelled',
-    'RETURNED': 'Returned'
+    'REQUEST_RETURN' : 'Return Requested',
+    'RETURNING' : 'Returning',
+    'RETURNED' : 'Returned'
 };
+
 
 
 let stompClient = null;
@@ -53,8 +56,6 @@ function connect() {
             }
         },
         function(error) {
-            log('❌ STOMP error: ' + JSON.stringify(error), 'err');
-            updateStatus(false);
             document.getElementById('connectBtn').disabled = false;
             document.getElementById('disconnectBtn').disabled = true;
         });
@@ -211,6 +212,13 @@ function updateOrderTimeline(currentStatus) {
     });
 }
 
+function buildUrl(p) {
+    if (!p) return '/assets/images/sample/snack.jpg';
+    if (/^https?:\/\//i.test(p)) return p; // http / https giữ nguyên
+    if (p.startsWith(BASE_URL + contextPath + '/')) return p;
+    if (p.startsWith('/')) return BASE_URL + contextPath + p;
+    return BASE_URL + contextPath + '/' + p.replace(/^\/+/, '');
+}
 
 // Display order items
 function displayOrderItems(items) {
@@ -223,7 +231,7 @@ function displayOrderItems(items) {
     container.innerHTML = items.map(item => `
         <div class="order-item">
             <div class="d-flex gap-3">
-                <img src="${item.image || '/images/products/default.jpg'}" 
+                <img src="${buildUrl(item.image)}" 
                      alt="${item.productName}" 
                      class="product-img-success">
                 <div class="flex-grow-1">

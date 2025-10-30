@@ -11,16 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/user")
 public class HomePageController {
-    @GetMapping()
-    public String home(Model model) {
-        return"user/home";
-    }
-
-    @GetMapping("/ws")
-    public String WS(Model model) {
-        return "user/test-ws";
-    }
-
     @GetMapping("/shop-cart")
     public String shopCart() {
         return "user/order/shop-cart";
@@ -32,7 +22,7 @@ public class HomePageController {
     }
 
     @GetMapping("/order/{orderCode}")
-    public String success(@PathVariable String orderCode, @RequestParam String status, Model model) {
+    public String success(@PathVariable String orderCode, @RequestParam String status) {
         return "user/order/order-detail";
     }
 
@@ -46,8 +36,4 @@ public class HomePageController {
         return "user/order/order-detail";
     }
 
-    @GetMapping("/user/get-token")
-    public String getTokenPage() {
-        return "user/get-token";
-    }
 }

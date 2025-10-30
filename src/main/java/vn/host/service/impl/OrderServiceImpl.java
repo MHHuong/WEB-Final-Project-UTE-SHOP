@@ -195,10 +195,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updateStatus(Long orderId, String status, String reason) {
+    public void updateStatus(Long orderId, String status, String reason, String bankAccountInfo) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
-        if (order.getStatus() != OrderStatus.NEW && OrderStatus.valueOf(status) == OrderStatus.CANCELLED) {
+        if ((order.getStatus() != OrderStatus.NEW && order.getStatus() != OrderStatus.CONFIRMED && OrderStatus.valueOf(status) == OrderStatus.CANCELLED)) {
             throw new RuntimeException("Only NEW orders can be cancelled");
         }
         order.setStatus(Enum.valueOf(vn.host.util.sharedenum.OrderStatus.class, status));
@@ -216,7 +216,8 @@ public class OrderServiceImpl implements OrderService {
 
         if (reason != null && !reason.trim().isEmpty()) {
             String currentNotes = order.getNote() != null ? order.getNote() : "";
-            String newNotes = currentNotes + "\n[" + status + "] Lý do: " + reason;
+            String newNotes = currentNotes + "\n[" + status + "] Lý do: " + reason
+                    + "\n[Tài khoản ngân hàng]" + bankAccountInfo;
             order.setNote(newNotes.trim());
         }
         orderRepository.save(order);
