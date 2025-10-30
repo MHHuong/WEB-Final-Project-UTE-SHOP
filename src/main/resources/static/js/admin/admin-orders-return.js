@@ -1,5 +1,3 @@
-import {showErrorToast, showSuccessToast} from "../utils/toastUtils";
-
 const contextPath = (() => {
     try {
         const part = window.location.pathname.split('/')[1];
@@ -189,47 +187,5 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    const userId = localStorage.getItem('userId')
-    let stompClient = null;
-
-    function connect() {
-        let token = localStorage.getItem("authToken");
-        if (!token) {
-            showErrorToast("Please log in to continue");
-            window.location.href = '/UTE_SHOP/login';
-            return;
-        }
-        const socket = new SockJS("http://localhost:8082/UTE_SHOP/ws?token=" + token);
-        stompClient = Stomp.over(socket);
-        stompClient.connect(
-            {},
-            function (frame) {
-                stompClient.subscribe('/user/queue/orders', function (message) {
-                    try {
-                        const body = JSON.parse(message.body);
-                        if (Number(body.userId) === Number(userId)) {
-                            loadOrders();
-                            showSuccessToast(`Order #${body.orderId} status updated to ${body.status}`);
-                        }
-                    } catch (e) {
-                        console.log('Parse error:', e);
-                        alert('📦 Message received (raw):\n' + message.body);
-                    }
-                });
-                if (Notification.permission === "default") {
-                    Notification.requestPermission();
-                }
-            },
-            function (error) {
-                log('❌ STOMP error: ' + JSON.stringify(error), 'err');
-                updateStatus(false);
-                document.getElementById('connectBtn').disabled = false;
-                document.getElementById('disconnectBtn').disabled = true;
-            });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        loadOrders();
-        connect();
-    });
+    loadOrders();
 });

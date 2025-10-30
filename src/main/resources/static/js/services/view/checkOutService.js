@@ -1,5 +1,5 @@
 import cartService from "../../services/api/cartService.js";
-import { showSuccessToast, showErrorToast, showWarningToast, showInfoToast } from "../../utils/toastUtils.js";
+import {showSuccessToast, showErrorToast, showWarningToast, showInfoToast} from "../../utils/toastUtils.js";
 import paymentService from "../../services/api/paymentService.js";
 import addressService from "../../services/api/addressService.js";
 import orderService from "../../services/api/orderService.js";
@@ -15,7 +15,17 @@ let shippingFeePre = 0
 let shippingMethod = 'STANDARD';
 let shippingProviderId = 1;
 let vouchers = [];
-const BASE_URL = window.location.origin
+const BASE_URL = window.location.origin;
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
+
 
 // Format currency
 function formatCurrency(amount) {
@@ -84,7 +94,7 @@ function renderSavedAddresses() {
     document.getElementById('address-form-section').style.display = 'none';
 }
 
-window.selectAddressById = function(addressId) {
+window.selectAddressById = function (addressId) {
     selectAddress(addressId);
 };
 
@@ -167,7 +177,7 @@ function showAddressForm() {
     });
 
     // Scroll to form
-    document.getElementById('address-form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('address-form-section').scrollIntoView({behavior: 'smooth', block: 'start'});
 }
 
 // Cancel adding new address
@@ -190,7 +200,6 @@ function cancelAddressForm() {
 }
 
 
-
 // Load selected products from sessionStorage
 async function loadSelectedProducts() {
     const result = await cartService.getSelectedCartItem()
@@ -211,8 +220,7 @@ async function loadSelectedProducts() {
             console.error('Error loading selected products:', error);
             showErrorToast('Error loading selected products: ' + error.message);
         }
-    }
-    else {
+    } else {
         showErrorToast('Error loading selected products: ' + result.message);
     }
 }
@@ -434,8 +442,7 @@ async function handleNavigation() {
     setTimeout(() => {
         if (paymentMethod === 'E_WALLET' && ewalletType) {
             window.location.href = `/UTE_SHOP/user/order/${displayOrderData.orderCode}?status=pending`;
-        }
-        else window.location.href = `/UTE_SHOP/user/order/${displayOrderData.orderCode}?status=success`;
+        } else window.location.href = `/UTE_SHOP/user/order/${displayOrderData.orderCode}?status=success`;
     }, 2000);
 }
 
@@ -453,8 +460,7 @@ async function calcShippingFee() {
     if (result.status === 'Success') {
         shippingFee = Math.floor(result.data.fee) || 0;
         shippingProviderId = result.data.shippingProviderId || 0
-    }
-    else showErrorToast(result.message || 0);
+    } else showErrorToast(result.message || 0);
 }
 
 async function displayShippingFeeFist() {
@@ -497,14 +503,12 @@ async function fetchVoucher() {
         const result = await couponService.getAllGlobalCoupons();
         if (result.status === 'Success' && result.data) {
             vouchers = result.data;
-        }
-        else vouchers = [];
+        } else vouchers = [];
     } catch (error) {
         vouchers = [];
         console.error('Error fetching vouchers:', error);
     }
 }
-
 
 
 // Render vouchers in modal

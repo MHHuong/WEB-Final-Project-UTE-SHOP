@@ -2,15 +2,23 @@ import {showErrorToast, showInfoToast, showSuccessToast} from "../../utils/toast
 import cartBadgeUtils from "../../utils/cartBadgeUtils.js";
 import couponService from "../../services/api/couponService.js";
 import cartService from "../../services/api/cartService.js";
-import { AuthState } from "../../auth.js";
+import {AuthState} from "../../auth.js";
 
 
 let cartItems = [];
 let selectedItems = new Set();
 let shopVouchers = {}; // Store selected vouchers per shop
 let USER_ID = localStorage.getItem("userId");
-const BASE_URL = window.location.origin
-
+const BASE_URL = window.location.origin;
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
 
 
 // Format currency
@@ -406,7 +414,7 @@ function updateOrderSummary() {
 }
 
 // Increase quantity
-window.increaseQuantity = async function(cartId) {
+window.increaseQuantity = async function (cartId) {
     const item = cartItems.find(i => i.cartId === cartId);
     if (item && item.quantity < 10) {
         await updateQuantity(cartId, item.quantity + 1);
@@ -414,7 +422,7 @@ window.increaseQuantity = async function(cartId) {
 }
 
 // Decrease quantity
-window.decreaseQuantity = async function(cartId) {
+window.decreaseQuantity = async function (cartId) {
     const item = cartItems.find(i => i.cartId === cartId);
     if (item && item.quantity > 1) {
         await updateQuantity(cartId, item.quantity - 1);
@@ -440,7 +448,7 @@ async function updateQuantity(cartId, newQuantity) {
 }
 
 // Remove item
-window.removeItem = async function(cartId) {
+window.removeItem = async function (cartId) {
     if (!confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
 
     try {
@@ -461,7 +469,7 @@ window.removeItem = async function(cartId) {
 }
 
 // Select voucher for shop
-window.selectVoucher = async function(shopId) {
+window.selectVoucher = async function (shopId) {
     const modalElement = document.getElementById('voucherModal');
     if (!modalElement) {
         console.error('Voucher modal not found');
@@ -484,7 +492,7 @@ window.selectVoucher = async function(shopId) {
 
 window.handleNavigation = async () => {
     const discountText = document.getElementById('discount').innerText.replace(/₫/g, '').replace(/\./g, '');
-    const discountAmount = - parseInt(discountText) || 0;
+    const discountAmount = -parseInt(discountText) || 0;
     const selectedCartItems = cartItems.filter(item => selectedItems.has(item.cartId))
         .map(item => ({
             ...item,
@@ -594,7 +602,7 @@ function applyVoucher(code, discountAmount, description, shopId) {
 }
 
 // Remove voucher from shop
-window.removeVoucher = function(shopId) {
+window.removeVoucher = function (shopId) {
     showSuccessToast('Đã bỏ chọn mã giảm giá!');
 
     document.getElementById(`voucher-code-display-${shopId}`).textContent = '';
@@ -629,7 +637,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(async () => {
             showErrorToast('User not authenticated. Redirecting to login page.');
             window.location.href = '/login';
-        },2000)
+        }, 2000)
     }
     await loadCartItems();
 
