@@ -1,10 +1,7 @@
 package vn.host.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +10,7 @@ import vn.host.dto.common.ProductDTO;
 import vn.host.dto.common.PageResult;
 import vn.host.dto.product.ProductDetailVM;
 import vn.host.dto.product.ProductListItemVM;
+import vn.host.dto.product.SearchSuggestionDTO;
 import vn.host.dto.review.RatingSummary;
 import vn.host.entity.Product;
 import vn.host.entity.ProductMedia;
@@ -42,11 +40,6 @@ public class ProductServiceImpl implements ProductService {
     private final ShopRepository shops;
     private final ProductMediaRepository mediaRepo;
     private final ReviewService reviewService;
-//    @Autowired
-//    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService) {
-//        this.productRepository = productRepository;
-//        this.categoryService = categoryService;
-//    }
 
     @Override
     public void deleteById(Long id) {
@@ -336,5 +329,37 @@ public class ProductServiceImpl implements ProductService {
                 summary.getAvg(),
                 summary.getTotal()
         );
+    }
+    @Override
+    public List<SearchSuggestionDTO> suggest(String q, int limit) {
+        if (!StringUtils.hasText(q)) return List.of();
+        var page = PageRequest.of(0, limit);
+        return productRepository.searchSuggest(q.trim(), page).stream()
+                .map(p -> SearchSuggestionDTO.builder()
+                        .productId(p.getProductId())
+                        .name(p.getName())
+                        .imageUrl(resolveThumb(p.getProductId()))
+                        .url("/products/" + p.getProductId())
+                        .build())
+                .toList();
+    }
+
+    @Override
+    public Page<Product> search(String q, Pageable pageable) {
+        String kw = (q == null) ? "" : q.trim();
+        return productRepository.search(kw, pageable);
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> findActiveProductsAsDTO(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Product> productPage = productRepository.findByStatus(0, pageable);
+
+        List<ProductDTO> content = productPage.getContent()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(content, pageable, productPage.getTotalElements());
     }
 }

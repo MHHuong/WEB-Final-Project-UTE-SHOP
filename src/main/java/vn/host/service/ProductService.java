@@ -7,6 +7,7 @@ import vn.host.dto.common.ProductDTO;
 import vn.host.dto.common.PageResult;
 import vn.host.dto.product.ProductDetailVM;
 import vn.host.dto.product.ProductListItemVM;
+import vn.host.dto.product.SearchSuggestionDTO;
 import vn.host.entity.Product;
 import vn.host.model.response.ProductResponse;
 
@@ -61,4 +62,9 @@ public interface ProductService {
     List<ProductResponse> findAllProductOrder();
 
     ProductDetailVM getProductDetailVM(Long productId);
+
+    List<SearchSuggestionDTO> suggest(String q, int limit);
+
+    Page<Product> search(String q, Pageable pageable);
+    Page<ProductDTO> findActiveProductsAsDTO(int page, int size);
 }
