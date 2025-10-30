@@ -20,9 +20,9 @@ export const AuthState = {
     setToken(token) {
         this.token = token;
         if (token) {
-            localStorage.setItem('authToken', token); // Changed from 'authToken' to 'token'
+            localStorage.setItem('authToken', token);
         } else {
-            localStorage.removeItem('authToken'); // Changed from 'authToken' to 'token'
+            localStorage.removeItem('authToken');
         }
     },
 
@@ -36,8 +36,8 @@ export const AuthState = {
         this.token = null;
         this.userId = null;
         this.userInfo = null;
-        localStorage.removeItem('token'); // Changed from 'authToken' to 'token'
-        window.location.href = `${CONTEXT_PATH}/login`;
+        localStorage.removeItem('authToken');
+        window.location.href = `${CONTEXT_PATH}/`;
     },
 
     setUserId(id) {

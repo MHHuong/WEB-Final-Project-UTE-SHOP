@@ -195,10 +195,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updateStatus(Long orderId, String status, String reason) {
+    public void updateStatus(Long orderId, String status, String reason, String bankAccountInfo) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
-        if (order.getStatus() != OrderStatus.NEW && OrderStatus.valueOf(status) == OrderStatus.CANCELLED) {
+        if ((order.getStatus() != OrderStatus.NEW && order.getStatus() != OrderStatus.CONFIRMED && OrderStatus.valueOf(status) == OrderStatus.CANCELLED)) {
             throw new RuntimeException("Only NEW orders can be cancelled");
         }
         order.setStatus(Enum.valueOf(vn.host.util.sharedenum.OrderStatus.class, status));
@@ -216,23 +216,15 @@ public class OrderServiceImpl implements OrderService {
 
         if (reason != null && !reason.trim().isEmpty()) {
             String currentNotes = order.getNote() != null ? order.getNote() : "";
-            String newNotes = currentNotes + "\n[" + status + "] Lý do: " + reason;
+            String newNotes = currentNotes + "\n[" + status + "] Lý do: " + reason
+                    + "\n[Tài khoản ngân hàng]" + bankAccountInfo;
             order.setNote(newNotes.trim());
         }
         orderRepository.save(order);
 
         Long userId = order.getUser().getUserId();
         OrderStatusMessage message = new OrderStatusMessage(order.getOrderId(), userId, order.getStatus().name());
-        System.out.println("📤 Sending WebSocket message:");
-        System.out.println("   → To userId: " + userId);
-        System.out.println("   → Order ID: " + order.getOrderId());
-        System.out.println("   → Status: " + order.getStatus().name());
-        System.out.println("   → Destination: /user/" + userId + "/queue/orders");
-
         messagingTemplate.convertAndSendToUser(String.valueOf(userId), "/queue/orders", message);
-
-        System.out.println("✅ WebSocket message sent!");
-
         emailService.sendOrderStatusEmail(order, order.getUser(), order.getStatus());
     }
 

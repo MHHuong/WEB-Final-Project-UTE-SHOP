@@ -120,6 +120,14 @@ function displayOrderData(orderData) {
     document.getElementById('order-time').textContent = orderData.orderTime || new Date().toLocaleString('vi-VN');
 }
 
+function buildUrl(p) {
+    if (!p) return '/assets/images/sample/snack.jpg';
+    if (/^https?:\/\//i.test(p)) return p; // http / https giữ nguyên
+    if (p.startsWith(BASE_URL + contextPath + '/')) return p;
+    if (p.startsWith('/')) return BASE_URL + contextPath + p;
+    return BASE_URL + contextPath + '/' + p.replace(/^\/+/, '');
+}
+
 // Render order items
 function renderOrderItems(items) {
     const container = document.getElementById('order-items-container');
@@ -129,7 +137,7 @@ function renderOrderItems(items) {
         html += `
                 <div class="order-item">
                     <div class="d-flex align-items-start gap-3">
-                        <img src="${item.image || '/images/products/default.jpg'}"
+                        <img src="${buildUrl(item.image)}"
                              class="product-img-success"
                              alt="${item.productName || 'Product'}">
                         <div class="flex-grow-1">
@@ -276,7 +284,7 @@ function startCountdown() {
         // Khi hết thời gian
         if (remainingSeconds <= 0) {
             clearInterval(countdownTimer);
-            localStorage.removeItem('paymentDeadline'); // Xóa để lần sau tạo mới
+            localStorage.removeItem('paymentDeadline');
 
             setPaymentState(PAYMENT_STATE.FAILED);
             document.getElementById('failed-message').textContent =
@@ -298,11 +306,11 @@ function startCountdown() {
 async function handlePaymentClick() {
     let url = null;
     const result = await paymentService.createPayment(paymentData, paymentMethod);
-    console.log(result.data);
     if (paymentMethod === "MOMO")
         url = result.data.payUrl;
     else url = result.data;
     showInfoToast('Đang chuyển đến trang thanh toán...');
+    localStorage.removeItem('paymentDeadline');
     setTimeout(() => {
         window.location.href = url;
     }, 2000);

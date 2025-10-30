@@ -28,8 +28,6 @@ public class StatusController {
         messagingTemplate.convertAndSendToUser(userId, "/queue/orders", payload);
         return ResponseEntity.ok().body("sent to user " + userId);
     }
-
-    // Support both GET and POST for easy browser testing
     @GetMapping("/order-status")
     public ResponseEntity<?> updateOrderStatusGet(@RequestParam("orderId") Long orderId,
                                                    @RequestParam("status") String status) {
@@ -39,7 +37,7 @@ public class StatusController {
     @PostMapping("/order-status")
     public ResponseEntity<?> updateOrderStatus(@RequestParam("orderId") Long orderId,
                                                @RequestParam("status") String status) {
-        orderService.updateStatus(orderId, status, null);
+        orderService.updateStatus(orderId, status, null, null);
         return ResponseEntity.ok().body("order status updated");
     }
 }

@@ -211,6 +211,13 @@ function updateOrderTimeline(currentStatus) {
     });
 }
 
+function buildUrl(p) {
+    if (!p) return '/assets/images/sample/snack.jpg';
+    if (/^https?:\/\//i.test(p)) return p; // http / https giữ nguyên
+    if (p.startsWith(BASE_URL + contextPath + '/')) return p;
+    if (p.startsWith('/')) return BASE_URL + contextPath + p;
+    return BASE_URL + contextPath + '/' + p.replace(/^\/+/, '');
+}
 
 // Display order items
 function displayOrderItems(items) {
@@ -223,7 +230,7 @@ function displayOrderItems(items) {
     container.innerHTML = items.map(item => `
         <div class="order-item">
             <div class="d-flex gap-3">
-                <img src="${item.image || '/images/products/default.jpg'}" 
+                <img src="${buildUrl(item.image)}" 
                      alt="${item.productName}" 
                      class="product-img-success">
                 <div class="flex-grow-1">

@@ -21,7 +21,6 @@ public class UserHandshakeHandler extends DefaultHandshakeHandler {
         String userId = (String) attributes.get("userId");
 
         if (userId != null) {
-            System.out.println("✅ WebSocket user determined: " + userId);
             return () -> userId;
         }
 

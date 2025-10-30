@@ -25,7 +25,7 @@ public interface OrderService {
 
     OrderResponse getOrderByOrderId(Long orderId);
 
-    void updateStatus(Long orderId, String status, String reason);
+    void updateStatus(Long orderId, String status, String reason, String bankAccountInfo);
 
     void updatePayment(Long orderId, Payment payment);
 

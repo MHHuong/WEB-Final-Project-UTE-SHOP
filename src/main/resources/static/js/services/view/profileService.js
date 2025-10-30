@@ -539,8 +539,8 @@ async function displayOrders(status = 'all', page = 1, size = 5, searchKeyword =
                                 <div class="mt-3">
                                     <a href="/UTE_SHOP/user/order/detail?orderId=${order.orderId}" class="btn btn-sm btn-outline-primary">Watch details</a>
                                     ${order.status === 'DELIVERED' ? `<button class="btn-delivered-order btn btn-sm btn-primary" data-order-id='${order.orderId}'>Confirm received</button>` : ''}
-                                    ${order.status === 'NEW' ? `<button class="btn-remove-order btn btn-sm btn-danger" data-order-id='${order.orderId}'>Cancel order</button>` : ''}
-                                     ${order.status === 'RECEIVED' ? `<button class="btn-received-order btn btn-sm btn-danger" data-order-id='${order.orderId}'>Return order</button>` : ''}
+                                    ${order.status === 'NEW' || order.status === "CONFIRMED" ? `<button class="btn-remove-order btn btn-sm btn-danger" data-order-id='${order.orderId}'>Cancel order</button>` : ''}
+                                    ${order.status === 'RECEIVED' ? `<button class="btn-received-order btn btn-sm btn-danger" data-order-id='${order.orderId}'>Return order</button>` : ''}
                                 </div>
                             </div>
                         </div>
@@ -792,6 +792,14 @@ function displayLovedProducts(searchKeyword = '', p = 1, size = 3) {
         return;
     }
 
+    function buildUrl(p) {
+        if (!p) return '/assets/images/sample/snack.jpg';
+        if (/^https?:\/\//i.test(p)) return p; // http / https giữ nguyên
+        if (p.startsWith(BASE_URL + contextPath + '/')) return p;
+        if (p.startsWith('/')) return BASE_URL + contextPath + p;
+        return BASE_URL + contextPath + '/' + p.replace(/^\/+/, '');
+    }
+
     productContent.forEach(product => {
         const discount = product.price ? Math.round((1 - product.price / product.price) * 100) : 0;
         const productCard = `
@@ -803,8 +811,8 @@ function displayLovedProducts(searchKeyword = '', p = 1, size = 3) {
                             <button class="btn btn-sm btn-light position-absolute top-0 end-0 m-2 remove-love-btn" data-product-id="${product.productId}">
                                 <i class="bi bi-heart-fill text-danger"></i>
                             </button>
-                            <a href="/user/product/${product.productId}">
-                                <img src="${product.imageUrl}" alt="${product.name}" class="mb-3 img-fluid" style="height: 200px; object-fit: cover;">
+                            <a href="/UTE_SHOP/products/${product.productId}">
+                                <img src="${buildUrl(product.imageUrl)}" alt="${product.name}" class="mb-3 img-fluid" style="height: 200px; object-fit: cover;">
                             </a>
                         </div>
                         <div class="text-small mb-1">
@@ -996,8 +1004,6 @@ document.addEventListener('submit', async function(e) {
                 newPassword: newPassword
             }
 
-            console.log(password);
-
             const result = await AuthState.updatePassword(USER_ID, password);
             if (result.status === 'Success') {
                 showSuccessToast('Password changed successfully!');
@@ -1021,4 +1027,8 @@ document.addEventListener('submit', async function(e) {
     }
 });
 
+document.getElementById("logout-btn").addEventListener('click', async function(e) {
+    e.preventDefault()
+    AuthState.logout();
+})
 
