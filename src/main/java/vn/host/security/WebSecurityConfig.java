@@ -54,7 +54,8 @@ public class WebSecurityConfig {
                                         "/webjars/**",
                                         "/uploads/**",
                                         "/error",
-                                        "/favicon.ico"
+                                        "/favicon.ico",
+                                        "/api/search/suggest"
                                 ).permitAll()
                                 .requestMatchers(
                                         "/api/auth/login",
