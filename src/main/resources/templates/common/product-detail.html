@@ -66,6 +66,7 @@
 
 <body>
 <div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/toast::toast-container}"></div>
 
 <script th:src="@{/assets/js/vendors/validation.js}"></script>
 
@@ -165,15 +166,21 @@
 
                         <div class="mt-3 row justify-content-start g-2 align-items-center">
                             <div class="col-xxl-4 col-lg-4 col-md-5 col-5 d-grid">
-                                <button type="button" class="btn btn-primary">
+                                <a th:href="@{/cart/add(productId=${product.productId})}"
+                                   th:data-id="${product.productId}"
+                                   class="btn btn-primary btn-add-cart">
                                     <i class="feather-icon icon-shopping-bag me-2"></i> Add to cart
-                                </button>
+                                </a>
                             </div>
                             <div class="col-md-4 col-4">
-                                <a class="btn btn-light" href="#" data-bs-toggle="tooltip" aria-label="Compare">
-                                    <i class="bi bi-arrow-left-right"></i></a>
-                                <a class="btn btn-light" href="#" data-bs-toggle="tooltip" aria-label="Wishlist">
-                                    <i class="feather-icon icon-heart"></i></a>
+                                <a href="#!"
+                                    class="btn btn-light btn-action-wishlist"
+                                    th:data-id="${product.productId}"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-html="true"
+                                    title="Wishlist">
+                                <i class="bi bi-heart"></i>
+                            </a>
                             </div>
                         </div>
 
@@ -193,7 +200,6 @@
                                     <td>Type:</td>
                                     <td th:text="${product.categoryName}">Fruits</td>
                                 </tr>
-                                <!--                                <tr><td>Seller:</td><td th:text="${product.shopId}"><small>01 day shipping. <span class="text-muted">[Seller Name]</span></small></td></tr>-->
                                 </tbody>
                             </table>
                         </div>
@@ -429,5 +435,6 @@
         }
     });
 </script>
+<script type="module" th:src="@{/js/productCard.js}" defer></script>
 </body>
 </html>
