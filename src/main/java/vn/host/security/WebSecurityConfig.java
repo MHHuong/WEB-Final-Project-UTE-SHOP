@@ -46,7 +46,8 @@ public class WebSecurityConfig {
                                 "/js/**",
                                 "/libs/**",
                                 "/images/**",
-                                "/fonts/**"
+                                "/fonts/**",
+                                "/payment/**"
                         ).permitAll()
                         .requestMatchers("/api/locations/**").permitAll()
                         .requestMatchers("/uploads/**", "/shop/account/shop-register").permitAll()

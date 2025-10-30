@@ -47,12 +47,13 @@ async function loadCartItems() {
             renderCartItems();
             updateTotalItems();
         } else {
+            console.log("No cart items found");
             cartItems = [];
             renderEmptyCart();
         }
     } catch (error) {
         console.error('Error loading cart:', error);
-        showErrorToast('Không thể tải giỏ hàng!');
+        showErrorToast('Can\'t load cart items!');
     }
 }
 
@@ -82,8 +83,8 @@ function renderEmptyCart() {
                     </g>
                     </svg>
                     <h5>Giỏ hàng trống</h5>
-                    <p class="text-muted">Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm</p>
-                    <a href="/static" class="btn btn-primary mt-3">Về trang chủ</a>
+                    <p class="text-muted">Add products to cart to continue shopping</p>
+                    <a href="/UTE_SHOP" class="btn btn-primary mt-3">Back to home page</a>
                 </div>
             `;
 }
@@ -91,7 +92,6 @@ function renderEmptyCart() {
 // Render cart items grouped by shop
 function renderCartItems() {
     const container = document.getElementById('cart-items-container');
-
     if (cartItems.length === 0) {
         renderEmptyCart();
         return;
@@ -420,7 +420,7 @@ async function updateQuantity(cartId, newQuantity) {
         if (result.status === 'Success') {
             showSuccessToast('Cập nhật số lượng thành công!');
             await loadCartItems();
-            await cartBadgeUtils.refreshCartBadge(getUserId());
+            await cartBadgeUtils.refreshCartBadge(USER_ID);
             updateOrderSummary();
         } else {
             showErrorToast('Không thể cập nhật số lượng!');
@@ -602,13 +602,13 @@ window.removeVoucher = function(shopId) {
 
 
 function calculatePercentDiscount(percent, shopId) {
-        let total = 0;
-        const selectedCartItems = cartItems.filter(item => selectedItems.has(item.cartId) && item.productResponse.shopId === shopId);
-        selectedCartItems.forEach(item => {
-            total += item.productResponse.price * item.quantity;
-        });
-        return Math.floor(total * percent / 100);
-    }
+    let total = 0;
+    const selectedCartItems = cartItems.filter(item => selectedItems.has(item.cartId) && item.productResponse.shopId === shopId);
+    selectedCartItems.forEach(item => {
+        total += item.productResponse.price * item.quantity;
+    });
+    return Math.floor(total * percent / 100);
+}
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {

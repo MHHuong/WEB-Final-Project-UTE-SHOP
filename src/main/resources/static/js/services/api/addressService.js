@@ -6,7 +6,7 @@ const addressService = {
             return await apiClient.get(`/addresses/${userId}`);
         } catch (error) {
             console.error('Lỗi khi lấy địa chỉ:', error);
-            throw error;
+
         }
     },
 

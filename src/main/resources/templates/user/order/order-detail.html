@@ -462,8 +462,9 @@
     }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script th:src="@{/js/vendors/jquery.min.js}"></script>
+    <script th:src="@{/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/libs/simplebar/dist/simplebar.min.js}"></script>
 <script type="module" th:src="@{/js/services/view/showResultService.js}"></script>
 <script type="module" th:src="@{/js/services/view/orderDetailService.js}"></script>
 

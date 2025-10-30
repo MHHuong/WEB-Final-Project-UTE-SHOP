@@ -537,7 +537,7 @@ async function displayOrders(status = 'all', page = 1, size = 5, searchKeyword =
                                     <h5 class="mb-0 text-primary">${formatCurrency(order.totalAmount)}</h5>
                                 </div>
                                 <div class="mt-3">
-                                    <a href="/user/order/detail?orderId=${order.orderId}" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
+                                    <a href="/UTE_SHOP/user/order/detail?orderId=${order.orderId}" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
                                     ${order.status === 'DELIVERED' ? `<button class="btn-delivered-order btn btn-sm btn-primary" data-order-id='${order.orderId}'>Xác nhận đơn hàng</button>` : ''}
                                     ${order.status === 'NEW' ? `<button class="btn-remove-order btn btn-sm btn-danger" data-order-id='${order.orderId}'>Hủy đơn</button>` : ''}
                                      ${order.status === 'RECEIVED' ? `<button class="btn-received-order btn btn-sm btn-danger" data-order-id='${order.orderId}'>Trả đơn hàng</button>` : ''}

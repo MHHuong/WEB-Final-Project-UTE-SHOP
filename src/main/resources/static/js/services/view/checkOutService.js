@@ -53,6 +53,7 @@ async function loadSavedAddresses() {
 // Render saved addresses
 function renderSavedAddresses() {
     const container = document.getElementById('saved-addresses-list');
+    console.log(container);
     document.getElementById('addresses-loading').style.display = 'none';
     container.style.display = 'block';
 
@@ -198,7 +199,7 @@ async function loadSelectedProducts() {
         if (!selectedProducts) {
             showWarningToast('Please choose product from cart!');
             setTimeout(() => {
-                window.location.href = 'UTE_SHOP/user/shop-cart';
+                window.location.href = '/UTE_SHOP/user/shop-cart';
             }, 2000);
             return;
         }
@@ -353,25 +354,30 @@ async function processOrder(shouldSaveAddress = false) {
             isDefault: isDefault ? 1 : 0
         };
 
-        // try {
-        //     const result = await addressService.createAddress(addressData);
-        //     if (result.status === 'Success') {
-        //         showSuccessToast('Saved address successfully!');
-        //     }
-        // } catch (error) {
-        //     console.error('Error saving address:', error);
-        // }
+        try {
+            const result = await addressService.createAddress(addressData);
+            if (result.status === 'Success') {
+                showSuccessToast('Saved address successfully!');
+            }
+        } catch (error) {
+            console.error('Error saving address:', error);
+        }
     }
 
     console.log('Order data:', orderData);
-    const result = await orderService.saveOrder(orderData);
-    console.log(result);
-    if (result.status === 'Success') {
-        showSuccessToast('Order placed successfully!');
-        await handleNavigation()
-    } else {
-        showErrorToast('Order placement failed: ' + result.message);
+    try {
+        const result = await orderService.saveOrder(orderData);
+        console.log(result);
+        if (result.status === 'Success') {
+            showSuccessToast('Order placed successfully!');
+            await handleNavigation()
+        } else {
+            showErrorToast('Order placement failed: ' + result.message);
+        }
+    } catch (error) {
+        showErrorToast('Error saving order:' + error.responseJSON.message);
     }
+
 }
 
 async function handleNavigation() {
@@ -419,9 +425,9 @@ async function handleNavigation() {
     await orderService.setDisplayTempOrder(displayOrderData);
     setTimeout(() => {
         if (paymentMethod === 'E_WALLET' && ewalletType) {
-            window.location.href = `/user/order/${displayOrderData.orderCode}?status=pending`;
+            window.location.href = `/UTE_SHOP/user/order/${displayOrderData.orderCode}?status=pending`;
         }
-        else window.location.href = `/user/order/${displayOrderData.orderCode}?status=success`;
+        else window.location.href = `/UTE_SHOP/user/order/${displayOrderData.orderCode}?status=success`;
     }, 2000);
 }
 

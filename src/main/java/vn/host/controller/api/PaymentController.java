@@ -29,6 +29,7 @@ public class PaymentController {
         try {
             PaymentService paymentService = new PaymentServiceImpl();
             String paymentUrl = paymentService.createVnPayRequest(paymentRequest, request, response);
+            System.out.print(paymentUrl);
             return new ResponseEntity<ApiResponse>(
                     new ApiResponse(
                             "Success",

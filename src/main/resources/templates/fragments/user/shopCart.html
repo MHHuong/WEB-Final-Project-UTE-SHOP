@@ -17,7 +17,7 @@
             </div>
 
             <!-- Cart Items Container -->
-            <ul class="list-group list-group-flush" id="cart-items-container">
+            <ul class="list-group list-group-flush" id="cart-items-container-temp">
                 <!-- Cart items will be dynamically inserted here -->
             </ul>
 
@@ -30,8 +30,8 @@
 
             <!-- btn -->
             <div class="d-flex justify-content-between mt-4">
-                <a href="#" class="btn btn-primary" onclick="handleContinue()">Tiếp tục mua sắm</a>
-                <a href="#" class="btn btn-dark" onclick="handleNavigation()">Xem chi tiết giỏ hàng</a>
+                <a href="#" class="btn btn-primary" onclick="handleContinue()">Continue Shopping</a>
+                <a href="#" class="btn btn-dark" onclick="handleNavigation()">Watch Cart Detail</a>
             </div>
         </div>
     </div>
@@ -52,7 +52,7 @@
         async function loadCartItems() {
             // Show loading
             document.getElementById('cart-loading').style.display = 'block';
-            document.getElementById('cart-items-container').style.display = 'none';
+            document.getElementById('cart-items-container-temp').style.display = 'none';
 
             const result = await cartService.getCartItemByUserIdPaginated(USER_ID, currentPage, itemsPerPage);
             if (result.status === 'Success') {
@@ -70,7 +70,7 @@
 
             // Hide loading
             document.getElementById('cart-loading').style.display = 'none';
-            document.getElementById('cart-items-container').style.display = 'block';
+            document.getElementById('cart-items-container-temp').style.display = 'block';
 
             // Update cart item count
             updateCartItemCount();
@@ -240,7 +240,7 @@
         }
 
         function renderCartItems() {
-            const listGroup = document.getElementById('cart-items-container');
+            const listGroup = document.getElementById('cart-items-container-temp');
             listGroup.innerHTML = ''; // Clear existing items
 
             if (cartItems.length === 0) {
