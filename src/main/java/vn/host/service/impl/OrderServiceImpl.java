@@ -223,6 +223,13 @@ public class OrderServiceImpl implements OrderService {
 
         Long userId = order.getUser().getUserId();
         OrderStatusMessage message = new OrderStatusMessage(order.getOrderId(), userId, order.getStatus().name());
+        Long shopId = order.getShop().getOwner().getUserId();
+        OrderStatusMessage messageShop = new OrderStatusMessage(order.getOrderId(), shopId, order.getStatus().name());
+        List<Shipper> shippers = order.getShippingProvider().getShippers().stream().toList();
+        for (Shipper shipper : shippers) {
+            OrderStatusMessage messageShipper = new OrderStatusMessage(order.getOrderId(), shipper.getUser().getUserId(), order.getStatus().name());
+            messagingTemplate.convertAndSendToUser(String.valueOf(shipper.getUser().getUserId()), "/queue/orders", messageShipper);
+        }
         System.out.println("📤 Sending WebSocket message:");
         System.out.println("   → To userId: " + userId);
         System.out.println("   → Order ID: " + order.getOrderId());
@@ -230,6 +237,7 @@ public class OrderServiceImpl implements OrderService {
         System.out.println("   → Destination: /user/" + userId + "/queue/orders");
 
         messagingTemplate.convertAndSendToUser(String.valueOf(userId), "/queue/orders", message);
+        messagingTemplate.convertAndSendToUser(String.valueOf(shopId), "/queue/orders", messageShop);
 
         System.out.println("✅ WebSocket message sent!");
 
