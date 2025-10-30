@@ -16,7 +16,15 @@ let shippingMethod = 'STANDARD';
 let shippingProviderId = 1;
 let vouchers = [];
 const BASE_URL = window.location.origin
-
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
 // Format currency
 function formatCurrency(amount) {
     if (isNaN(amount)) return "0₫";

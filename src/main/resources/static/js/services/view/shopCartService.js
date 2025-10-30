@@ -10,7 +10,15 @@ let selectedItems = new Set();
 let shopVouchers = {}; // Store selected vouchers per shop
 let USER_ID = localStorage.getItem("userId");
 const BASE_URL = window.location.origin
-
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
 
 
 // Format currency

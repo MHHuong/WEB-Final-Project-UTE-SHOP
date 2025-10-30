@@ -26,6 +26,16 @@ let addressPagination = {
     totalPages: 0,
     totalElements: 0
 };
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
+
 
 // Section Navigation
 document.querySelectorAll('.nav-link[data-section]').forEach(link => {
@@ -446,12 +456,17 @@ function paginateOrders(filteredOrders, page, size) {
 function searchAndFilterOrders(searchKeyword = '', status = 'all') {
     let filteredOrders = orders;
     if (status !== 'all') {
-        filteredOrders = filteredOrders.filter(order => order.status === status);
+        if (status === 'RETURNED' || status === 'REQUEST_RETURN' || status === 'RETURNING') {
+            filteredOrders = filteredOrders.filter(
+                order => order.status === status
+                    || order.status === 'REQUEST_RETURN'
+                    || order.status === 'RETURNING'
+            );
+        }
+        else filteredOrders = filteredOrders.filter(order => order.status === status);
     }
 
-    if (status === 'RETURNED' || status === 'REQUEST_RETURN' || status === 'RETURNING') {
-        filteredOrders = filteredOrders.filter(order => order.status === status);
-    }
+
 
     // Then filter by search keyword
     if (searchKeyword.trim() !== '') {

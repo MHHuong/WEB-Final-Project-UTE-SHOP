@@ -7,7 +7,15 @@ import { AuthState } from "../../auth.js";
 
 const USER_ID = localStorage.getItem("userId");
 const BASE_URL = window.location.origin
-
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
 
 let paymentData = {};
 let paymentMethod = '';

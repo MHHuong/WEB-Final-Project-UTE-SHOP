@@ -9,7 +9,15 @@ let userId = localStorage.getItem("userId") || 0;
 const urlParams = new URLSearchParams(window.location.search);
 const orderId = urlParams.get('orderId');
 const BASE_URL = window.location.origin
-
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
 // Order status mapping
 const STATUS_ORDER = ['NEW', 'CONFIRMED', 'SHIPPING', 'DELIVERED', 'RECEIVED','CANCELLED', 'REQUEST_RETURN', 'RETURNING', 'RETURNED'];
 const STATUS_TEXT = {
