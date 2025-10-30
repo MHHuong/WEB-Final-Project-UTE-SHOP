@@ -145,7 +145,7 @@ async function fillFormWithAddress(address) {
 function showAddressForm() {
     document.getElementById('address-form-section').style.display = 'block';
     document.getElementById('cancel-new-address-btn').style.display = 'inline-block';
-    document.getElementById('form-title').textContent = 'Thêm địa chỉ mới';
+    document.getElementById('form-title').textContent = 'New Address';
 
     const province = document.getElementById("province");
     const district = document.getElementById("district");
@@ -279,7 +279,7 @@ function validateForm() {
 // Place order
 async function placeOrder() {
     if (!validateForm()) {
-        showErrorToast('Vui lòng điền đầy đủ thông tin!');
+        showErrorToast('Please fill in all required fields correctly.');
         return;
     }
 

@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import vn.host.dto.ProductDTO;
+import vn.host.dto.common.ProductDTO;
 import vn.host.entity.Favorite;
 import vn.host.model.response.ApiResponse;
 import vn.host.model.response.ProductResponse;

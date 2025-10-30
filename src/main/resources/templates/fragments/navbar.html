@@ -48,7 +48,7 @@
                     </svg>
                 </a>
                 <a id="nav-cart-authenticated" class="text-muted position-relative me-4 d-none"
-                   th:href="@{/user/shop-cart}">
+                   th:href="@{#}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" role="button" aria-controls="offcanvasRight">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                          class="feather feather-shopping-bag">
@@ -56,6 +56,10 @@
                         <line x1="3" y1="6" x2="21" y2="6"></line>
                         <path d="M16 10a4 4 0 0 1-8 0"></path>
                     </svg>
+                    <span id="cart-quantity" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
+                                 0
+                                 <span class="visually-hidden">unread messages</span>
+                    </span>
                 </a>
                 <div id="nav-user-authenticated" class="dropdown ms-3 d-none">
                     <a class="text-muted dropdown-toggle" href="#!" role="button"
@@ -97,6 +101,5 @@
         </div>
     </div>
 </nav>
-
 </body>
 </html>

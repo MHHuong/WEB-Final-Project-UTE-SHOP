@@ -2,7 +2,7 @@ package vn.host.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import vn.host.dto.ProductDTO;
+import vn.host.dto.common.ProductDTO;
 import vn.host.entity.Favorite;
 import vn.host.entity.Product;
 import vn.host.entity.User;

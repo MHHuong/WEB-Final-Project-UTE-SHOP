@@ -1,6 +1,6 @@
 package vn.host.service;
 
-import vn.host.dto.ProductDTO;
+import vn.host.dto.common.ProductDTO;
 import vn.host.entity.Favorite;
 import vn.host.entity.FavoriteId;
 import vn.host.model.response.ProductResponse;

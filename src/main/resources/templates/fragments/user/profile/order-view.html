@@ -1,7 +1,9 @@
 <div th:fragment = "order-view" id="orders-section" class="content-section" style="display: none;">
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-white">
-            <h4 class="mb-0">Đơn đặt hàng của tôi</h4>
+            <h4 class="mb-0">
+                My Orders
+            </h4>
         </div>
         <div class="card-body">
             <!-- Search Box -->
@@ -19,44 +21,51 @@
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
-                <small class="text-muted">Nhập từ khóa để tìm kiếm đơn hàng</small>
+                <small class="text-muted">
+                    Please enter at least 3 characters to search.
+                </small>
             </div>
 
             <!-- Filter Tabs -->
             <ul class="nav nav-pills mb-4" id="orderFilterTabs" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all-orders" type="button" role="tab">
-                        Tất cả
+                        All Orders
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="pending-tab" data-bs-toggle="pill" data-bs-target="#pending-orders" type="button" role="tab">
-                        Chờ xác nhận
+                        Pending
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="comfirm-tab" data-bs-toggle="pill" data-bs-target="#comfirm-orders" type="button" role="tab">
+                        Confirmed
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="shipping-tab" data-bs-toggle="pill" data-bs-target="#shipping-orders" type="button" role="tab">
-                        Đang giao
+                        On Shipping
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="delivered-tab" data-bs-toggle="pill" data-bs-target="#completed-orders" type="button" role="tab">
-                        Đã giao hàng
+                        Shipping Completed
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="received-tab" data-bs-toggle="pill" data-bs-target="#cancelled-orders" type="button" role="tab">
-                        Đã nhận hàng
+                        Received
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="cancelled-tab" data-bs-toggle="pill" data-bs-target="#cancelled-orders" type="button" role="tab">
-                        Đã hủy
+                        Cancelled
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="returned-tab" data-bs-toggle="pill" data-bs-target="#cancelled-orders" type="button" role="tab">
-                        Đã trả hàng
+                        Returned
                     </button>
                 </li>
             </ul>

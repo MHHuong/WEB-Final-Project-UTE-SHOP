@@ -9,6 +9,7 @@
 <body>
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/user/shopCart::shop-cart}"></div>
 <div th:replace="~{fragments/layout :: modals}"></div>
 
 <main>
@@ -85,7 +86,6 @@
 <footer th:replace="~{fragments/layout :: footer}" class="footer"></footer>
 
 <div th:replace="~{fragments/layout :: scripts}"></div>
-
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function () {
         const contextPath = /*[[@{/}]]*/ '/';
@@ -171,6 +171,16 @@
                 });
         } else {
             console.log('Không tìm thấy token, người dùng chưa đăng nhập.');
+        }
+    });
+</script>
+<script type="module">
+    import cartBadgeUtils from "./js/utils/cartBadgeUtils.js";
+    document.addEventListener("DOMContentLoaded", function () {
+        const user_id = localStorage.getItem('userId');
+        console.log(user_id);
+        if (user_id) {
+            cartBadgeUtils.initCartBadge(user_id);
         }
     });
 </script>

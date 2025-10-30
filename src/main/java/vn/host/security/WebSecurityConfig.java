@@ -40,7 +40,13 @@ public class WebSecurityConfig {
                                         "/products/**",
                                         "/payment/**",
                                         "/ws/**",
-                                        "/user/queue/orders/**"
+                                        "/user/queue/orders/**",
+                                        "/css/**",
+                                        "/js/**",
+                                        "/libs/**",
+                                        "/images/**",
+                                        "/fonts/**",
+                                        "/addresses.json"
                                 ).permitAll()
                                 .requestMatchers(
                                         "/assets/**",
@@ -55,12 +61,15 @@ public class WebSecurityConfig {
                                         "/api/auth/otp/**",
                                         "/api/auth/password/reset"
                                 ).permitAll()
-                        .requestMatchers("/api/locations/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
+                                .requestMatchers("/api/locations/**").permitAll()
+                                .requestMatchers("/api/status/**").permitAll()
+                                .requestMatchers("/uploads/**", "/shop/account/shop-register").permitAll()
+                                .requestMatchers("/api/**").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
 //                        .requestMatchers("/admin/**").hasRole("ADMIN")
 //                        .requestMatchers("/shop/**").hasRole("SELLER")
 //                        .requestMatchers("/user/**").authenticated()
-                        .anyRequest().authenticated()
+                                .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> {
                     oauth.loginPage("/login");

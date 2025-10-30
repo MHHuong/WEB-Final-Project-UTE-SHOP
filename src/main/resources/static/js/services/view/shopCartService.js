@@ -24,7 +24,7 @@ function groupByShop(items) {
     const grouped = {};
     items.forEach(item => {
         const shopId = item.productResponse.shopId || 0;
-        const shopName = item.productResponse.shopName || 'Cửa hàng chưa xác định';
+        const shopName = item.productResponse.shopName || 'N/A';
 
         if (!grouped[shopId]) {
             grouped[shopId] = {
@@ -122,7 +122,7 @@ function renderCartItems() {
                                         <button id="view-vouchers-btn-${shop.shopId}" class="btn btn-sm btn-outline-primary" 
                                                 style="width: auto; min-width: 150px;"
                                                 onclick="selectVoucher(${shop.shopId})">
-                                            <i class="bi bi-ticket-perforated me-1"></i>Chọn mã giảm giá
+                                            <i class="bi bi-ticket-perforated me-1"></i>Select Discount Voucher
                                         </button>
                                     </div>
                                 </div>

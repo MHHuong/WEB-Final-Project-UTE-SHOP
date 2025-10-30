@@ -15,13 +15,13 @@ const orderId = urlParams.get('orderId');
 // Order status mapping
 const STATUS_ORDER = ['NEW', 'CONFIRMED', 'SHIPPING', 'DELIVERED', 'RECEIVED'];
 const STATUS_TEXT = {
-    'NEW': 'Đơn Hàng Mới',
-    'CONFIRMED': 'Đã Xác Nhận',
-    'SHIPPING': 'Đang Giao Hàng',
-    'DELIVERED': 'Đã Giao Hàng',
-    'RECEIVED': 'Đã Nhận Hàng',
-    'CANCELLED': 'Đã Hủy',
-    'RETURNED': 'Đã Trả Hàng'
+    'NEW': 'New Order',
+    'CONFIRMED': 'Confirmed',
+    'SHIPPING': 'On Shipping',
+    'DELIVERED': 'Delivered',
+    'RECEIVED': 'Received',
+    'CANCELLED': 'Cancelled',
+    'RETURNED': 'Returned'
 };
 
 
@@ -39,7 +39,7 @@ function connect() {
                 const body = JSON.parse(message.body);
                     updateOrderTimeline(body.status);
                     if (Number(body.orderId) === Number(orderId) && Number(body.userId) === Number(userId)) {
-                        showSuccessToast(`Đơn hàng #${body.orderId} đã được cập nhật trạng thái: ${STATUS_TEXT[body.status] || body.status}`);
+                        showSuccessToast(`Order #${body.orderId} status updated to ${body.status}`);
                     }
             } catch (e) {
                 console.log('Received (raw): ' + message.body, 'ok');
@@ -62,7 +62,7 @@ async function loadOrderDetails() {
         console.log('Order details:', result);
 
         if (result.status !== 'Success' || !result.data) {
-            showErrorToast('Không thể tải thông tin đơn hàng');
+            showErrorToast('Cannot load order details');
             return;
         }
 
@@ -96,14 +96,14 @@ async function loadOrderDetails() {
 
         const infoList = document.getElementById('info-list');
         infoList.innerHTML = `
-                      <li>Bạn có thể theo dõi trạng thái đơn hàng trên trang này.</li>
-                      <li>Vui lòng kiểm tra thông tin đơn hàng và liên hệ với chúng tôi nếu có bất kỳ thắc mắc nào.</li>
-                      <li>Đơn hàng sẽ được giao trong thời gian dự kiến theo phương thức vận chuyển bạn đã chọn.</li>
+                    <li>You can check your order status on this page.</li>
+                    <li>Please review your order details and reach out to us if you have any questions.</li>
+                    <li>Your order will be delivered within the estimated timeframe based on your chosen shipping method.</li>
                 `;
 
     } catch (error) {
         console.error('Error loading order details:', error);
-        showErrorToast('Đã xảy ra lỗi khi tải thông tin đơn hàng');
+        showErrorToast('Error loading order details');
     }
 }
 
@@ -207,10 +207,9 @@ function displayOrderItems(items) {
     const container = document.getElementById('order-items-container');
 
     if (!items || items.length === 0) {
-        container.innerHTML = '<p class="text-center text-muted">Không có sản phẩm nào</p>';
+        container.innerHTML = '<p class="text-center text-muted">No products found</p>';
         return;
     }
-
     container.innerHTML = items.map(item => `
         <div class="order-item">
             <div class="d-flex gap-3">
@@ -263,34 +262,33 @@ function displayShippingInfo(order) {
 
 function shippingMethod(estimatedDeliveryTime) {
     if (estimatedDeliveryTime < 1) {
-        return 'Giao hàng trong ngày';
+        return 'Delivery within the day';
     }
     else if (estimatedDeliveryTime < 3) {
-        return 'Giao hàng nhanh';
+        return 'Fast delivery';
     }
     else {
-        return 'Giao hàng tiêu chuẩn';
+        return 'Standard delivery';
     }
 }
 
 // Display payment info
 function displayPaymentInfo(order) {
-    const paymentMethod = order.paymentMethod === 'COD' ? 'Thanh toán khi nhận hàng' :
-        (order.paymentMethod === 'MOMO' || order.paymentMethod === 'VNPAY') ? `Thanh toán online (${order.paymentMethod})` :
+    const paymentMethod = order.paymentMethod === 'COD' ? 'Pay on Delivery' :
+        (order.paymentMethod === 'MOMO' || order.paymentMethod === 'VNPAY') ? `Online Payment (${order.paymentMethod})` :
                          order.paymentMethod || 'N/A';
-
     document.getElementById('payment-method').textContent = paymentMethod;
 
     // Payment status
     const paymentStatusEl = document.getElementById('payment-status');
     if (order.paymentStatus === 'SUCCESS') {
-        paymentStatusEl.textContent = 'Đã thanh toán';
+        paymentStatusEl.textContent = 'Paid';
         paymentStatusEl.className = 'badge bg-success';
     } else if (order.paymentStatus === 'PENDING') {
-        paymentStatusEl.textContent = 'Chờ thanh toán';
+        paymentStatusEl.textContent = 'Waiting for Payment';
         paymentStatusEl.className = 'badge bg-warning';
     } else {
-        paymentStatusEl.textContent = 'Chưa thanh toán';
+        paymentStatusEl.textContent = 'Haven\'t Paid Yet';
         paymentStatusEl.className = 'badge bg-secondary';
     }
 
@@ -305,11 +303,11 @@ function displayActionButtons(order) {
     let buttonsHTML = `
         <a href="/user/profile" class="btn btn-outline-primary btn-lg px-5">
             <i class="bi bi-list-ul me-2"></i>
-            Xem Đơn Hàng Của Tôi
+            Watch Order History
         </a>
         <a href="/user" class="btn btn-outline-secondary btn-lg px-5">
             <i class="bi bi-house me-2"></i>
-            Tiếp Tục Mua Sắm
+             Continue Shopping
         </a>
     `;
 
@@ -317,7 +315,7 @@ function displayActionButtons(order) {
         buttonsHTML = `
             <button class="btn btn-cancel-order btn-lg px-5" id="cancel-order-btn">
                 <i class="bi bi-x-circle me-2"></i>
-                Hủy Đơn Hàng
+                Cancel Order
             </button>
         ` + buttonsHTML;
     }
@@ -326,7 +324,7 @@ function displayActionButtons(order) {
         buttonsHTML = `
             <button class="btn btn-confirm-received btn-lg px-5" id="confirm-received-btn">
                 <i class="bi bi-check-circle me-2"></i>
-                Xác Nhận Đã Nhận Hàng
+                Confirm Received
             </button>
         ` + buttonsHTML;
     }
@@ -348,7 +346,7 @@ function displayActionButtons(order) {
 // Handle cancel order
 async function handleCancelOrder(order) {
     if (!order) {
-        showErrorToast('Không tìm thấy thông tin đơn hàng');
+        showErrorToast('Cannot find order information');
         return;
     }
     showOrderStatusModal(order.orderId, order.status, 'CANCELLED', async () => {
@@ -359,7 +357,7 @@ async function handleCancelOrder(order) {
 // Handle confirm received
 async function handleConfirmReceived(order) {
     if (!order) {
-        showErrorToast('Không tìm thấy thông tin đơn hàng');
+        showErrorToast('Cannot find order information');
         return;
     }
     showOrderStatusModal(order.orderId, order.status, 'RECEIVED', async () => {

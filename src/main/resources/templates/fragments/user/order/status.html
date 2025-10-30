@@ -9,8 +9,12 @@
             </div>
         </div>
     </div>
-    <h2 class="fw-bold text-success mb-3">Đặt Hàng Thành Công!</h2>
-    <p class="text-muted mb-4">Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ xử lý đơn hàng của bạn ngay lập tức.</p>
+    <h2 class="fw-bold text-success mb-3">
+        Place Order Successfully!!
+    </h2>
+    <p class="text-muted mb-4">
+        Thank you for your purchase! Your order has been placed successfully and is being processed.
+    </p>
 </div>
 
 <div th:fragment = "pending" id="pending-state" style="display: none;">
@@ -19,14 +23,20 @@
             <i class="bi bi-hourglass-split text-secondary"></i>
         </div>
     </div>
-    <h2 class="fw-bold text-secondary mb-3">Chờ Thanh Toán</h2>
-    <p class="text-muted mb-3">Vui lòng hoàn tất thanh toán trong thời gian quy định.</p>
+    <h2 class="fw-bold text-secondary mb-3">
+        Pending Payment
+    </h2>
+    <p class="text-muted mb-3">
+        Please complete your payment within the allotted time to confirm your order.
+    </p>
 
     <!-- Timer -->
     <div class="countdown-timer mb-4">
         <div class="timer-box">
             <span id="timer-display" class="timer-text">15:00</span>
-            <small class="text-muted d-block mt-2">Thời gian còn lại</small>
+            <small class="text-muted d-block mt-2">
+                Time remaining to complete payment
+            </small>
         </div>
     </div>
 
@@ -34,10 +44,12 @@
     <div class="mb-3">
         <button class="btn btn-primary btn-lg px-5" id="pay-now-btn">
             <i class="bi bi-credit-card me-2"></i>
-            Thanh Toán Ngay
+            Pay Now
         </button>
     </div>
-    <small class="text-muted">Nhấn vào nút trên để chuyển đến trang thanh toán</small>
+    <small class="text-muted">
+        Note: If the payment is not completed within the time limit, the order will be automatically cancelled.
+    </small>
 </div>
 
 <div th:fragment = "failed" id="failed-state" style="display: none;">
@@ -46,14 +58,18 @@
             <i class="bi bi-x-circle-fill text-danger"></i>
         </div>
     </div>
-    <h2 class="fw-bold text-danger mb-3">Thanh Toán Thất Bại</h2>
-    <p class="text-muted mb-4" id="failed-message">Đơn hàng của bạn đã hết thời gian thanh toán hoặc gặp sự cố.</p>
+    <h2 class="fw-bold text-danger mb-3">
+        Payment Failed
+    </h2>
+    <p class="text-muted mb-4" id="failed-message">
+        Unfortunately, your payment could not be processed. Please try again.
+    </p>
 
     <!-- Retry Button -->
     <div class="mb-3">
         <button class="btn btn-primary btn-lg px-5" id="retry-payment-btn">
             <i class="bi bi-arrow-clockwise me-2"></i>
-            Thử Lại Thanh Toán
+            Retry Payment
         </button>
     </div>
 </div>
@@ -62,8 +78,10 @@
 <div th:fragment="order-timeline" id="order-timeline-container">
     <div class="order-status-timeline">
         <div class="timeline-header mb-4">
-            <h4 class="mb-2">Trạng Thái Đơn Hàng</h4>
-            <p class="text-muted mb-0" id="current-status-text">Đang tải...</p>
+            <h4 class="mb-2">
+                Order Status
+            </h4>
+            <p class="text-muted mb-0" id="current-status-text">Loading...</p>
         </div>
         <div class="timeline-wrapper-horizontal">
             <!-- Timeline items will be rendered dynamically -->
@@ -73,8 +91,10 @@
                     <div class="timeline-icon-horizontal">
                         <i class="bi bi-file-earmark-text"></i>
                     </div>
-                    <h6 class="timeline-title-horizontal">Đơn Hàng Mới</h6>
-                    <p class="timeline-desc-horizontal">Chờ xác nhận</p>
+                    <h6 class="timeline-title-horizontal">New Order</h6>
+                    <p class="timeline-desc-horizontal">
+                        Waiting for confirmation
+                    </p>
                 </div>
             </div>
 
@@ -86,8 +106,12 @@
                     <div class="timeline-icon-horizontal">
                         <i class="bi bi-check-circle"></i>
                     </div>
-                    <h6 class="timeline-title-horizontal">Đã Xác Nhận</h6>
-                    <p class="timeline-desc-horizontal">Đang chuẩn bị</p>
+                    <h6 class="timeline-title-horizontal">
+                        Confirmed
+                    </h6>
+                    <p class="timeline-desc-horizontal">
+                        Processing order
+                    </p>
                 </div>
             </div>
 
@@ -99,8 +123,12 @@
                     <div class="timeline-icon-horizontal">
                         <i class="bi bi-truck"></i>
                     </div>
-                    <h6 class="timeline-title-horizontal">Đang Giao</h6>
-                    <p class="timeline-desc-horizontal">Trên đường giao</p>
+                    <h6 class="timeline-title-horizontal">
+                        Shipping
+                    </h6>
+                    <p class="timeline-desc-horizontal">
+                        On the way
+                    </p>
                 </div>
             </div>
 
@@ -112,8 +140,12 @@
                     <div class="timeline-icon-horizontal">
                         <i class="bi bi-box-seam"></i>
                     </div>
-                    <h6 class="timeline-title-horizontal">Đã Giao</h6>
-                    <p class="timeline-desc-horizontal">Hoàn thành</p>
+                    <h6 class="timeline-title-horizontal">
+                        Delivered
+                    </h6>
+                    <p class="timeline-desc-horizontal">
+                        Order received
+                    </p>
                 </div>
             </div>
 
@@ -124,8 +156,12 @@
                     <div class="timeline-icon-horizontal">
                         <i class="bi bi-x-circle"></i>
                     </div>
-                    <h6 class="timeline-title-horizontal">Đã Hủy</h6>
-                    <p class="timeline-desc-horizontal">Đơn hàng đã bị hủy</p>
+                    <h6 class="timeline-title-horizontal">
+                        Cancelled
+                    </h6>
+                    <p class="timeline-desc-horizontal">
+                        Order cancelled
+                    </p>
                 </div>
             </div>
 
@@ -135,8 +171,12 @@
                     <div class="timeline-icon-horizontal">
                         <i class="bi bi-arrow-return-left"></i>
                     </div>
-                    <h6 class="timeline-title-horizontal">Đã Trả</h6>
-                    <p class="timeline-desc-horizontal">Đã trả hàng</p>
+                    <h6 class="timeline-title-horizontal">
+                        Returned
+                    </h6>
+                    <p class="timeline-desc-horizontal">
+                        Order returned
+                    </p>
                 </div>
             </div>
         </div>
