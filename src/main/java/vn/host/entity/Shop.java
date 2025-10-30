@@ -24,7 +24,7 @@ public class Shop {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserId", nullable = false)
-    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "shops", "addresses", "shipper"})
     private User owner;
 
     @Column(length = 100, nullable = false)
@@ -46,7 +46,7 @@ public class Shop {
     private Instant createdAt;
 
     @OneToMany(mappedBy = "shop")
-    @JsonIgnoreProperties({"category", "shop"})
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "shop", "category"})
     private Set<Product> products = new HashSet<>();
 
     @OneToMany(mappedBy = "shop")

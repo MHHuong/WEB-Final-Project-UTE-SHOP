@@ -62,11 +62,18 @@ export function initProductCardListeners() {
                         return;
                     }
                 }
-
+                let quantity = 1;
+                const detailContainer = button.closest('.ps-lg-10');
+                if (detailContainer) {
+                    const quantityInput = detailContainer.querySelector('.quantity-field');
+                    if (quantityInput) {
+                        quantity = Number(quantityInput.value);
+                    }
+                }
                 const cart = {
                     userId: USER_ID,
                     productId: Number(id),
-                    quantity: 1
+                    quantity: quantity
                 };
 
                 const result = await cartService.addSelectedCartItem(cart);
@@ -136,4 +143,3 @@ if (document.readyState === 'loading') {
     // DOM already loaded
     initProductCardListeners();
 }
-

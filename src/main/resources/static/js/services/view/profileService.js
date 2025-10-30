@@ -18,7 +18,30 @@ let editingAddressId = null;
 let orders = [];
 let currentOrderStatus = 'all'; // Track current filter status
 let currentSearchKeyword = ''; // Track current search keyword
-const BASE_URL = window.location.origin
+const BASE_URL = window.location.origin;
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part; // -> '/UTE_SHOP'
+    } catch (e) {
+        return '';
+    }
+})();
+
+function buildUrl(p) {
+    if (!p) return '';
+    if (/^https?:\/\//i.test(p)) return p;
+
+    const rel = p.startsWith('/') ? p : '/' + p;
+
+    if (contextPath && rel.startsWith(contextPath + '/')) {
+        return BASE_URL + rel;
+    }
+
+    return BASE_URL + (contextPath || '') + rel;
+}
+
 // Pagination state for addresses
 let addressPagination = {
     currentPage: 0,
@@ -39,7 +62,7 @@ const contextPath = (() => {
 
 // Section Navigation
 document.querySelectorAll('.nav-link[data-section]').forEach(link => {
-    link.addEventListener('click', function(e) {
+    link.addEventListener('click', function (e) {
         e.preventDefault();
         const section = this.getAttribute('data-section');
         console.log(section);
@@ -80,7 +103,7 @@ function loadProfileSection(UserInfo) {
     email.textContent = UserInfo.email || 'Chưa cập nhật email';
 }
 
-document.getElementById('personal-info-form').addEventListener('submit', async function(e) {
+document.getElementById('personal-info-form').addEventListener('submit', async function (e) {
     e.preventDefault();
     const fullName = document.getElementById('fullName').value.trim();
     const phone = document.getElementById('phone').value.trim();
@@ -120,8 +143,7 @@ document.getElementById('personal-info-form').addEventListener('submit', async f
     if (!email) {
         isValid = false;
         document.getElementById('email').classList.add('is-invalid');
-    }
-    else if (!emailRegex.test(email)) {
+    } else if (!emailRegex.test(email)) {
         isValid = false;
         document.getElementById('email').classList.add('is-invalid');
         showErrorToast("Email should be valid!");
@@ -230,7 +252,7 @@ async function loadAddresses(page = 0, size = 4) {
     }
 }
 
-document.addEventListener("click", async function(e) {
+document.addEventListener("click", async function (e) {
     if (e.target.classList.contains("edit-address-btn")) {
         const btn = e.target.closest(".edit-address-btn");
         if (!btn) return;
@@ -277,7 +299,7 @@ document.addEventListener("click", async function(e) {
     }
 });
 
-document.addEventListener("click", async function(e) {
+document.addEventListener("click", async function (e) {
     if (e.target.classList.contains("remove-address-btn")) {
         const btn = e.target.closest(".remove-address-btn");
         if (!btn) return;
@@ -299,9 +321,8 @@ document.addEventListener("click", async function(e) {
 });
 
 
-
 // Add Address
-document.getElementById('save-address-btn').addEventListener('click', async function(e) {
+document.getElementById('save-address-btn').addEventListener('click', async function (e) {
     e.preventDefault();
     const receiverName = document.getElementById('receiver-name').value.trim();
     const phone = document.getElementById('receiver-phone').value.trim();
@@ -494,40 +515,40 @@ function searchAndFilterOrders(searchKeyword = '', status = 'all') {
 }
 
 async function displayOrders(status = 'all', page = 1, size = 5, searchKeyword = '') {
-        const container = document.getElementById('orders-list');
-        container.innerHTML = '';
+    const container = document.getElementById('orders-list');
+    container.innerHTML = '';
 
-        const filteredOrders = searchAndFilterOrders(searchKeyword, status);
+    const filteredOrders = searchAndFilterOrders(searchKeyword, status);
 
-        const result = paginateOrders(filteredOrders, page, size);
-        const orderPagination = {
-            currentPage: result.pageable.pageNumber,
-            size: result.pageable.pageSize,
-            totalPages: result.totalPages,
-            totalElements: result.totalElements
-        }
-        const orderContent = result.content;
-        if (orderContent.length === 0) {
-            const message = searchKeyword.trim() !== ''
-                ? `Cannot find order with "${searchKeyword}"`
-                : 'No orders found for the selected status.';
-            container.innerHTML = `
+    const result = paginateOrders(filteredOrders, page, size);
+    const orderPagination = {
+        currentPage: result.pageable.pageNumber,
+        size: result.pageable.pageSize,
+        totalPages: result.totalPages,
+        totalElements: result.totalElements
+    }
+    const orderContent = result.content;
+    if (orderContent.length === 0) {
+        const message = searchKeyword.trim() !== ''
+            ? `Cannot find order with "${searchKeyword}"`
+            : 'No orders found for the selected status.';
+        container.innerHTML = `
                         <div class="text-center py-5">
                             <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
                             <p class="text-muted mt-3">${message}</p>
                         </div>
                     `;
-            return;
-        }
-        orderContent.forEach(order => {
-            // Highlight search keyword in order ID and product names
-            const highlightText = (text, keyword) => {
-                if (!keyword.trim()) return text;
-                const regex = new RegExp(`(${keyword})`, 'gi');
-                return text.replace(regex, '<mark>$1</mark>');
-            };
+        return;
+    }
+    orderContent.forEach(order => {
+        // Highlight search keyword in order ID and product names
+        const highlightText = (text, keyword) => {
+            if (!keyword.trim()) return text;
+            const regex = new RegExp(`(${keyword})`, 'gi');
+            return text.replace(regex, '<mark>$1</mark>');
+        };
 
-            const orderCard = `
+        const orderCard = `
                         <div class="card mb-3">
                             <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                 <div>
@@ -547,6 +568,16 @@ async function displayOrders(status = 'all', page = 1, size = 5, searchKeyword =
                                             <strong>${formatCurrency(item.unitPrice * item.quantity)}</strong>
                                         </div>
                                     </div>
+                                    ${order.status === 'RECEIVED' ? `
+                                                                      <div class="text-end mt-1">
+                                                                        <button class="btn btn-sm btn-outline-success btn-open-review"
+                                                                                data-order-id="${order.orderId}"
+                                                                                data-product-id="${item.productId}"
+                                                                                data-product-name="${item.productName}">
+                                                                            Review
+                                                                        </button>
+                                                                      </div>
+                                                                    ` : ''}
                                 `).join('')}
                                 <hr>
                                 <div class="d-flex justify-content-between align-items-center">
@@ -562,14 +593,14 @@ async function displayOrders(status = 'all', page = 1, size = 5, searchKeyword =
                             </div>
                         </div>
                     `;
-            container.innerHTML += orderCard;
-        });
+        container.innerHTML += orderCard;
+    });
 
-        // Render pagination
-        renderPagination(orderPagination, (newPage) => {
-            displayOrders(status, newPage + 1, orderPagination.size, searchKeyword);
-        }, 'order-pagination');
-        showPageInfo(orderPagination, 'order-page-info');
+    // Render pagination
+    renderPagination(orderPagination, (newPage) => {
+        displayOrders(status, newPage + 1, orderPagination.size, searchKeyword);
+    }, 'order-pagination');
+    showPageInfo(orderPagination, 'order-page-info');
 }
 
 function getStatusText(status) {
@@ -622,7 +653,7 @@ let searchTimeout;
 const searchInput = document.getElementById('order-search-input');
 const clearSearchBtn = document.getElementById('clear-search-btn');
 
-searchInput?.addEventListener('input', function(e) {
+searchInput?.addEventListener('input', function (e) {
     const keyword = e.target.value;
 
     // Show/hide clear button
@@ -641,7 +672,7 @@ searchInput?.addEventListener('input', function(e) {
 });
 
 // Clear search button event listener
-clearSearchBtn?.addEventListener('click', function() {
+clearSearchBtn?.addEventListener('click', function () {
     searchInput.value = '';
     currentSearchKeyword = '';
     clearSearchBtn.style.display = 'none';
@@ -649,7 +680,7 @@ clearSearchBtn?.addEventListener('click', function() {
 });
 
 // Enter key to search
-searchInput?.addEventListener('keypress', function(e) {
+searchInput?.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         e.preventDefault();
         clearTimeout(searchTimeout);
@@ -659,10 +690,10 @@ searchInput?.addEventListener('keypress', function(e) {
 });
 
 function formatCurrency(amount) {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    return new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(amount);
 }
 
-document.addEventListener('click', async function(e) {
+document.addEventListener('click', async function (e) {
     if (e.target.classList.contains('btn-remove-order')) {
         const orderId = e.target.getAttribute('data-order-id');
 
@@ -678,7 +709,7 @@ document.addEventListener('click', async function(e) {
     }
 });
 
-document.addEventListener('click', async function(e) {
+document.addEventListener('click', async function (e) {
     if (e.target.classList.contains('btn-delivered-order')) {
         const orderId = e.target.getAttribute('data-order-id');
         const order = orders.find(o => Number(o.orderId) === Number(orderId));
@@ -693,7 +724,7 @@ document.addEventListener('click', async function(e) {
     }
 });
 
-document.addEventListener('click', async function(e) {
+document.addEventListener('click', async function (e) {
     if (e.target.classList.contains('btn-received-order')) {
         const orderId = e.target.getAttribute('data-order-id');
         const order = orders.find(o => Number(o.orderId) === Number(orderId));
@@ -708,7 +739,7 @@ document.addEventListener('click', async function(e) {
     }
 });
 
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     if (!AuthState.getUserId()) {
         console.log('Waiting for AuthState to load userId...');
         await AuthState.fetchUserInfo();
@@ -748,8 +779,7 @@ async function loadLovedProducts() {
         const result = await favoriteService.getFavoirtiesByUserId(USER_ID)
         if (result.status === "Success") {
             lovedProducts = result.data;
-        }
-        else showErrorToast(result.message);
+        } else showErrorToast(result.message);
         displayLovedProducts('');
     } catch (error) {
         console.error('Error loading loved products:', error);
@@ -813,14 +843,6 @@ function displayLovedProducts(searchKeyword = '', p = 1, size = 3) {
         return;
     }
 
-    function buildUrl(p) {
-        if (!p) return '/assets/images/sample/snack.jpg';
-        if (/^https?:\/\//i.test(p)) return p; // http / https giữ nguyên
-        if (p.startsWith(BASE_URL + contextPath + '/')) return p;
-        if (p.startsWith('/')) return BASE_URL + contextPath + p;
-        return BASE_URL + contextPath + '/' + p.replace(/^\/+/, '');
-    }
-
     productContent.forEach(product => {
         const discount = product.price ? Math.round((1 - product.price / product.price) * 100) : 0;
         const productCard = `
@@ -838,9 +860,9 @@ function displayLovedProducts(searchKeyword = '', p = 1, size = 3) {
                         </div>
                         <div class="text-small mb-1">
                             <div class="text-warning">
-                                ${Array(5).fill(0).map((_, i) => 
-                                    `<i class="bi bi-star${i < Math.floor(product.averageRating) ? '-fill' : ''}"></i>`
-                                ).join('')}
+                                ${Array(5).fill(0).map((_, i) =>
+            `<i class="bi bi-star${i < Math.floor(product.averageRating) ? '-fill' : ''}"></i>`
+        ).join('')}
                                 <span class="text-muted ms-1">${product.averageRating}</span>
                             </div>
                         </div>
@@ -872,7 +894,7 @@ function displayLovedProducts(searchKeyword = '', p = 1, size = 3) {
 const loveSearchInput = document.getElementById('love-search-input');
 const clearLoveSearchBtn = document.getElementById('clear-love-search-btn');
 
-loveSearchInput?.addEventListener('input', function(e) {
+loveSearchInput?.addEventListener('input', function (e) {
     const keyword = e.target.value;
 
     if (keyword.trim() !== '') {
@@ -885,7 +907,7 @@ loveSearchInput?.addEventListener('input', function(e) {
     displayLovedProducts(currentLoveSearchKeyword);
 });
 
-clearLoveSearchBtn?.addEventListener('click', function() {
+clearLoveSearchBtn?.addEventListener('click', function () {
     loveSearchInput.value = '';
     currentLoveSearchKeyword = '';
     clearLoveSearchBtn.style.display = 'none';
@@ -900,8 +922,7 @@ document.addEventListener('click', async function (e) {
         const result = await favoriteService.removeFavorite(productId, USER_ID);
         if (result.status !== "Success") {
             showErrorToast(result.message || 'Cannot remove from loved products');
-        }
-        else {
+        } else {
             displayLovedProducts(currentLoveSearchKeyword);
             showSuccessToast('Removed from loved products!');
             await loadLovedProducts();
@@ -922,11 +943,10 @@ document.addEventListener('click', async function (e) {
             const result = await cartService.addSelectedCartItem(cart);
             if (result.status === "Success") {
                 showSuccessToast('Added to cart successfully!');
+            } else {
+                showErrorToast(result.message || 'Cannot add to cart');
             }
-            else {
-            showErrorToast(result.message || 'Cannot add to cart');}
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Error adding to cart:', error);
             showErrorToast('Cannot add to cart');
         }
@@ -949,8 +969,7 @@ function loadSecuritySection() {
 
         if (userInfo.role) {
             document.getElementById('security-role').textContent = userInfo.role;
-        }
-        else document.getElementById('security-role').textContent = 'N/A';
+        } else document.getElementById('security-role').textContent = 'N/A';
     }
 
     initPasswordToggles();
@@ -958,12 +977,12 @@ function loadSecuritySection() {
 
 function initPasswordToggles() {
     const toggleButtons = [
-        { btnId: 'toggle-current-password', inputId: 'current-password' },
-        { btnId: 'toggle-new-password', inputId: 'new-password' },
-        { btnId: 'toggle-confirm-password', inputId: 'confirm-password' }
+        {btnId: 'toggle-current-password', inputId: 'current-password'},
+        {btnId: 'toggle-new-password', inputId: 'new-password'},
+        {btnId: 'toggle-confirm-password', inputId: 'confirm-password'}
     ];
 
-    toggleButtons.forEach(({ btnId, inputId }) => {
+    toggleButtons.forEach(({btnId, inputId}) => {
         const btn = document.getElementById(btnId);
         const input = document.getElementById(inputId);
 
@@ -971,7 +990,7 @@ function initPasswordToggles() {
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
 
-            newBtn.addEventListener('click', function() {
+            newBtn.addEventListener('click', function () {
                 input.type = input.type === 'password' ? 'text' : 'password';
                 const icon = this.querySelector('i');
                 icon.classList.toggle('bi-eye');
@@ -982,7 +1001,7 @@ function initPasswordToggles() {
 }
 
 // Change password form
-document.addEventListener('submit', async function(e) {
+document.addEventListener('submit', async function (e) {
     if (e.target.id === 'change-password-form') {
         e.preventDefault();
 
@@ -1032,7 +1051,7 @@ document.addEventListener('submit', async function(e) {
                 if (bsCollapse) {
                     bsCollapse.hide();
                 } else {
-                    new bootstrap.Collapse(collapseElement, { toggle: true });
+                    new bootstrap.Collapse(collapseElement, {toggle: true});
                 }
             } else {
                 showErrorToast(result.message || 'Failed to change password. Please check your current password.');
@@ -1045,8 +1064,159 @@ document.addEventListener('submit', async function(e) {
     }
 });
 
-document.getElementById("logout-btn").addEventListener('click', async function(e) {
+document.getElementById("logout-btn").addEventListener('click', async function (e) {
     e.preventDefault()
     AuthState.logout();
 })
+
+// ====== REVIEW: open modal (prefill nếu đã có) ======
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.btn-open-review');
+    if (!btn) return;
+
+    const orderId = btn.getAttribute('data-order-id');
+    const productId = btn.getAttribute('data-product-id');
+
+    // 1) SET hidden inputs TRƯỚC rồi mới gọi API prefill
+    document.getElementById('rv-orderId').value = orderId;
+    document.getElementById('rv-productId').value = productId;
+
+    // 2) reset form mặc định
+    document.getElementById('rv-comment').value = '';
+    document.getElementById('rv-files').value = '';
+    document.getElementById('rv-previews').innerHTML = '';
+    document.getElementById('rv-rating').value = '5';
+    document.querySelectorAll('#rv-stars .star').forEach(st => st.classList.remove('active'));
+    document.querySelectorAll('#rv-stars .star').forEach(st => {
+        if (Number(st.dataset.val) <= 5) st.classList.add('active');
+    });
+    // clear hidden reviewId nếu có
+    document.getElementById('rv-reviewId')?.remove();
+
+    // 3) Prefill: gọi API lấy review của tôi theo product
+    (async () => {
+        try {
+            const resp = await fetch(`/UTE_SHOP/api/shop/reviews/mine?productId=${productId}`);
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data) {
+                    // -> đang EDIT
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.id = 'rv-reviewId';
+                    hidden.value = data.reviewId;
+                    document.getElementById('reviewForm').appendChild(hidden);
+
+                    // set rating/comment
+                    document.getElementById('rv-rating').value = String(data.rating || 5);
+                    document.querySelectorAll('#rv-stars .star').forEach(s => {
+                        s.classList.toggle('active', Number(s.dataset.val) <= (data.rating || 5));
+                    });
+                    document.getElementById('rv-comment').value = data.comment || '';
+
+                    // preview media cũ
+                    const prev = document.getElementById('rv-previews');
+                    prev.innerHTML = '';
+                    (data.media || []).forEach(m => {
+                        const isVideo = (m.type || '').toLowerCase() === 'video';
+                        const node = document.createElement(isVideo ? 'video' : 'img');
+                        if (isVideo) node.controls = true;
+                        node.src = buildUrl(m.url);
+                        node.style.width = '100px';
+                        node.style.height = '100px';
+                        node.style.objectFit = 'cover';
+                        node.style.borderRadius = '.5rem';
+                        prev.appendChild(node);
+                    });
+                }
+            }
+        } catch (_) {
+        }
+    })();
+
+    // 4) Mở modal
+    const modal = new bootstrap.Modal(document.getElementById('reviewModal'));
+    modal.show();
+});
+
+
+// ====== REVIEW: select stars ======
+document.querySelectorAll('#rv-stars .star').forEach(star => {
+    star.addEventListener('click', function () {
+        const val = Number(this.dataset.val);
+        document.getElementById('rv-rating').value = String(val);
+        document.querySelectorAll('#rv-stars .star').forEach(s => {
+            s.classList.toggle('active', Number(s.dataset.val) <= val);
+        });
+    });
+});
+
+// ====== REVIEW: preview files ======
+document.getElementById('rv-files').addEventListener('change', function () {
+    const container = document.getElementById('rv-previews');
+    container.innerHTML = '';
+    const files = Array.from(this.files || []);
+    files.slice(0, 10).forEach(f => {
+        const url = URL.createObjectURL(f);
+        let node;
+        if (f.type.startsWith('video')) {
+            node = document.createElement('video');
+            node.controls = true;
+            node.src = url;
+        } else {
+            node = document.createElement('img');
+            node.src = url;
+            node.alt = f.name;
+        }
+        container.appendChild(node);
+    });
+});
+
+// ====== REVIEW: submit (upsert) ======
+document.getElementById('rv-submit').addEventListener('click', async function () {
+    try {
+        const orderId = document.getElementById('rv-orderId').value;
+        const productId = document.getElementById('rv-productId').value;
+        const rating = document.getElementById('rv-rating').value;
+        const comment = document.getElementById('rv-comment').value;
+        const filesInput = document.getElementById('rv-files');
+
+        const reviewIdEl = document.getElementById('rv-reviewId');
+        const isEdit = !!reviewIdEl;
+
+        const fd = new FormData();
+        if (!isEdit) {
+            // lần đầu cần orderId + productId để validate
+            fd.append('orderId', orderId);
+            fd.append('productId', productId);
+        }
+        fd.append('rating', rating);
+        if (comment) fd.append('comment', comment);
+
+        const files = Array.from(filesInput.files || []).slice(0, 10);
+        for (const f of files) fd.append('files', f, f.name);
+
+        const endpoint = isEdit
+            ? `/UTE_SHOP/api/shop/reviews/${reviewIdEl.value}`
+            : `/UTE_SHOP/api/shop/reviews`;
+        const method = isEdit ? 'PUT' : 'POST';
+
+        const resp = await fetch(endpoint, {method, body: fd});
+        if (!resp.ok) {
+            const data = await resp.json().catch(() => ({}));
+            throw new Error(data.message || 'Upload review failed');
+        }
+
+        showSuccessToast(isEdit ? 'Updated rating successfully!' : 'Rating successfully!');
+        bootstrap.Modal.getInstance(document.getElementById('reviewModal'))?.hide();
+
+        // Reload đơn (size mặc định 5 như displayOrders đang dùng)
+        await loadOrders();
+        await displayOrders(currentOrderStatus, 1, 5, currentSearchKeyword);
+    } catch (err) {
+        showErrorToast(err.message || 'Have error');
+    }
+});
+
+
 

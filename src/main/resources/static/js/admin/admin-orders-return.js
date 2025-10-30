@@ -34,13 +34,21 @@ document.addEventListener("DOMContentLoaded", function () {
             let statusLabel = o.status;
             switch (o.status) {
                 case "REQUEST_RETURN":
-                    statusClass = "status-request"; statusLabel = "REQUEST RETURN"; break;
+                    statusClass = "status-request";
+                    statusLabel = "REQUEST RETURN";
+                    break;
                 case "RETURNING":
-                    statusClass = "status-returning"; statusLabel = "RETURNING"; break;
+                    statusClass = "status-returning";
+                    statusLabel = "RETURNING";
+                    break;
                 case "RETURNED":
-                    statusClass = "status-returned"; statusLabel = "RETURNED"; break;
+                    statusClass = "status-returned";
+                    statusLabel = "RETURNED";
+                    break;
                 case "CANCELLED":
-                    statusClass = "status-cancelled"; statusLabel = "CANCELLED"; break;
+                    statusClass = "status-cancelled";
+                    statusLabel = "CANCELLED";
+                    break;
             }
 
             let actions = "";
@@ -170,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!confirm(`Are you sure you want to ${action} order #${id}?`)) return;
 
         try {
-            const res = await fetch(url, { method: "PUT" });
+            const res = await fetch(url, {method: "PUT"});
             if (!res.ok) throw new Error(await res.text());
             alert(msg);
             loadOrders();
@@ -179,6 +187,5 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // ======= KHỞI ĐỘNG =======
     loadOrders();
 });

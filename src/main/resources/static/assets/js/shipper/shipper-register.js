@@ -38,7 +38,7 @@
         });
         if (!res.ok) return;
         const list = await res.json();
-        providerSelect.innerHTML = '<option value="">-- Chọn đơn vị vận chuyển --</option>';
+        providerSelect.innerHTML = '<option value="">-- Choose Shipping Provider --</option>';
         (list || []).forEach(p => {
             // value: id/code; hiển thị: name
             const opt = document.createElement('option');
@@ -107,14 +107,14 @@
     registerBtn.addEventListener('click', async () => {
         const shippingProviderId = providerSelect.value;
         if (!shippingProviderId) {
-            alert('Chọn đơn vị vận chuyển');
+            alert('Choose shipping provider');
             return;
         }
         const phone = (phoneInput.value || '').trim();
         const companyName = (companyInput.value || '').trim();
         const address = buildAddressString();
         if (!address) {
-            alert('Nhập địa chỉ đầy đủ');
+            alert('Enter full address');
             return;
         }
 
@@ -129,7 +129,7 @@
             alert('Đăng ký thất bại: ' + t);
             return;
         }
-        alert('Đăng ký thành công!');
+        alert('Register successfully!');
         window.location.href = BASE + '/shipper/orders/confirmed';
     });
 

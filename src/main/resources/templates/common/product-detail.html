@@ -4,25 +4,71 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
     <meta content="Codescandy" name="author"/>
+    <meta name="app:ctx" th:content="@{/}" />
 
-    <title th:text="${product.name} + ' - FreshCart'">Shop Single eCommerce HTML Template - FreshCart</title>
+    <title th:text="${product.name} + ' - FreshCart'">UTE SHOP</title>
 
     <!-- CSS -->
     <link th:href="@{/assets/libs/dropzone/dist/min/dropzone.min.css}" rel="stylesheet"/>
     <link th:href="@{/assets/libs/tiny-slider/dist/tiny-slider.css}" rel="stylesheet"/>
     <link rel="shortcut icon" type="image/x-icon" th:href="@{/assets/images/favicon/favicon.ico}"/>
-
     <link th:href="@{/assets/libs/bootstrap-icons/font/bootstrap-icons.min.css}" rel="stylesheet"/>
     <link th:href="@{/assets/libs/feather-webfont/dist/feather-icons.css}" rel="stylesheet"/>
     <link th:href="@{/assets/libs/simplebar/dist/simplebar.min.css}" rel="stylesheet"/>
     <link th:href="@{/assets/css/theme.min.css}" rel="stylesheet"/>
+
+    <style>
+        /* Vùng slider ảnh to */
+        .product-slider {
+            position: relative;
+            overflow: hidden;
+        }
+
+        #productSlider .zoom img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Dải thumbnail bên dưới */
+        .product-thumbs {
+            margin-top: .75rem;
+        }
+
+        .thumbs-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: .5rem;
+        }
+
+        .thumb {
+            border: 2px solid transparent;
+            border-radius: .5rem;
+            overflow: hidden;
+            cursor: pointer;
+            aspect-ratio: 1 / 1;
+            display: block;
+        }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .thumb.active {
+            border-color: #198754;
+        }
+
+        /* màu viền khi chọn */
+    </style>
 </head>
 
 <body>
-<!-- Navbar -->
 <div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/toast::toast-container}"></div>
 
-<!-- Optional: client validators -->
 <script th:src="@{/assets/js/vendors/validation.js}"></script>
 
 <main>
@@ -33,15 +79,10 @@
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
-
                         <li class="breadcrumb-item" th:if="${product.categoryName != null}">
-                            <a th:href="@{'/categories/' + ${product.categoryId}}"
-                               th:text="${product.categoryName}">
-                                Category
-                            </a>
+                            <a th:href="@{'/categories/' + ${product.categoryId}}" th:text="${product.categoryName}">Category</a>
                         </li>
-                        <li class="breadcrumb-item active" aria-current="page" th:text="${product.name}">
-                            Product Name
+                        <li class="breadcrumb-item active" aria-current="page" th:text="${product.name}">Product Name
                         </li>
                     </ol>
                 </nav>
@@ -55,21 +96,28 @@
             <div class="row">
                 <!-- Gallery -->
                 <div class="col-md-5 col-xl-6">
-                    <div class="product" id="product">
-                        <div th:each="media : ${product.media}" th:if="${media.type == 'IMAGE'}">
-                            <div class="zoom" onmousemove="zoom(event)"
-                                 th:style="'background-image: url(' + ${media.url} + ')'">
-                                <img th:src="${media.url}" alt="Product image"/>
+                    <!-- Slider ảnh to -->
+                    <div class="product-slider">
+                        <div id="productSlider">
+                            <div th:each="media : ${product.media}" th:if="${media.type == 'image'}"
+                                 th:with="u=${#strings.startsWith(media.url, '/uploads') ? media.url : '/uploads/' + media.url}">
+                                <div class="zoom" onmousemove="zoom(event)" th:style="|background-image: url(@{${u}})|">
+                                    <img th:src="@{${u}}" alt="Product image"/>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="product-tools">
-                        <div class="thumbnails row g-3" id="productThumbnails">
-                            <div class="col-3" th:each="media : ${product.media}" th:if="${media.type == 'IMAGE'}">
-                                <div class="thumbnails-img">
-                                    <img th:src="${media.url}" alt="Product thumbnail"/>
-                                </div>
-                            </div>
+
+                    <!-- Thumbnails -->
+                    <div class="product-thumbs">
+                        <div id="productThumbs" class="thumbs-row">
+                            <a class="thumb"
+                               th:each="media,iter : ${product.media}"
+                               th:if="${media.type == 'image'}"
+                               th:data-index="${iter.index}"
+                               th:with="u=${#strings.startsWith(media.url, '/uploads') ? media.url : '/uploads/' + media.url}">
+                                <img th:src="@{${u}}" alt="Thumb"/>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -77,33 +125,32 @@
                 <!-- Info -->
                 <div class="col-md-7 col-xl-6">
                     <div class="ps-lg-10 mt-6 mt-md-0">
-                        <a class="mb-4 d-block"
-                           th:href="@{'/categories/' + ${product.categoryId}}"
-                           th:text="${product.categoryName}"
-                           th:if="${product.categoryName != null}">
-                            Bakery Biscuits
-                        </a>
+                        <a class="mb-4 d-block" th:href="@{'/categories/' + ${product.categoryId}}"
+                           th:text="${product.categoryName}" th:if="${product.categoryName != null}">Bakery Biscuits</a>
 
                         <h1 class="mb-1" th:text="${product.name}">Product name</h1>
 
                         <div class="mb-4">
                             <small class="text-warning">
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-fill"></i>
-                                <i class="bi bi-star-half"></i>
+                                  <span th:each="star : ${#numbers.sequence(1,5)}">
+                                    <i class="bi"
+                                       th:classappend="${
+                                           star <= T(java.lang.Math).floor(product.avgRating)
+                                               ? 'bi-star-fill text-warning'
+                                               : (star - product.avgRating < 1 && star > product.avgRating
+                                                   ? 'bi-star-half text-warning'
+                                                   : 'bi-star text-warning')
+                                       }"></i>
+                                  </span>
                             </small>
                             <a href="#reviews-tab-pane" class="ms-2"
-                               th:text="'(' + ${product.totalReviews} + ' reviews)'">
-                                (0 reviews)
-                            </a>
+                               th:text="'(' + ${product.totalReviews} + ' reviews)'">(0 reviews)</a>
                         </div>
 
                         <div class="fs-4">
               <span class="fw-bold text-dark"
-                    th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 'COMMA', 2, 'POINT')}">
-                $0.00
+                    th:text="${#numbers.formatDecimal(product.price, 1, 'POINT', 0, 'POINT')} + ' đ'">
+                0 đ
               </span>
                         </div>
 
@@ -120,21 +167,25 @@
 
                         <div class="mt-3 row justify-content-start g-2 align-items-center">
                             <div class="col-xxl-4 col-lg-4 col-md-5 col-5 d-grid">
-                                <button type="button" class="btn btn-primary">
-                                    <i class="feather-icon icon-shopping-bag me-2"></i>
-                                    Add to cart
-                                </button>
+                                <a th:href="@{/cart/add(productId=${product.productId})}"
+                                   th:data-id="${product.productId}"
+                                   class="btn btn-primary btn-add-cart">
+                                    <i class="feather-icon icon-shopping-bag me-2"></i> Add to cart
+                                </a>
                             </div>
                             <div class="col-md-4 col-4">
-                                <a class="btn btn-light" href="#" data-bs-toggle="tooltip" data-bs-html="true" aria-label="Compare">
-                                    <i class="bi bi-arrow-left-right"></i></a>
-                                <a class="btn btn-light" href="#" data-bs-toggle="tooltip" data-bs-html="true" aria-label="Wishlist">
-                                    <i class="feather-icon icon-heart"></i></a>
+                                <a href="#!"
+                                    class="btn btn-light btn-action-wishlist"
+                                    th:data-id="${product.productId}"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-html="true"
+                                    title="Wishlist">
+                                <i class="bi bi-heart"></i>
+                            </a>
                             </div>
                         </div>
 
                         <hr class="my-6"/>
-
                         <div>
                             <table class="table table-borderless mb-0">
                                 <tbody>
@@ -150,20 +201,10 @@
                                     <td>Type:</td>
                                     <td th:text="${product.categoryName}">Fruits</td>
                                 </tr>
-                                <tr>
-                                    <td>Shipping:</td>
-                                    <td>
-                                        <small>
-                                            01 day shipping.
-                                            <span class="text-muted">( Free pickup today)</span>
-                                        </small>
-                                    </td>
-                                </tr>
                                 </tbody>
                             </table>
                         </div>
 
-                        <div class="mt-8"></div>
                     </div>
                 </div>
             </div>
@@ -179,169 +220,135 @@
                     <ul class="nav nav-pills nav-lb-tab" id="myTab" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="product-tab" data-bs-toggle="tab"
-                                    data-bs-target="#product-tab-pane" type="button" role="tab"
-                                    aria-controls="product-tab-pane" aria-selected="true">
-                                Product Details
+                                    data-bs-target="#product-tab-pane" type="button" role="tab">Product Details
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="reviews-tab" data-bs-toggle="tab"
-                                    data-bs-target="#reviews-tab-pane" type="button" role="tab"
-                                    aria-controls="reviews-tab-pane" aria-selected="false">
-                                Reviews
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="sellerInfo-tab" data-bs-toggle="tab"
-                                    data-bs-target="#sellerInfo-tab-pane" type="button" role="tab"
-                                    aria-controls="sellerInfo-tab-pane" aria-selected="false" disabled>
-                                Seller Info
+                                    data-bs-target="#reviews-tab-pane" type="button" role="tab">Reviews
                             </button>
                         </li>
                     </ul>
 
                     <div class="tab-content" id="myTabContent">
-                        <!-- Product details tab -->
-                        <div class="tab-pane fade show active" id="product-tab-pane" role="tabpanel"
-                             aria-labelledby="product-tab" tabindex="0">
+                        <div class="tab-pane fade show active" id="product-tab-pane" role="tabpanel">
                             <div class="my-8">
-                                <div class="mb-5">
-                                    <h4 class="mb-1">Product Details</h4>
-                                    <!-- FIX: Không dùng T(java.lang.System); dùng pre-line hoặc replace '\n' -->
-                                    <p class="mb-0" th:text="${product.description}" style="white-space: pre-line;"></p>
-                                    <!-- Hoặc:
-                                    <p class="mb-0" th:utext="${#strings.replace(product.description, '\n', '<br/>')}"></p>
-                                    -->
-                                </div>
+                                <h4 class="mb-1">Product Details</h4>
+                                <p class="mb-0" th:text="${product.description}" style="white-space: pre-line;"></p>
 
-                                <div class="mb-5">
-                                    <h5 class="mb-1">Seller</h5>
-                                    <p class="mb-0" th:text="'Shop ID: ' + ${product.shopId}">[Seller Name]</p>
-                                </div>
 
-                                <div>
-                                    <h5 class="mb-1">Disclaimer</h5>
-                                    <p class="mb-0">
-                                        Image shown is a representation and may slightly vary from the actual product.
-                                        Every effort is made to maintain accuracy of all information displayed.
-                                    </p>
-                                </div>
                             </div>
                         </div>
 
-                        <!-- Reviews tab -->
-                        <div class="tab-pane fade" id="reviews-tab-pane" role="tabpanel" aria-labelledby="reviews-tab" tabindex="0">
+                        <!-- Reviews -->
+                        <div class="tab-pane fade" id="reviews-tab-pane" role="tabpanel">
                             <div class="my-8">
                                 <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="me-lg-12 mb-6 mb-md-0">
-                                            <div class="mb-5">
-                                                <h4 class="mb-3">Customer reviews</h4>
-                                                <span>
-                          <small class="text-warning">
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-half"></i>
-                          </small>
-                          <span class="ms-3" th:text="${product.avgRating} + ' out of 5'">0.0 out of 5</span>
-                          <small class="ms-3" th:text="${product.totalReviews} + ' global ratings'">0 global ratings</small>
-                        </span>
-                                            </div>
-
-                                            <div class="mb-8"></div>
-
-                                            <div class="d-grid">
-                                                <h4>Review this product</h4>
-                                                <p class="mb-0">Share your thoughts with other customers.</p>
-                                                <a href="#" class="btn btn-outline-gray-400 mt-4 text-muted">Write the Review</a>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                     <div class="col-md-8">
                                         <div class="mb-10">
-                                            <div class="d-flex justify-content-between align-items-center mb-8">
-                                                <div><h4>Reviews</h4></div>
-                                                <div>
-                                                    <select class="form-select">
-                                                        <option selected>Top Reviews</option>
-                                                        <option value="Most Recent">Most Recent</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div th:if="${#lists.isEmpty(reviews)}" class="text-center p-5 border rounded">
-                                                <p class="mb-0">This product has no reviews yet. Be the first to write one!</p>
+                                            <div th:if="${#lists.isEmpty(reviews)}"
+                                                 class="text-center p-5 border rounded">
+                                                <p class="mb-0">This product has no reviews yet. Be the first to write
+                                                    one!</p>
                                             </div>
 
                                             <div th:each="review : ${reviews}" class="d-flex border-bottom pb-6 mb-6">
-                                                <img th:src="@{/assets/images/avatar/avatar-placeholder.jpg}" alt="User avatar" class="rounded-circle avatar-lg"/>
+                                                <img th:src="@{/assets/images/avatar/avatar-placeholder.jpg}"
+                                                     alt="User avatar" class="rounded-circle avatar-lg"/>
                                                 <div class="ms-5">
-                                                    <h6 class="mb-1" th:text="${review.userName}">[Reviewer Name]</h6>
-                                                    <p class="small">
-                            <span class="text-muted" th:text="${#temporals.format(review.createdAt, 'dd MMMM yyyy')}">
-                              01 January 2025
-                            </span>
-                                                    </p>
+                                                    <h6 th:text="${review.userName}">[Reviewer Name]</h6>
+                                                    <p class="small text-muted"
+                                                       th:text="${#temporals.format(review.createdAt, 'dd MMMM yyyy')}">
+                                                        01 January 2025</p>
+
                                                     <div class="mb-2">
                             <span th:each="star : ${#numbers.sequence(1, 5)}">
-                              <i class="bi" th:classappend="${star <= review.rating} ? 'bi-star-fill text-warning' : 'bi-star text-warning'"></i>
+                              <i class="bi"
+                                 th:classappend="${star <= review.rating} ? 'bi-star-fill text-warning' : 'bi-star text-warning'"></i>
                             </span>
                                                     </div>
-                                                    <p th:text="${review.comment}">[Review comment content]</p>
+
+                                                    <p th:text="${review.comment}">[Review comment]</p>
 
                                                     <div class="d-flex">
-                                                        <div th:each="media : ${review.media}" class="border icon-shape icon-lg border-2 ms-1">
-                                                            <img th:src="${media.url}" alt="Review media" class="img-fluid" th:if="${media.type == 'IMAGE'}"/>
+                                                        <div th:each="media : ${review.media}"
+                                                             class="border icon-shape icon-lg border-2 ms-1"
+                                                             th:with="u=${#strings.startsWith(media.url, '/uploads') ? media.url : '/uploads/' + media.url}">
+                                                            <img th:src="@{${u}}" alt="Review media" class="img-fluid"
+                                                                 th:if="${media.type == 'IMAGE'}"/>
                                                         </div>
-                                                    </div>
-
-                                                    <div class="d-flex justify-content-end mt-4">
-                                                        <a href="#" class="text-muted"><i class="feather-icon icon-thumbs-up me-1"></i> Helpful</a>
-                                                        <a href="#" class="text-muted ms-4"><i class="feather-icon icon-flag me-2"></i> Report abuse</a>
                                                     </div>
                                                 </div>
                                             </div>
 
                                         </div>
                                     </div>
-                                </div> <!-- row -->
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="sellerInfo-tab-pane" role="tabpanel" aria-labelledby="sellerInfo-tab" tabindex="0">
-                            <!-- Seller Info content ... -->
-                        </div>
+                        </div> <!-- reviews-tab-pane -->
                     </div>
-
                 </div>
             </div>
         </div>
     </section>
-
-    <section class="my-lg-14 my-14"></section>
 </main>
 
-<footer class="footer">
-    <!-- footer content -->
-</footer>
-
-<!-- (Optional) Quick View Modal: bỏ qua nếu chưa dùng
-<div class="modal fade" id="quickViewModal" tabindex="-1" aria-hidden="true"></div>
--->
+<footer class="footer"></footer>
 
 <!-- JS -->
-<script th:src="@{/assets/libs/rater-js/index.js}"></script>
-<script th:src="@{/assets/libs/dropzone/dist/min/dropzone.min.js}"></script>
 <script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
-<script th:src="@{/assets/libs/simplebar/dist/simplebar.min.js}"></script>
+<script th:src="@{/assets/libs/tiny-slider/dist/min/tiny-slider.js}"></script>
 <script th:src="@{/assets/js/theme.min.js}"></script>
 <script th:src="@{/assets/js/vendors/jquery.min.js}"></script>
-<script th:src="@{/assets/libs/tiny-slider/dist/min/tiny-slider.js}"></script>
-<script th:src="@{/assets/js/vendors/tns-slider.js}"></script>
-<script th:src="@{/assets/js/vendors/zoom.js}"></script>
-<script th:src="@{/assets/js/vendors/dropzone.js}"></script>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        // === Slider tự động chạy: 10 giây đổi ảnh, KHÔNG có nút điều hướng ===
+        let productTns = null;
+        try {
+            if (window.tns) {
+                productTns = tns({
+                    container: '#productSlider',
+                    items: 1,
+                    slideBy: 1,
+                    controls: false,          // bỏ nút < >
+                    nav: false,
+                    autoplay: true,           // tự chạy
+                    autoplayTimeout: 10000,   // 10 giây
+                    autoplayButtonOutput: false,
+                    mouseDrag: true,
+                    gutter: 0
+                });
+            }
+        } catch (e) {
+            console.error('Lỗi khởi tạo tiny-slider:', e);
+        }
+
+        // === Đồng bộ thumbnail ===
+        const thumbs = Array.from(document.querySelectorAll('#productThumbs .thumb'));
+
+        function setActiveThumb(i) {
+            thumbs.forEach(t => t.classList.remove('active'));
+            if (thumbs[i]) thumbs[i].classList.add('active');
+        }
+
+        thumbs.forEach(t => {
+            t.addEventListener('click', () => {
+                const idx = Number(t.getAttribute('data-index') || 0);
+                if (productTns) productTns.goTo(idx);
+                setActiveThumb(idx);
+            });
+        });
+        setActiveThumb(0);
+        if (productTns) {
+            productTns.events.on('indexChanged', info => {
+                const realIndex = info.displayIndex - 1;
+                setActiveThumb(realIndex);
+            });
+        }
+    });
+</script>
+<script defer th:src="@{/js/auth-handler.js}"></script>
+<script type="module" th:src="@{/js/productCard.js}" defer></script>
 </body>
 </html>

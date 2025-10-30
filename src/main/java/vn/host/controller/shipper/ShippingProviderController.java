@@ -2,6 +2,7 @@ package vn.host.controller.common;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.host.dto.shipper.ShippingProviderVM;
 import vn.host.service.ShippingProviderService;
@@ -11,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/shipping-providers")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('SHIPPER')")
 public class ShippingProviderController {
 
     private final ShippingProviderService providers;

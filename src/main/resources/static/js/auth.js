@@ -133,11 +133,11 @@ export const AuthState = {
 // Auto-initialize from API when DOM is loaded
 document.addEventListener('DOMContentLoaded', async () => {
     // Kiểm tra token trước
-    if (!AuthState.isAuthenticated()) {
-        console.warn('No auth token found, user might need to login');
-        // Không redirect ở đây vì có thể là trang public
-        return;
-    }
+    // if (!AuthState.isAuthenticated()) {
+    //     console.warn('No auth token found, user might need to login');
+    //     // Không redirect ở đây vì có thể là trang public
+    //     return;
+    // }
 
     // Nếu có token, load thông tin user
     await AuthState.fetchUserInfo();

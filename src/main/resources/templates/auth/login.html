@@ -304,7 +304,11 @@
 
                 showAlert('Login successful! Redirecting...', 'success');
                 setTimeout(() => {
-                    window.location.href = homeUrl;
+                    if (authRes.role === 'ADMIN') {
+                        window.location.href = contextPath + 'admin/dashboard';
+                    } else {
+                        window.location.href = homeUrl;
+                    }
                 }, 2000);
 
             } else {

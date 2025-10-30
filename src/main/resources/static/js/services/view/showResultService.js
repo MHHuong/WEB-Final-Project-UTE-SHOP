@@ -2,11 +2,11 @@ import {showErrorToast, showSuccessToast, showWarningToast, showInfoToast} from 
 import orderService from "../../services/api/orderService.js";
 import {urlParams} from "../../utils/apiClient.js";
 import paymentService from "../../services/api/paymentService.js";
-import { AuthState } from "../../auth.js";
+import {AuthState} from "../../auth.js";
 
 
 const USER_ID = localStorage.getItem("userId");
-const BASE_URL = window.location.origin
+const BASE_URL = window.location.origin;
 const contextPath = (() => {
     try {
         const part = window.location.pathname.split('/')[1];
@@ -17,8 +17,10 @@ const contextPath = (() => {
     }
 })();
 
+
 let paymentData = {};
 let paymentMethod = '';
+
 // Format currency
 function formatCurrency(amount) {
     if (isNaN(amount)) return "0₫";
@@ -203,7 +205,7 @@ function setPaymentState(state) {
     document.getElementById('order-timeline-container').style.display = 'none';
 
     // Show appropriate state
-    switch(state) {
+    switch (state) {
         case PAYMENT_STATE.SUCCESS:
             document.getElementById('success-state').style.display = 'block';
             document.getElementById('action-buttons-card').style.display = 'block';
@@ -243,7 +245,7 @@ function updatePaymentStatus(text, badgeClass) {
 function updateInfoAlert(state) {
     const infoList = document.getElementById('info-list');
 
-    switch(state) {
+    switch (state) {
         case 'success':
             infoList.innerHTML = `
                     <li>You’ll receive an order confirmation email shortly.</li>
@@ -267,6 +269,7 @@ function updateInfoAlert(state) {
             break;
     }
 }
+
 function startCountdown() {
     const timerDisplay = document.getElementById('timer-display');
 

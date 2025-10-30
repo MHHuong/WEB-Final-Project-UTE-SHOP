@@ -14,6 +14,7 @@ import vn.host.repository.ReviewRepository;
 import vn.host.service.ReviewService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,12 +42,23 @@ public class ReviewServiceImpl implements ReviewService {
     public Page<Review> findByProduct_ProductId(Long productId, Pageable pageable) {
         return reviewRepo.findByProduct_ProductId(productId, pageable);
     }
+
     @Override
     public List<ReviewItemRes> getReviewsByProductIdVM(Long productId, Pageable pageable) {
         Page<Review> reviewPage = reviewRepo.findByProduct_ProductId(productId, pageable);
         return reviewPage.getContent().stream()
                 .map(this::mapToReviewItemRes)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Review> findFirstByUser_UserIdAndProduct_ProductIdOrderByCreatedAtDesc(Long userId, Long productId) {
+        return reviewRepo.findFirstByUser_UserIdAndProduct_ProductIdOrderByCreatedAtDesc(userId, productId);
+    }
+
+    @Override
+    public Review save(Review review) {
+        return reviewRepo.save(review);
     }
 
     private ReviewItemRes mapToReviewItemRes(Review review) {

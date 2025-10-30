@@ -59,8 +59,9 @@
                                         </select>
                                     </div>
                                     <div class="col-12">
-                                        <input id="detailInput" class="form-control" placeholder="House no., Street…">
+                                        <input id="detailAddress" class="form-control" placeholder="House no., Street…">
                                     </div>
+                                    <input id="address" name="address" type="hidden"/>
                                 </div>
                                 <div class="form-text mt-2">
                                     Will be saved to <code>Shipper.address</code> in format “detail, ward, district,
@@ -87,8 +88,9 @@
         </div>
         <!-- /content -->
     </div>
-    <script th:src="@{/assets/js/location/choose-location.js}" defer></script>
-    <script th:src="@{/assets/js/shipper/shipper-edit.js}" defer></script>
+    <script th:inline="javascript" th:src="@{/assets/js/location/choose-location.js}"></script>
+    <script th:inline="javascript" th:src="@{/assets/js/location/render-location.js}"></script>
+    <script th:inline="javascript" th:src="@{/assets/js/shipper/shipper-edit.js}"></script>
 </main>
 </body>
 </html>

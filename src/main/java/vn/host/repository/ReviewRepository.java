@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecificationExecutor<Review> {
     @Query("""
             select coalesce(avg(r.rating), 0.0) as avg,
-                   coalesce(count(r), 0)
+                   coalesce(count(r), 0) as total
             from Review r
             where r.product.productId = :productId
             """)
@@ -24,4 +24,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecif
     Optional<Review> findById(Long id);
 
     Page<Review> findByProduct_ProductId(Long productId, Pageable pageable);
+
+    Optional<Review> findFirstByUser_UserIdAndProduct_ProductIdOrderByCreatedAtDesc(Long userId, Long productId);
 }
