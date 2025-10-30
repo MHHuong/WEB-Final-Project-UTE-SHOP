@@ -75,7 +75,7 @@ public class OrderController {
             @RequestParam("order") Long id,
             @RequestParam("status") String status,
             @RequestParam(value = "reason", required = false) String reason,
-            @RequestParam(value = "bankAccountInfo", required = false) String bankAccountInfo) {
+            @RequestParam(value = "bankInfo", required = false) String bankAccountInfo) {
         try {
             orderService.updateStatus(id, status, reason, bankAccountInfo);
             return new ResponseEntity<>(

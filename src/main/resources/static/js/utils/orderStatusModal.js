@@ -1,7 +1,6 @@
 import orderService from '../services/api/orderService.js';
 import {showErrorToast, showSuccessToast} from "../../js/utils/toastUtils.js";
 
-// Map trạng thái tiếng Việt
 const statusMap = {
     'NEW': { label: 'Pending', class: 'bg-warning' },
     'CONFIRMED': { label: 'Confirmed', class: 'bg-info' },
@@ -100,7 +99,8 @@ async function confirmStatusChange() {
     // Validate account id nếu cần
     if (accountSection.style.display !== 'none') {
         bankInfo = bankId.value.trim();
-        if (!accountValue) {
+        console.log(bankId);
+        if (!bankInfo) {
             bankId.classList.add('is-invalid');
             return;
         }

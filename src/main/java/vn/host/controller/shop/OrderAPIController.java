@@ -75,7 +75,6 @@ public class OrderAPIController {
                 List<Predicate> or = new ArrayList<>();
                 or.add(cb.like(cb.lower(userJoin.get("fullName")), kw));
                 or.add(cb.like(cb.lower(userJoin.get("email")), kw));
-                // nếu có code/phone/address trong entity, có thể nối thêm ở đây
                 ps.add(cb.or(or.toArray(new Predicate[0])));
             }
             return cb.and(ps.toArray(new Predicate[0]));

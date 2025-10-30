@@ -11,7 +11,7 @@ const orderId = urlParams.get('orderId');
 
 
 // Order status mapping
-const STATUS_ORDER = ['NEW', 'CONFIRMED', 'SHIPPING', 'DELIVERED', 'RECEIVED'];
+const STATUS_ORDER = ['NEW', 'CONFIRMED', 'SHIPPING', 'DELIVERED', 'RECEIVED','CANCELLED', 'REQUEST_RETURN', 'RETURNING', 'RETURNED'];
 const STATUS_TEXT = {
     'NEW': 'New Order',
     'CONFIRMED': 'Confirmed',
@@ -19,8 +19,11 @@ const STATUS_TEXT = {
     'DELIVERED': 'Delivered',
     'RECEIVED': 'Received',
     'CANCELLED': 'Cancelled',
-    'RETURNED': 'Returned'
+    'REQUEST_RETURN' : 'Return Requested',
+    'RETURNING' : 'Returning',
+    'RETURNED' : 'Returned'
 };
+
 
 
 let stompClient = null;
@@ -53,8 +56,6 @@ function connect() {
             }
         },
         function(error) {
-            log('❌ STOMP error: ' + JSON.stringify(error), 'err');
-            updateStatus(false);
             document.getElementById('connectBtn').disabled = false;
             document.getElementById('disconnectBtn').disabled = true;
         });
