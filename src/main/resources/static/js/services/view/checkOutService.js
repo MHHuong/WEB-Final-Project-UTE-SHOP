@@ -355,7 +355,7 @@ async function processOrder(shouldSaveAddress = false) {
         };
 
         try {
-            const result = await addressService.createAddress(addressData);
+            const result = await addressService.createAddress(addressData, USER_ID);
             if (result.status === 'Success') {
                 showSuccessToast('Saved address successfully!');
             }

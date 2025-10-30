@@ -45,4 +45,9 @@ public class HomePageController {
     public String orders(@RequestParam Long orderId) {
         return "user/order/order-detail";
     }
+
+    @GetMapping("/user/get-token")
+    public String getTokenPage() {
+        return "user/get-token";
+    }
 }

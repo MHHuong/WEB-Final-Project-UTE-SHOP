@@ -1,11 +1,12 @@
 import {showErrorToast, showSuccessToast} from "../../utils/toastUtils.js";
-import orderService from "../../api/orderService.js";
+import orderService from "../../services/api/orderService.js";
 import {showOrderStatusModal} from "../../utils/orderStatusModal.js";
 import { AuthState } from "../../auth.js";
 
 
-const getUserId = () => AuthState.getUserId() || 1;
-let userId = getUserId();
+
+let userId = localStorage.getItem("userId") || 0;
+
 // Get order ID from URL
 const urlParams = new URLSearchParams(window.location.search);
 const orderId = urlParams.get('orderId');
