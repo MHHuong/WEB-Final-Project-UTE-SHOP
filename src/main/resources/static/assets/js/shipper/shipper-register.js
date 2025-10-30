@@ -38,7 +38,7 @@
         });
         if (!res.ok) return;
         const list = await res.json();
-        providerSelect.innerHTML = '<option value="">-- Chọn đơn vị vận chuyển --</option>';
+        providerSelect.innerHTML = '<option value="">-- Choose Shipping Provider --</option>';
         (list || []).forEach(p => {
             // value: id/code; hiển thị: name
             const opt = document.createElement('option');

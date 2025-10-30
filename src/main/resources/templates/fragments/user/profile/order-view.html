@@ -1,4 +1,4 @@
-<div th:fragment = "order-view" id="orders-section" class="content-section" style="display: none;">
+<div th:fragment="order-view" id="orders-section" class="content-section" style="display: none;">
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-white">
             <h4 class="mb-0">
@@ -17,7 +17,8 @@
                            id="order-search-input"
                            placeholder="Tìm kiếm theo mã đơn hàng, tên sản phẩm..."
                            autocomplete="off">
-                    <button class="btn btn-outline-secondary" type="button" id="clear-search-btn" style="display: none;">
+                    <button class="btn btn-outline-secondary" type="button" id="clear-search-btn"
+                            style="display: none;">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
@@ -29,42 +30,50 @@
             <!-- Filter Tabs -->
             <ul class="nav nav-pills mb-4" id="orderFilterTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all-orders" type="button" role="tab">
+                    <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all-orders"
+                            type="button" role="tab">
                         All Orders
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="pending-tab" data-bs-toggle="pill" data-bs-target="#pending-orders" type="button" role="tab">
+                    <button class="nav-link" id="pending-tab" data-bs-toggle="pill" data-bs-target="#pending-orders"
+                            type="button" role="tab">
                         Pending
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="comfirm-tab" data-bs-toggle="pill" data-bs-target="#comfirm-orders" type="button" role="tab">
+                    <button class="nav-link" id="comfirm-tab" data-bs-toggle="pill" data-bs-target="#comfirm-orders"
+                            type="button" role="tab">
                         Confirmed
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="shipping-tab" data-bs-toggle="pill" data-bs-target="#shipping-orders" type="button" role="tab">
+                    <button class="nav-link" id="shipping-tab" data-bs-toggle="pill" data-bs-target="#shipping-orders"
+                            type="button" role="tab">
                         On Shipping
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="delivered-tab" data-bs-toggle="pill" data-bs-target="#completed-orders" type="button" role="tab">
+                    <button class="nav-link" id="delivered-tab" data-bs-toggle="pill" data-bs-target="#completed-orders"
+                            type="button" role="tab">
                         Shipping Completed
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="received-tab" data-bs-toggle="pill" data-bs-target="#cancelled-orders" type="button" role="tab">
+                    <button class="nav-link" id="received-tab" data-bs-toggle="pill" data-bs-target="#cancelled-orders"
+                            type="button" role="tab">
                         Received
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="cancelled-tab" data-bs-toggle="pill" data-bs-target="#cancelled-orders" type="button" role="tab">
+                    <button class="nav-link" id="cancelled-tab" data-bs-toggle="pill" data-bs-target="#cancelled-orders"
+                            type="button" role="tab">
                         Cancelled
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="returned-tab" data-bs-toggle="pill" data-bs-target="#cancelled-orders" type="button" role="tab">
+                    <button class="nav-link" id="returned-tab" data-bs-toggle="pill" data-bs-target="#cancelled-orders"
+                            type="button" role="tab">
                         Returned
                     </button>
                 </li>
@@ -81,6 +90,74 @@
         </div>
     </div>
     <div th:replace="~{fragments/user/modal::status-modal}"></div>
+    <!-- Review Modal -->
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Rate product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="reviewForm">
+                        <input type="hidden" name="orderId" id="rv-orderId">
+                        <input type="hidden" name="productId" id="rv-productId">
+
+                        <div class="mb-3">
+                            <label class="form-label d-block">Stars</label>
+                            <div id="rv-stars" class="d-flex gap-2">
+                                <!-- 5 sao -->
+                                <i class="bi bi-star star" data-val="1"></i>
+                                <i class="bi bi-star star" data-val="2"></i>
+                                <i class="bi bi-star star" data-val="3"></i>
+                                <i class="bi bi-star star" data-val="4"></i>
+                                <i class="bi bi-star star" data-val="5"></i>
+                            </div>
+                            <input type="hidden" name="rating" id="rv-rating" value="5">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Content</label>
+                            <textarea class="form-control" id="rv-comment" name="comment" rows="4"
+                                      placeholder="Your feelings..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Media</label>
+                            <input class="form-control" id="rv-files" name="files" type="file" multiple
+                                   accept="image/*,video/*">
+                            <div id="rv-previews" class="d-flex flex-wrap gap-2 mt-2"></div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="rv-submit" class="btn btn-primary">Rate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        #rv-stars .star {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        #rv-stars .star.active {
+            color: #ffc107;
+        }
+
+        #rv-previews video, #rv-previews img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: .5rem;
+        }
+    </style>
+
 </div>
 
 

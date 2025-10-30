@@ -53,6 +53,9 @@ public class ShopServiceImpl implements ShopService {
 
     @Transactional
     public Shop registerOneShopForOwner(User owner, Shop incoming) {
+        if (owner.getRole() == UserRole.SELLER) {
+            throw new SecurityException("Shop owner cannot register as shipper");
+        }
         if (shopRepo.existsByOwner_UserId(owner.getUserId())) {
             throw new IllegalStateException("Owner already has a shop");
         }
