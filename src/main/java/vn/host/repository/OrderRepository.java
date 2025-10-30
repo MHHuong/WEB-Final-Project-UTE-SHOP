@@ -212,4 +212,13 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     void updateOrderStatusFast(@Param("orderId") Long orderId,
                                @Param("status") OrderStatus status,
                                @Param("note") String note);
+
+    @Query("SELECT o FROM Order o WHERE o.status IN :statuses")
+    Page<Order> findAllReturnOrders(Pageable pageable);
+
+    Page<Order> findByCustomer_FullNameContainingIgnoreCaseAndStatusIn(
+            String fullName,
+            List<OrderStatus> statuses,
+            Pageable pageable
+    );
 }
