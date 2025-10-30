@@ -52,4 +52,5 @@ public interface OrderService {
 
     void updateStatusFast(Long orderId, String newStatus, String note);
 
+    Page<OrderReturnResponse> searchReturnOrdersByCustomer(String keyword, Pageable pageable);
 }

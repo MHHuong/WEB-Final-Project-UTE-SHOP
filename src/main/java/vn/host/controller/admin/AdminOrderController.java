@@ -50,4 +50,15 @@ public class AdminOrderController {
         orderService.updateStatusFast(orderId, OrderStatus.RETURNED.name(), null);
         return ResponseEntity.ok("Đơn hàng đã được trả lại thành công!");
     }
+
+    // ✅ 5. Tìm kiếm
+    @GetMapping("/search")
+    public Page<OrderReturnResponse> searchReturnOrdersByCustomer(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return orderService.searchReturnOrdersByCustomer(keyword, pageable);
+    }
 }

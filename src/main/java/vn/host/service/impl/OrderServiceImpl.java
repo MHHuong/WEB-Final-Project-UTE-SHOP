@@ -427,4 +427,21 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("Lỗi khi cập nhật trạng thái nhanh: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public Page<OrderReturnResponse> searchReturnOrdersByCustomer(String keyword, Pageable pageable) {
+        Page<Order> orders;
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            orders = orderRepository.findAllReturnOrders(pageable);
+        } else {
+            orders = orderRepository.findByCustomer_FullNameContainingIgnoreCaseAndStatusIn(
+                    keyword,
+                    List.of(OrderStatus.REQUEST_RETURN, OrderStatus.RETURNING, OrderStatus.RETURNED, OrderStatus.CANCELLED),
+                    pageable
+            );
+        }
+
+        return orders.map(OrderReturnResponse::fromEntity);
+    }
 }
