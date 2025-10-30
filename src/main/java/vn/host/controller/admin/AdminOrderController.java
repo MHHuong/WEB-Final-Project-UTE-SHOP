@@ -52,8 +52,8 @@ public class AdminOrderController {
     }
 
     // ✅ 5. Tìm kiếm
-    @GetMapping("/search")
-    public Page<OrderReturnResponse> searchReturnOrdersByCustomer(
+    @GetMapping("/returns/search")
+    public Page<OrderReturnResponse> searchReturnOrders(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size

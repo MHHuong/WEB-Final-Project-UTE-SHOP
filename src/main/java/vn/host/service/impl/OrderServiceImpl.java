@@ -435,7 +435,7 @@ public class OrderServiceImpl implements OrderService {
         if (keyword == null || keyword.trim().isEmpty()) {
             orders = orderRepository.findAllReturnOrders(pageable);
         } else {
-            orders = orderRepository.findByCustomer_FullNameContainingIgnoreCaseAndStatusIn(
+            orders = orderRepository.findByUser_FullNameContainingIgnoreCaseAndStatusIn(
                     keyword,
                     List.of(OrderStatus.REQUEST_RETURN, OrderStatus.RETURNING, OrderStatus.RETURNED, OrderStatus.CANCELLED),
                     pageable

@@ -8,25 +8,18 @@ const contextPath = (() => {
     }
 })();
 
-// ================== ADMIN RETURN ORDERS JS ==================
 document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector("#tblReturnOrders tbody") || document.querySelector("#tblReturnOrders");
     const pagination = document.querySelector("#pagination");
     const reloadBtn = document.querySelector("#btnReload");
-    const toastEl = document.getElementById("toast");
-    const toastMsg = document.getElementById("toastMsg");
+    const searchInput = document.querySelector("#searchKeyword");
+    const statusSelect = document.querySelector("#filterStatus");
+    const btnSearch = document.querySelector("#btnSearch");
+    const btnReset = document.querySelector("#btnReset");
 
+    let allOrders = []; // ✅ lưu toàn bộ dữ liệu để lọc local
     let currentPage = 0;
     const pageSize = 10;
-
-    // ======= TOAST =======
-    function showToast(message, success = true) {
-        toastMsg.textContent = message;
-        toastEl.classList.remove("text-bg-danger", "text-bg-success");
-        toastEl.classList.add(success ? "text-bg-success" : "text-bg-danger");
-        const toast = new bootstrap.Toast(toastEl);
-        toast.show();
-    }
 
     // ======= RENDER TABLE =======
     function renderOrders(orders) {
@@ -41,24 +34,15 @@ document.addEventListener("DOMContentLoaded", function () {
             let statusLabel = o.status;
             switch (o.status) {
                 case "REQUEST_RETURN":
-                    statusClass = "status-request";
-                    statusLabel = "REQUEST RETURN";
-                    break;
+                    statusClass = "status-request"; statusLabel = "REQUEST RETURN"; break;
                 case "RETURNING":
-                    statusClass = "status-returning";
-                    statusLabel = "RETURNING";
-                    break;
+                    statusClass = "status-returning"; statusLabel = "RETURNING"; break;
                 case "RETURNED":
-                    statusClass = "status-returned";
-                    statusLabel = "RETURNED";
-                    break;
+                    statusClass = "status-returned"; statusLabel = "RETURNED"; break;
                 case "CANCELLED":
-                    statusClass = "status-cancelled";
-                    statusLabel = "CANCELLED";
-                    break;
+                    statusClass = "status-cancelled"; statusLabel = "CANCELLED"; break;
             }
 
-            // Action buttons depend on status
             let actions = "";
             if (o.status === "REQUEST_RETURN") {
                 actions = `
@@ -67,14 +51,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     </button>
                     <button class="btn btn-sm btn-danger" data-id="${o.orderId}" data-action="reject">
                         <i class="bi bi-x-circle"></i> Reject
-                    </button>
-                `;
+                    </button>`;
             } else if (o.status === "RETURNING") {
                 actions = `
                     <button class="btn btn-sm btn-primary" data-id="${o.orderId}" data-action="confirm">
                         <i class="bi bi-box-arrow-in-down"></i> Confirm Received
-                    </button>
-                `;
+                    </button>`;
             } else {
                 actions = `<span class="text-muted fst-italic">Not available</span>`;
             }
@@ -95,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ======= RENDER PAGINATION =======
+    // ======= PHÂN TRANG =======
     function renderPagination(totalPages, currentPage) {
         pagination.innerHTML = "";
         if (totalPages <= 1) return;
@@ -104,75 +86,99 @@ document.addEventListener("DOMContentLoaded", function () {
             const btn = document.createElement("button");
             btn.textContent = i + 1;
             btn.className = "btn btn-sm " + (i === currentPage ? "btn-primary" : "btn-outline-primary");
-            btn.addEventListener("click", () => loadOrders(i));
+            btn.addEventListener("click", () => displayPage(i));
             pagination.appendChild(btn);
         }
     }
 
-    // ======= LOAD DATA =======
-    function loadOrders(page = 0) {
+    // ======= HIỂN THỊ TRANG HIỆN TẠI =======
+    function displayPage(page = 0, filtered = allOrders) {
         currentPage = page;
-        fetch(`${contextPath}/api/admin/orders/returns?page=${page}&size=${pageSize}`)
+        const start = page * pageSize;
+        const end = start + pageSize;
+        renderOrders(filtered.slice(start, end));
+        renderPagination(Math.ceil(filtered.length / pageSize), page);
+    }
+
+    // ======= LỌC LOCAL (SEARCH & FILTER) =======
+    function filterOrders() {
+        const keyword = searchInput?.value?.trim().toLowerCase() || "";
+        const status = statusSelect?.value || "";
+
+        return allOrders.filter(o => {
+            const matchKeyword =
+                o.userName?.toLowerCase().includes(keyword) ||
+                o.shopName?.toLowerCase().includes(keyword) ||
+                o.note?.toLowerCase().includes(keyword);
+            const matchStatus = !status || o.status === status;
+            return matchKeyword && matchStatus;
+        });
+    }
+
+    // ======= LOAD DỮ LIỆU TỪ API CHÍNH =======
+    function loadOrders() {
+        fetch(`${contextPath}/api/admin/orders/returns?page=0&size=1000`) // ✅ tải hết 1 lần
             .then(res => res.json())
             .then(data => {
-                const list = data.content || data;
-                renderOrders(list);
-                if (data.totalPages) renderPagination(data.totalPages, data.number);
+                allOrders = data.content || data;
+                displayPage(0);
             })
             .catch(err => console.error("Error loading return orders:", err));
     }
 
-    // ======= HANDLE ACTIONS =======
+    // ======= CÁC NÚT =======
+    btnSearch?.addEventListener("click", () => {
+        const filtered = filterOrders();
+        displayPage(0, filtered);
+    });
+
+    btnReset?.addEventListener("click", () => {
+        searchInput.value = "";
+        statusSelect.value = "";
+        displayPage(0, allOrders);
+    });
+
+    reloadBtn?.addEventListener("click", () => {
+        loadOrders();
+    });
+
+    // ======= HÀNH ĐỘNG (approve / reject / confirm) =======
     tbody.addEventListener("click", async e => {
         const btn = e.target.closest("button[data-action]");
         if (!btn) return;
 
         const id = btn.dataset.id;
         const action = btn.dataset.action;
-
-        let url = "";
-        let successMsg = "";
+        let url = "", msg = "";
 
         switch (action) {
             case "approve":
                 url = `${contextPath}/api/admin/orders/${id}/approve-return`;
-                successMsg = "✅ Return request approved successfully!";
+                msg = "✅ Return approved!";
                 break;
             case "reject":
                 url = `${contextPath}/api/admin/orders/${id}/reject-return`;
-                successMsg = "❌ Return request rejected!";
+                msg = "❌ Return rejected!";
                 break;
             case "confirm":
                 url = `${contextPath}/api/admin/orders/${id}/confirm-returned`;
-                successMsg = "📦 Return confirmed successfully!";
+                msg = "📦 Return confirmed!";
                 break;
         }
 
         if (!url) return;
-        if (!confirm(`Are you sure you want to perform this action for order #${id}?`)) return;
+        if (!confirm(`Are you sure you want to ${action} order #${id}?`)) return;
 
         try {
             const res = await fetch(url, { method: "PUT" });
-            const msg = await res.text();
-
-            if (!res.ok) {
-                alert("⚠️ " + (msg || "Action failed!"));
-            } else {
-                alert(successMsg);
-                loadOrders(currentPage); // ✅ reload immediately
-            }
+            if (!res.ok) throw new Error(await res.text());
+            alert(msg);
+            loadOrders();
         } catch (err) {
-            console.error("Action failed:", err);
-            alert("⚠️ Server connection error!");
+            alert("⚠️ Action failed: " + err.message);
         }
     });
 
-    // ======= RELOAD BUTTON =======
-    reloadBtn?.addEventListener("click", () => {
-        loadOrders(currentPage);
-        showToast("Refreshed successfully!");
-    });
-
-    // ======= INIT =======
+    // ======= KHỞI ĐỘNG =======
     loadOrders();
 });

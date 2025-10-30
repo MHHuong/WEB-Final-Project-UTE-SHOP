@@ -216,8 +216,8 @@ public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecific
     @Query("SELECT o FROM Order o WHERE o.status IN :statuses")
     Page<Order> findAllReturnOrders(Pageable pageable);
 
-    Page<Order> findByCustomer_FullNameContainingIgnoreCaseAndStatusIn(
-            String fullName,
+    Page<Order> findByUser_FullNameContainingIgnoreCaseAndStatusIn(
+            String keyword,
             List<OrderStatus> statuses,
             Pageable pageable
     );
