@@ -8,7 +8,7 @@ let userId = localStorage.getItem("userId") || 0;
 // Get order ID from URL
 const urlParams = new URLSearchParams(window.location.search);
 const orderId = urlParams.get('orderId');
-
+const BASE_URL = window.location.origin
 
 // Order status mapping
 const STATUS_ORDER = ['NEW', 'CONFIRMED', 'SHIPPING', 'DELIVERED', 'RECEIVED','CANCELLED', 'REQUEST_RETURN', 'RETURNING', 'RETURNED'];
@@ -147,7 +147,7 @@ function updateOrderTimeline(currentStatus) {
     }
 
     // Handle RETURNED status
-    if (currentStatus === 'RETURNED') {
+    if (currentStatus === 'RETURNED' || currentStatus === 'RETURNING' || currentStatus === 'REQUEST_RETURN') {
         const normalStatuses = ['NEW', 'CONFIRMED', 'SHIPPING', 'DELIVERED'];
         normalStatuses.forEach(status => {
             const item = document.querySelector(`.timeline-item-horizontal[data-status="${status}"]`);
@@ -176,7 +176,7 @@ function updateOrderTimeline(currentStatus) {
     timelineItems.forEach((item) => {
         const itemStatus = item.getAttribute('data-status');
 
-        if (itemStatus === 'CANCELLED' || itemStatus === 'RETURNED') {
+        if (itemStatus === 'CANCELLED' || itemStatus === 'RETURNED' || itemStatus === 'RETURNING' || itemStatus === 'REQUEST_RETURN') {
             return;
         }
 
@@ -378,7 +378,7 @@ async function handleConfirmReceived(order) {
         showErrorToast('Cannot find order information');
         return;
     }
-    showOrderStatusModal(order.orderId, order.status, 'RECEIVED', async () => {
+    showOrderStatusModal(order.orderId, order.status, 'REQUEST_RETURN', async () => {
         await loadOrderDetails()
     });
 }

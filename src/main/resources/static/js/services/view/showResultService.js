@@ -6,7 +6,7 @@ import { AuthState } from "../../auth.js";
 
 
 const USER_ID = localStorage.getItem("userId");
-
+const BASE_URL = window.location.origin
 
 
 let paymentData = {};

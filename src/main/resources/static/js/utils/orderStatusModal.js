@@ -8,6 +8,8 @@ const statusMap = {
     'DELIVERED': { label: 'Shipping completed', class: 'bg-success' },
     'RECEIVED': { label: 'Received', class: 'bg-success' },
     'CANCELLED': { label: 'Cancelled', class: 'bg-danger' },
+    'REQUEST_RETURN': { label: 'Return requested', class: 'bg-warning' },
+    'RETURNING': { label: 'Returning', class: 'bg-info' },
     'RETURNED': { label: 'Returned', class: 'bg-secondary' }
 };
 
@@ -44,7 +46,7 @@ export function showOrderStatusModal(orderId, oldStatus, newStatus, onSuccess = 
     const accountSection = document.getElementById('account-section');
     const bankId = document.getElementById('account-reason');
 
-    if (newStatus === 'CANCELLED' || newStatus === 'RETURNED') {
+    if (newStatus === 'CANCELLED' || newStatus === 'REQUEST_RETURN') {
         reasonSection.style.display = 'block';
         cancelReason.value = '';
         cancelReason.classList.remove('is-invalid');

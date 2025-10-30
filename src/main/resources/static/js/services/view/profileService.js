@@ -18,7 +18,7 @@ let editingAddressId = null;
 let orders = [];
 let currentOrderStatus = 'all'; // Track current filter status
 let currentSearchKeyword = ''; // Track current search keyword
-
+const BASE_URL = window.location.origin
 // Pagination state for addresses
 let addressPagination = {
     currentPage: 0,
@@ -445,11 +445,13 @@ function paginateOrders(filteredOrders, page, size) {
 // Search and filter orders
 function searchAndFilterOrders(searchKeyword = '', status = 'all') {
     let filteredOrders = orders;
-    console.log(USER_ID)
     if (status !== 'all') {
         filteredOrders = filteredOrders.filter(order => order.status === status);
     }
-    console.log(filteredOrders);
+
+    if (status === 'RETURNED' || status === 'REQUEST_RETURN' || status === 'RETURNING') {
+        filteredOrders = filteredOrders.filter(order => order.status === status);
+    }
 
     // Then filter by search keyword
     if (searchKeyword.trim() !== '') {
@@ -563,6 +565,8 @@ function getStatusText(status) {
         'DELIVERED': 'Shipping Completed',
         'RECEIVED': 'Received',
         'CANCELLED': 'Cancelled',
+        'REQUEST_RETURN': 'Return Requested',
+        'RETURNING': 'Approve Returning',
         'RETURNED': 'Returned'
     };
     return statusMap[status] || status;
@@ -577,6 +581,8 @@ function reverseStatusMap(text) {
         ['Shipping Completed']: 'DELIVERED',
         ['Received']: 'RECEIVED',
         ['Cancelled']: 'CANCELLED',
+        ['Return Requested']: 'REQUEST_RETURN',
+        ['Approve Returning']: 'RETURNING',
         ['Returned']: 'RETURNED'
     };
     return statusMap[text] || text;
@@ -680,7 +686,7 @@ document.addEventListener('click', async function(e) {
             showErrorToast('Cannot find order information');
             return;
         }
-        showOrderStatusModal(orderId, order.status, 'RETURNED', async () => {
+        showOrderStatusModal(orderId, order.status, 'REQUEST_RETURN', async () => {
             await loadOrders();
             await displayOrders(currentOrderStatus, 1, 5, currentSearchKeyword);
         });
@@ -911,9 +917,6 @@ document.addEventListener('click', async function (e) {
         }
     }
 })
-
-
-
 
 function loadSecuritySection() {
     // Load account information
