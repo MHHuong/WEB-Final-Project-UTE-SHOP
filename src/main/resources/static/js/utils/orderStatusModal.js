@@ -1,5 +1,5 @@
-import orderService from '/js/services/api/orderService.js';
-import { showErrorToast, showSuccessToast } from '/js/utils/toastUtils.js';
+import orderService from '../services/api/orderService.js';
+import {showErrorToast, showSuccessToast} from "../../js/utils/toastUtils.js";
 
 // Map trạng thái tiếng Việt
 const statusMap = {
@@ -151,4 +151,3 @@ document.addEventListener('DOMContentLoaded', function() {
 export default {
     showOrderStatusModal
 };
-

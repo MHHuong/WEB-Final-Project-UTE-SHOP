@@ -324,7 +324,7 @@
                                     <button class="btn btn-primary btn-lg" id="place-order-btn" disabled>
                                         <i class="bi bi-check-circle me-2"></i>Đặt hàng
                                     </button>
-                                    <a href="/user/shop-cart" class="btn btn-outline-secondary">
+                                    <a th:href="@{/user/shop-cart}" class="btn btn-outline-secondary">
                                         <i class="bi bi-arrow-left me-2"></i>Quay lại giỏ hàng
                                     </a>
                                 </div>
@@ -520,6 +520,6 @@
             pointer-events: none;
         }
     </style>
-    <script type="module" src="/js/services/view/checkOutService.js"></script>
+    <script type="module" th:src="@{/js/services/view/checkOutService.js}"></script>
 </main>
 </html>

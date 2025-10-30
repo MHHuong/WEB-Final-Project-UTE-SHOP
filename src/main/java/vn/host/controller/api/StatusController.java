@@ -15,12 +15,25 @@ public class StatusController {
     private final SimpMessagingTemplate messagingTemplate;
     private final OrderService orderService;
 
+    @GetMapping("/send")
+    public ResponseEntity<?> sendToUserGet(@RequestParam("userId") String userId,
+                                           @RequestParam(value = "message", required = false, defaultValue = "TEST") String message) {
+        return sendToUser(userId, message);
+    }
+
     @PostMapping("/send")
     public ResponseEntity<?> sendToUser(@RequestParam("userId") String userId,
                                         @RequestParam(value = "message", required = false, defaultValue = "TEST") String message) {
         OrderStatusMessage payload = new OrderStatusMessage(null, userId.matches("\\d+") ? Long.valueOf(userId) : null, message);
         messagingTemplate.convertAndSendToUser(userId, "/queue/orders", payload);
         return ResponseEntity.ok().body("sent to user " + userId);
+    }
+
+    // Support both GET and POST for easy browser testing
+    @GetMapping("/order-status")
+    public ResponseEntity<?> updateOrderStatusGet(@RequestParam("orderId") Long orderId,
+                                                   @RequestParam("status") String status) {
+        return updateOrderStatus(orderId, status);
     }
 
     @PostMapping("/order-status")
@@ -30,4 +43,3 @@ public class StatusController {
         return ResponseEntity.ok().body("order status updated");
     }
 }
-

@@ -1,12 +1,17 @@
-import cartService from "/js/services/api/cartService.js";
-import {showErrorToast, showInfoToast, showSuccessToast} from "/js/utils/toastUtils.js";
-import cartBadgeUtils from "/js/utils/cartBadgeUtils.js";
-import couponService from "/js/services/api/couponService.js";
+import {showErrorToast, showInfoToast, showSuccessToast} from "../../utils/toastUtils.js";
+import cartBadgeUtils from "../../utils/cartBadgeUtils.js";
+import couponService from "../../services/api/couponService.js";
+import cartService from "../../services/api/cartService.js";
+import { AuthState } from "../../auth.js";
 
-const USER_ID = 1;
+
 let cartItems = [];
 let selectedItems = new Set();
 let shopVouchers = {}; // Store selected vouchers per shop
+let USER_ID = localStorage.getItem("userId");
+
+
+
 
 // Format currency
 function formatCurrency(amount) {
@@ -42,12 +47,13 @@ async function loadCartItems() {
             renderCartItems();
             updateTotalItems();
         } else {
+            console.log("No cart items found");
             cartItems = [];
             renderEmptyCart();
         }
     } catch (error) {
         console.error('Error loading cart:', error);
-        showErrorToast('Không thể tải giỏ hàng!');
+        showErrorToast('Can\'t load cart items!');
     }
 }
 
@@ -77,8 +83,8 @@ function renderEmptyCart() {
                     </g>
                     </svg>
                     <h5>Giỏ hàng trống</h5>
-                    <p class="text-muted">Hãy thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm</p>
-                    <a href="/static" class="btn btn-primary mt-3">Về trang chủ</a>
+                    <p class="text-muted">Add products to cart to continue shopping</p>
+                    <a href="/UTE_SHOP" class="btn btn-primary mt-3">Back to home page</a>
                 </div>
             `;
 }
@@ -86,7 +92,6 @@ function renderEmptyCart() {
 // Render cart items grouped by shop
 function renderCartItems() {
     const container = document.getElementById('cart-items-container');
-
     if (cartItems.length === 0) {
         renderEmptyCart();
         return;
@@ -172,7 +177,7 @@ function renderCartItems() {
         if (voucher) {
             const minPrice = voucher.min;
             if (Number(minPrice) >= Number(total)) {
-                showInfoToast(`Mã giảm giá ${voucher.code} vượt quá tổng đơn hàng của cửa hàng ${shop.shopName}. Vui lòng chọn mã khác.`);
+                showInfoToast(`Mã giảm giá ${voucher.code} vượt quá tổng đơn h��ng của cửa hàng ${shop.shopName}. Vui lòng chọn mã khác.`);
                 removeVoucher(shop.shopId);
             }
         }
@@ -436,7 +441,7 @@ window.removeItem = async function(cartId) {
             showSuccessToast('Đã xóa sản phẩm khỏi giỏ hàng!');
             selectedItems.delete(cartId);
             await loadCartItems();
-            await cartBadgeUtils.refreshCartBadge(USER_ID);
+            await cartBadgeUtils.refreshCartBadge(getUserId());
             updateOrderSummary();
         } else {
             showErrorToast('Không thể xóa sản phẩm!');
@@ -482,7 +487,7 @@ window.handleNavigation = async () => {
         }))
     const result = await cartService.saveSelectedCartItem(selectedCartItems);
     if (result.status === 'Success') {
-        window.location.href = `/user/checkout`;
+        window.location.href = `/UTE_SHOP/user/checkout`;
     }
 }
 
@@ -597,15 +602,28 @@ window.removeVoucher = function(shopId) {
 
 
 function calculatePercentDiscount(percent, shopId) {
-        let total = 0;
-        const selectedCartItems = cartItems.filter(item => selectedItems.has(item.cartId) && item.productResponse.shopId === shopId);
-        selectedCartItems.forEach(item => {
-            total += item.productResponse.price * item.quantity;
-        });
-        return Math.floor(total * percent / 100);
-    }
+    let total = 0;
+    const selectedCartItems = cartItems.filter(item => selectedItems.has(item.cartId) && item.productResponse.shopId === shopId);
+    selectedCartItems.forEach(item => {
+        total += item.productResponse.price * item.quantity;
+    });
+    return Math.floor(total * percent / 100);
+}
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
+    await AuthState.fetchUserInfo()
+    if (USER_ID === 0) {
+        USER_ID = AuthState.getUserId() || 0;
+    }
+    USER_ID = AuthState.getUserId() || 0;
+    if (USER_ID === 0) {
+        setTimeout(async () => {
+            showErrorToast('User not authenticated. Redirecting to login page.');
+            window.location.href = '/login';
+        },2000)
+    }
     await loadCartItems();
+
+
 });

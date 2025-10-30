@@ -19,17 +19,17 @@
 </body>
 <footer th:replace="~{fragments/user/footer::footer}"></footer>
 
-<!-- JavaScript Bundle with Popper -->
-<script src="/js/vendors/validation.js"></script>
-<script src="/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/libs/simplebar/dist/simplebar.min.js"></script>
-<!-- Theme JS -->
-<script src="/js/theme.min.js"></script>
+<script th:src="@{/js/vendors/jquery.min.js}"></script>
+<script th:src="@{/libs/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/libs/simplebar/dist/simplebar.min.js}"></script>
 
-<script src="/js/vendors/jquery.min.js"></script>
-<script src="/libs/slick-carousel/slick/slick.min.js"></script>
-<script src="/js/vendors/slick-slider.js"></script>
-<script src="/libs/tiny-slider/dist/min/tiny-slider.js"></script>
-<script src="/js/vendors/tns-slider.js"></script>
-<script src="/js/vendors/zoom.js"></script>
+<script th:src="@{/libs/slick-carousel/slick/slick.min.js}"></script>
+<script th:src="@{/js/vendors/slick-slider.js}"></script>
+<script th:src="@{/libs/tiny-slider/dist/min/tiny-slider.js}"></script>
+<script th:src="@{/js/vendors/tns-slider.js}"></script>
+<script th:src="@{/js/vendors/zoom.js}"></script>
+<script th:src="@{/js/vendors/validation.js}"></script>
+<script th:src="@{/js/theme.min.js}"></script>
+
+<script type="module" th:src="@{/js/auth.js}"></script>
 </html>

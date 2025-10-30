@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../config.js';
 
 const CartBadgeUtils = {
     updateCartBadge(quantity) {
@@ -15,7 +16,7 @@ const CartBadgeUtils = {
 
     async refreshCartBadge(userId) {
         try {
-            const response = await fetch(`/api/carts/${userId}`);
+            const response = await fetch(`${API_BASE_URL}/carts/${userId}`);
             const result = await response.json();
             if (result.status === 'Success' && result.data) {
                 const totalQuantity = result.data.length;
@@ -34,5 +35,3 @@ const CartBadgeUtils = {
 }
 
 export default CartBadgeUtils;
-
-

@@ -1,0 +1,118 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Security Section -->
+<div th:fragment="security-view" id="security-section" class="content-section" style="display: none;">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <h4 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Security Settings</h4>
+        </div>
+        <div class="card-body">
+            <!-- Change Password Button -->
+            <div class="d-grid gap-2 mb-4">
+                <button class="btn btn-outline-primary btn-lg" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#changePasswordForm" aria-expanded="false" aria-controls="changePasswordForm">
+                    <i class="bi bi-key me-2"></i>Change Password
+                </button>
+            </div>
+
+            <!-- Change Password Form (Collapsed by default) -->
+            <div class="collapse" id="changePasswordForm">
+                <div class="card card-body bg-light">
+                    <h5 class="mb-3">Update Your Password</h5>
+                    <form id="change-password-form" class="needs-validation" novalidate>
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label for="current-password" class="form-label">Current Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="current-password" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="toggle-current-password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please enter your current password.
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <label for="new-password" class="form-label">New Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="new-password" required minlength="6">
+                                    <button class="btn btn-outline-secondary" type="button" id="toggle-new-password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Password must be at least 6 characters long.
+                                </div>
+                                <div class="form-text">
+                                    <small>
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Password must be at least 6 characters
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <label for="confirm-password" class="form-label">Confirm New Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="confirm-password" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="toggle-confirm-password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Passwords do not match.
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-2"></i>Update Password
+                                </button>
+                                <button type="button" id="close-form" class="btn btn-secondary" data-bs-toggle="collapse"
+                                        data-bs-target="#changePasswordForm">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Account Information -->
+            <div class="mb-4">
+                <h5 class="mb-3">Account Information</h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded">
+                            <h6 class="text-muted small mb-1">Email Address</h6>
+                            <p class="mb-0 fw-bold" id="security-email">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded">
+                            <h6 class="text-muted small mb-1">Account Created</h6>
+                            <p class="mb-0 fw-bold" id="security-created-date">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded">
+                            <h6 class="text-muted small mb-1">User Role</h6>
+                            <p id="security-role" class="mb-0 fw-bold">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded">
+                            <h6 class="text-muted small mb-1">Account Status</h6>
+                            <p class="mb-0">
+                                <span class="badge bg-success">Active</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
