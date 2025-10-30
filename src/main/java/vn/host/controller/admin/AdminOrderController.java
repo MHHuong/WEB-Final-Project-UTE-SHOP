@@ -33,21 +33,21 @@ public class AdminOrderController {
     // ✅ 2. Duyệt yêu cầu trả hàng
     @PutMapping("/{orderId}/approve-return")
     public ResponseEntity<?> approveReturn(@PathVariable Long orderId) {
-        orderService.updateStatus(orderId, OrderStatus.RETURNING.name(), null);
+        orderService.updateStatusFast(orderId, OrderStatus.RETURNING.name(), null);
         return ResponseEntity.ok("Đã duyệt yêu cầu trả hàng!");
     }
 
     // ✅ 3. Từ chối yêu cầu trả hàng
     @PutMapping("/{orderId}/reject-return")
     public ResponseEntity<?> rejectReturn(@PathVariable Long orderId) {
-        orderService.updateStatus(orderId, OrderStatus.CANCELLED.name(), "Yêu cầu trả hàng bị từ chối");
+        orderService.updateStatusFast(orderId, OrderStatus.CANCELLED.name(), "Yêu cầu trả hàng bị từ chối");
         return ResponseEntity.ok("Đã từ chối yêu cầu trả hàng!");
     }
 
     // ✅ 4. Xác nhận đã nhận hàng hoàn tất
     @PutMapping("/{orderId}/confirm-returned")
     public ResponseEntity<?> confirmReturned(@PathVariable Long orderId) {
-        orderService.updateStatus(orderId, OrderStatus.RETURNED.name(), null);
+        orderService.updateStatusFast(orderId, OrderStatus.RETURNED.name(), null);
         return ResponseEntity.ok("Đơn hàng đã được trả lại thành công!");
     }
 }

@@ -397,7 +397,8 @@ public class OrderServiceImpl implements OrderService {
         List<OrderStatus> statuses = List.of(
                 OrderStatus.REQUEST_RETURN,
                 OrderStatus.RETURNING,
-                OrderStatus.RETURNED
+                OrderStatus.RETURNED,
+                OrderStatus.CANCELLED
         );
 
         Page<Order> orders = orderRepository.findByStatusIn(statuses, pageable);
@@ -414,5 +415,16 @@ public class OrderServiceImpl implements OrderService {
                         : null)
                 .note(order.getNote())
                 .build());
+    }
+
+    @Override
+    @Transactional
+    public void updateStatusFast(Long orderId, String newStatus, String note) {
+        try {
+            OrderStatus status = OrderStatus.valueOf(newStatus);
+            orderRepository.updateOrderStatusFast(orderId, status, note);
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi cập nhật trạng thái nhanh: " + e.getMessage(), e);
+        }
     }
 }

@@ -50,4 +50,6 @@ public interface OrderService {
 
     Page<OrderReturnResponse> findAllReturnOrdersDto(Pageable pageable);
 
+    void updateStatusFast(Long orderId, String newStatus, String note);
+
 }

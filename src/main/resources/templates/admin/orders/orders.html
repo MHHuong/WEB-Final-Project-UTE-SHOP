@@ -134,6 +134,48 @@
             .table td .btn {
                 margin: 0 3px;
             }
+
+            .status-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 130px;
+                padding: 6px 10px;
+                border-radius: 12px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                letter-spacing: .4px;
+                text-transform: uppercase;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+                white-space: normal;
+                text-align: center;
+                line-height: 1.1;
+                height: 38px;
+            }
+
+            .status-request {
+                background: linear-gradient(90deg, #fef9c3, #fef3c7);
+                color: #92400e;
+                border: 1px solid #fde68a;
+            }
+
+            .status-returning {
+                background: linear-gradient(90deg, #dbeafe, #bfdbfe);
+                color: #1e40af;
+                border: 1px solid #93c5fd;
+            }
+
+            .status-returned {
+                background: linear-gradient(90deg, #dcfce7, #bbf7d0);
+                color: #166534;
+                border: 1px solid #86efac;
+            }
+
+            .status-cancelled {
+                background: linear-gradient(90deg, #fee2e2, #fecaca);
+                color: #b91c1c;
+                border: 1px solid #fca5a5;
+            }
         </style>
 
         <div class="page-wrap">
@@ -165,7 +207,7 @@
                                 <th>Customer</th>
                                 <th>Total (₫)</th>
                                 <th>Payment</th>
-                                <th>Status</th>
+                                <th class="text-center">Status</th>
                                 <th>Created At</th>
                                 <th>Note</th>
                                 <th class="text-center" style="width:200px;">Actions</th>
@@ -201,4 +243,5 @@
 <!-- JS -->
 <script th:src="@{/js/admin/admin-orders-return.js}"></script>
 </body>
+
 </html>
