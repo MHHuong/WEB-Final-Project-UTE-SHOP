@@ -13,7 +13,7 @@
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
-                <p class="mt-2 text-muted">Đang tải giỏ hàng...</p>
+                <p class="mt-2 text-muted">Loading Shop Cart...</p>
             </div>
 
             <!-- Cart Items Container -->
@@ -287,7 +287,7 @@
                                     </small>
                                     <a href="#" class="text-decoration-none remove-item-btn text-danger" data-cart-item-id="${item.cartId}">
                                         <i class="bi bi-trash me-1"></i>
-                                        <small>Xóa</small>
+                                        <small>Delete</small>
                                     </a>
                                 </div>
                             </div>
@@ -342,17 +342,17 @@
             try {
                 const result = await cartService.removeCartItem(cartItemId);
                 if (result.status === 'Success') {
-                    showSuccessToast('Đã xóa sản phẩm khỏi giỏ hàng!');
+                    showSuccessToast('Product removed from cart successfully!');
                     await loadCartItems();
                     renderCartItems();
                     renderPagination();
                     await cartBadgeUtils.refreshCartBadge(USER_ID);
                 } else {
-                    showErrorToast('Không thể xóa sản phẩm. Vui lòng thử lại!');
+                    showErrorToast('Failed to remove product from cart. Please try again!');
                 }
             } catch (error) {
                 console.error('Error removing cart item:', error);
-                showErrorToast('Có lỗi xảy ra khi xóa sản phẩm!');
+                showErrorToast('An error occurred while removing the product from cart!');
             }
         }
 

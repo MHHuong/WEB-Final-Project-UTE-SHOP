@@ -20,9 +20,9 @@ function formatCurrency(amount) {
 // Get shipping method text
 function getShippingMethodText(method) {
     const methods = {
-        'STANDARD': 'Giao hàng tiêu chuẩn (3-5 ngày)',
-        'FAST': 'Giao hàng nhanh (1-2 ngày)',
-        'EXPRESS': 'Giao hàng hỏa tốc (trong 24h)'
+        'STANDARD': 'Standar Delivery (3-5 days)',
+        'FAST': 'Fast Delivery (1-2 days)',
+        'EXPRESS': 'Express Delivery (within 24 hours)'
     };
     return methods[method] || method;
 }
@@ -30,10 +30,10 @@ function getShippingMethodText(method) {
 // Get payment method text
 function getPaymentMethodText(method) {
     const methods = {
-        'COD': 'Thanh toán khi nhận hàng (COD)',
-        'E_WALLET': 'Ví điện tử',
-        'MOMO': 'Ví MoMo',
-        'VNPAY': 'VNPay'
+        'COD': 'Pay on Delivery (COD)',
+        'E_WALLET': 'E-Wallet',
+        'MOMO': 'Momo E-Wallet',
+        'VNPAY': 'VNPay E-Wallet'
     };
     return methods[method] || method;
 }
@@ -63,7 +63,7 @@ async function loadOrderData() {
             }
         } catch (error) {
             console.error('Error parsing order data:', error);
-            showErrorToast('Không thể tải thông tin đơn hàng');
+            showErrorToast('Can not load order data.');
         }
     } else {
         document.getElementById('order-code').textContent = `#${result.orderCode}` || 'N/A';
@@ -111,7 +111,7 @@ function displayOrderData(orderData) {
     document.getElementById('shipping-method').textContent = getShippingMethodText(orderData.shippingMethod || 'STANDARD');
 
     document.getElementById('payment-method').textContent = getPaymentMethodText(orderData.payment.paymentMethod || 'COD');
-    const paymentStatus = orderData.payment.paymentMethod === 'COD' ? 'Chưa thanh toán' : 'Đã thanh toán';
+    const paymentStatus = orderData.payment.paymentMethod === 'COD' ? 'Waiting for payment' : 'Paid';
     const statusClass = orderData.payment.paymentMethod === 'COD' ? 'bg-warning' : 'bg-success';
     document.getElementById('payment-status').textContent = paymentStatus;
     document.getElementById('payment-status').className = `badge ${statusClass}`;
@@ -155,7 +155,7 @@ function populateDefaultData() {
     document.getElementById('order-items-container').innerHTML = `
             <div class="text-center py-3 text-muted">
                 <i class="bi bi-inbox fs-1"></i>
-                <p class="mt-2">Không có thông tin sản phẩm</p>
+                <p class="mt-2">No order items found.</p>
             </div>
         `;
 
@@ -175,7 +175,7 @@ const PAYMENT_STATE = {
 
 let currentState = PAYMENT_STATE.SUCCESS;
 let countdownTimer = null;
-let remainingSeconds = 60;
+let remainingSeconds = 900; // 15 minutes
 
 function setPaymentState(state) {
     currentState = state;
@@ -230,23 +230,23 @@ function updateInfoAlert(state) {
     switch(state) {
         case 'success':
             infoList.innerHTML = `
-                    <li>Bạn sẽ nhận được email xác nhận đơn hàng trong vài phút.</li>
-                    <li>Vui lòng kiểm tra thông tin đơn hàng và liên hệ với chúng tôi nếu có bất kỳ thắc mắc nào.</li>
-                    <li>Đơn hàng sẽ được giao trong thời gian dự kiến theo phương thức vận chuyển bạn đã chọn.</li>
+                    <li>You’ll receive an order confirmation email shortly.</li>
+                    <li>Please check your order details and contact us if you have any questions.</li>
+                    <li>Your order will be delivered within the estimated timeframe based on your chosen shipping method.</li>
                 `;
             break;
         case 'pending':
             infoList.innerHTML = `
-                    <li>Vui lòng hoàn tất thanh toán trong thời gian quy định.</li>
-                    <li>Đơn hàng sẽ tự động hủy nếu không thanh toán trong thời gian cho phép.</li>
-                    <li>Sau khi thanh toán thành công, bạn sẽ nhận được email xác nhận.</li>
+                    <li>Please complete the payment within the specified time.</li>
+                    <li>The order will be automatically cancelled if payment is not made within the allowed time.</li>
+                    <li>After a successful payment, you will receive an order confirmation email.</li>
                 `;
             break;
         case 'failed':
             infoList.innerHTML = `
-                    <li>Đơn hàng của bạn chưa được thanh toán thành công.</li>
-                    <li>Bạn có thể thử lại thanh toán hoặc đặt hàng mới.</li>
-                    <li>Liên hệ với chúng tôi nếu bạn cần hỗ trợ.</li>
+                   <li>Your payment was not successful.</li>
+                   <li>You can try again or place a new order.</li>
+                   <li>Contact us if you need any help.</li>
                 `;
             break;
     }

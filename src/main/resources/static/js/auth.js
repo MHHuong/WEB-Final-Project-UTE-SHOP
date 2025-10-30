@@ -10,7 +10,7 @@ export const AuthState = {
     // Get token from localStorage
     getToken() {
         if (!this.token) {
-            this.token = localStorage.getItem('token'); // Changed from 'authToken' to 'token'
+            this.token = localStorage.getItem('authToken'); // Changed from 'authToken' to 'token'
             console.log('Token loaded from localStorage:', this.token);
         }
         return this.token;
@@ -20,9 +20,9 @@ export const AuthState = {
     setToken(token) {
         this.token = token;
         if (token) {
-            localStorage.setItem('token', token); // Changed from 'authToken' to 'token'
+            localStorage.setItem('authToken', token); // Changed from 'authToken' to 'token'
         } else {
-            localStorage.removeItem('token'); // Changed from 'authToken' to 'token'
+            localStorage.removeItem('authToken'); // Changed from 'authToken' to 'token'
         }
     },
 

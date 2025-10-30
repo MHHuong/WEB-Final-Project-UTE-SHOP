@@ -96,7 +96,7 @@ document.getElementById('personal-info-form').addEventListener('submit', async f
     if (!phone) {
         isValid = false;
         document.getElementById('phone').classList.add('is-invalid');
-        showErrorToast('Vui lòng nhập số điện thoại');
+        showErrorToast('Phone number is required!');
     } else if (!phoneRegex.test(phone)) {
         isValid = false;
         document.getElementById('phone').classList.add('is-invalid');
@@ -164,7 +164,7 @@ async function loadAddresses(page = 0, size = 4) {
             };
         } else {
             addresses = []
-            showErrorToast('Không thể tải danh sách địa chỉ');
+            showErrorToast('Cannot load addresses');
         }
         const container = document.getElementById('addresses-list');
         container.innerHTML = '';
@@ -174,7 +174,7 @@ async function loadAddresses(page = 0, size = 4) {
                 <div class="col-12">
                     <div class="text-center py-5">
                         <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                        <p class="text-muted mt-3">Chưa có địa chỉ nào</p>
+                        <p class="text-muted mt-3">No addresses found. Please add a new address.</p>
                     </div>
                 </div>
             `;
@@ -184,7 +184,7 @@ async function loadAddresses(page = 0, size = 4) {
                             <div class="col-md-6">
                                 <div class="card ${addr.isDefault ? 'border-primary' : ''}">
                                     <div class="card-body">
-                                        ${addr.isDefault ? '<span class="badge bg-primary mb-2">Mặc định</span>' : ''}
+                                        ${addr.isDefault ? '<span class="badge bg-primary mb-2">Default</span>' : ''}
                                         <h6>${addr.receiverName}</h6>
                                         <p class="mb-1 text-muted small">${addr.phone}</p>
                                         <p class="mb-0 text-muted small">${addr.addressDetail}, ${addr.ward}, ${addr.district}, ${addr.province}</p>
@@ -198,8 +198,8 @@ async function loadAddresses(page = 0, size = 4) {
                                             th:data-ward="${addr.ward}"
                                             th:data-address-detail="${addr.addressDetail}"
                                             th:data-is-default="${addr.isDefault}"
-                                            >Sửa</button>
-                                            <button class="remove-address-btn btn btn-sm btn-outline-danger"  th:data-id="${addr.addressId}">Xóa</button>
+                                            >Edit</button>
+                                            <button class="remove-address-btn btn btn-sm btn-outline-danger"  th:data-id="${addr.addressId}">Delete</button>
                                         </div>
                                     </div>
                                 </div>
@@ -216,7 +216,7 @@ async function loadAddresses(page = 0, size = 4) {
         showPageInfo(addressPagination, 'address-page-info');
     } catch (error) {
         console.error('Error loading addresses:', error);
-        showErrorToast('Không thể tải danh sách địa chỉ');
+        showErrorToast('Cannot load addresses');
     }
 }
 
@@ -276,14 +276,14 @@ document.addEventListener("click", async function(e) {
         try {
             const result = await addressService.removeAddress(id, USER_ID);
             if (result.status === "Success") {
-                showSuccessToast('Xóa địa chỉ thành công!');
+                showSuccessToast('Delete address successfully!');
                 await loadAddresses();
             } else {
                 showErrorToast(result.message || 'Xóa địa chỉ thất bại');
             }
         } catch (error) {
             console.error('Error deleting address:', error);
-            showErrorToast('Không thể xóa địa chỉ');
+            showErrorToast('Cannot delete address');
         }
     }
 });
@@ -370,15 +370,15 @@ document.getElementById('save-address-btn').addEventListener('click', async func
         }
 
         if (result.status === "Success") {
-            showSuccessToast(isEditingAddress ? 'Cập nhật địa chỉ thành công!' : 'Thêm địa chỉ thành công!');
+            showSuccessToast(isEditingAddress ? 'Edit address successfully!' : 'Add address successfully!');
             await loadAddresses();
             await resetAddressForm();
         } else {
-            showErrorToast(result.message || (isEditingAddress ? 'Cập nhật địa chỉ thất bại' : 'Thêm địa chỉ thất bại'));
+            showErrorToast(result.message || (isEditingAddress ? 'Cannot edit address' : 'Cannot add address'));
         }
     } catch (error) {
         console.error('Error saving address:', error);
-        showErrorToast('Không thể lưu địa chỉ');
+        showErrorToast(isEditingAddress ? 'Cannot edit address' : 'Cannot add address');
     }
 });
 
@@ -419,11 +419,11 @@ async function loadOrders() {
     try {
         const result = await orderService.getOrderByUserId(USER_ID);
         if (result.status !== "Success") {
-            showErrorToast('Không thể tải danh sách đơn hàng');
+            showErrorToast('Cannot load orders');
         } else orders = result.data;
     } catch (error) {
         console.error('Error loading orders:', error);
-        showErrorToast('Không thể tải danh sách đơn hàng');
+        showErrorToast('Cannot load orders');
     }
 }
 
@@ -492,8 +492,8 @@ async function displayOrders(status = 'all', page = 1, size = 5, searchKeyword =
         const orderContent = result.content;
         if (orderContent.length === 0) {
             const message = searchKeyword.trim() !== ''
-                ? `Không tìm thấy đơn hàng nào với từ khóa "${searchKeyword}"`
-                : 'Chưa có đơn hàng nào';
+                ? `Cannot find order with "${searchKeyword}"`
+                : 'No orders found for the selected status.';
             container.innerHTML = `
                         <div class="text-center py-5">
                             <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
@@ -514,7 +514,7 @@ async function displayOrders(status = 'all', page = 1, size = 5, searchKeyword =
                         <div class="card mb-3">
                             <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong>Mã đơn hàng: ${highlightText(order.orderId.toString(), searchKeyword)}</strong>
+                                    <strong>Order ID: ${highlightText(order.orderId.toString(), searchKeyword)}</strong>
                                     <span class="text-muted ms-3">${new Date(order.createdAt).toLocaleDateString('vi-VN')}</span>
                                 </div>
                                 <span class="badge bg-success">${getStatusText(order.status)}</span>
@@ -533,14 +533,14 @@ async function displayOrders(status = 'all', page = 1, size = 5, searchKeyword =
                                 `).join('')}
                                 <hr>
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0">Tổng cộng:</h6>
+                                    <h6 class="mb-0">Total:</h6>
                                     <h5 class="mb-0 text-primary">${formatCurrency(order.totalAmount)}</h5>
                                 </div>
                                 <div class="mt-3">
-                                    <a href="/UTE_SHOP/user/order/detail?orderId=${order.orderId}" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
-                                    ${order.status === 'DELIVERED' ? `<button class="btn-delivered-order btn btn-sm btn-primary" data-order-id='${order.orderId}'>Xác nhận đơn hàng</button>` : ''}
-                                    ${order.status === 'NEW' ? `<button class="btn-remove-order btn btn-sm btn-danger" data-order-id='${order.orderId}'>Hủy đơn</button>` : ''}
-                                     ${order.status === 'RECEIVED' ? `<button class="btn-received-order btn btn-sm btn-danger" data-order-id='${order.orderId}'>Trả đơn hàng</button>` : ''}
+                                    <a href="/UTE_SHOP/user/order/detail?orderId=${order.orderId}" class="btn btn-sm btn-outline-primary">Watch details</a>
+                                    ${order.status === 'DELIVERED' ? `<button class="btn-delivered-order btn btn-sm btn-primary" data-order-id='${order.orderId}'>Confirm received</button>` : ''}
+                                    ${order.status === 'NEW' ? `<button class="btn-remove-order btn btn-sm btn-danger" data-order-id='${order.orderId}'>Cancel order</button>` : ''}
+                                     ${order.status === 'RECEIVED' ? `<button class="btn-received-order btn btn-sm btn-danger" data-order-id='${order.orderId}'>Return order</button>` : ''}
                                 </div>
                             </div>
                         </div>
@@ -557,27 +557,27 @@ async function displayOrders(status = 'all', page = 1, size = 5, searchKeyword =
 
 function getStatusText(status) {
     const statusMap = {
-        'NEW': 'Chờ xác nhận',
-        'CONFIRMED': 'Đã xác nhận',
-        'SHIPPING': 'Đang giao',
-        'DELIVERED': 'Đã giao hàng',
-        'RECEIVED': 'Đã nhận hàng',
-        'CANCELLED': 'Đã hủy',
-        'RETURNED': 'Đã trả hàng'
+        'NEW': 'Waiting for confirmation',
+        'CONFIRMED': 'Confirmed',
+        'SHIPPING': 'On Shipping',
+        'DELIVERED': 'Shipping Completed',
+        'RECEIVED': 'Received',
+        'CANCELLED': 'Cancelled',
+        'RETURNED': 'Returned'
     };
     return statusMap[status] || status;
 }
 
 function reverseStatusMap(text) {
     const statusMap = {
-        ['Tất cả']: 'all',
-        ['Chờ xác nhận']: 'NEW',
-        ['Đã xác nhận']: 'CONFIRMED',
-        ['Đang giao']: 'SHIPPING',
-        ['Đã giao hàng']: 'DELIVERED',
-        ['Đã nhận hàng']: 'RECEIVED',
-        ['Đã hủy']: 'CANCELLED',
-        ['Đã trả hàng']: 'RETURNED'
+        ['All Orders']: 'all',
+        ['Pending']: 'NEW',
+        ['Confirmed']: 'CONFIRMED',
+        ['On Shipping']: 'SHIPPING',
+        ['Shipping Completed']: 'DELIVERED',
+        ['Received']: 'RECEIVED',
+        ['Cancelled']: 'CANCELLED',
+        ['Returned']: 'RETURNED'
     };
     return statusMap[text] || text;
 }
@@ -647,7 +647,7 @@ document.addEventListener('click', async function(e) {
 
         const order = orders.find(o => Number(o.orderId) === Number(orderId));
         if (!order) {
-            showErrorToast('Không tìm thấy thông tin đơn hàng');
+            showErrorToast('Cannot find order information');
             return;
         }
         showOrderStatusModal(orderId, order.status, 'CANCELLED', async () => {
@@ -662,7 +662,7 @@ document.addEventListener('click', async function(e) {
         const orderId = e.target.getAttribute('data-order-id');
         const order = orders.find(o => Number(o.orderId) === Number(orderId));
         if (!order) {
-            showErrorToast('Không tìm thấy thông tin đơn hàng');
+            showErrorToast('Cannot find order information');
             return;
         }
         showOrderStatusModal(orderId, order.status, 'RECEIVED', async () => {
@@ -677,7 +677,7 @@ document.addEventListener('click', async function(e) {
         const orderId = e.target.getAttribute('data-order-id');
         const order = orders.find(o => Number(o.orderId) === Number(orderId));
         if (!order) {
-            showErrorToast('Không tìm thấy thông tin đơn hàng');
+            showErrorToast('Cannot find order information');
             return;
         }
         showOrderStatusModal(orderId, order.status, 'RETURNED', async () => {
@@ -727,7 +727,6 @@ async function loadLovedProducts() {
         const result = await favoriteService.getFavoirtiesByUserId(USER_ID)
         if (result.status === "Success") {
             lovedProducts = result.data;
-            console.log(lovedProducts);
         }
         else showErrorToast(result.message);
         displayLovedProducts('');
@@ -773,11 +772,8 @@ function displayLovedProducts(searchKeyword = '', p = 1, size = 3) {
         totalElements: result.totalElements
     }
 
-    console.log(lovedProductsPagination);
     const productContent = result.content;
-    console.log(productContent);
-
-    countBadge.textContent = productContent.length;
+    countBadge.textContent = lovedProducts.length.toString();
     container.innerHTML = '';
 
     if (productContent.length === 0) {
@@ -797,7 +793,7 @@ function displayLovedProducts(searchKeyword = '', p = 1, size = 3) {
     }
 
     productContent.forEach(product => {
-        const discount = product.price ? Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+        const discount = product.price ? Math.round((1 - product.price / product.price) * 100) : 0;
         const productCard = `
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 card-product border-0 shadow-sm">

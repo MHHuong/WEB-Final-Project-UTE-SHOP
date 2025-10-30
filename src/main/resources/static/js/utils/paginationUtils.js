@@ -109,11 +109,7 @@ export function renderPagination(paginationData, onPageChange, containerId = 'pa
     });
 }
 
-/**
- * Show page info (e.g., "Hiển thị 1-5 trong tổng số 20")
- * @param {Object} pageInfo - { currentPage, size, totalElements }
- * @param {string} containerId - ID of the container to show info
- */
+
 export function showPageInfo(pageInfo, containerId = 'page-info-container') {
     const { currentPage, size, totalElements } = pageInfo;
     const container = document.getElementById(containerId);
@@ -124,7 +120,7 @@ export function showPageInfo(pageInfo, containerId = 'page-info-container') {
     }
 
     if (totalElements === 0) {
-        container.innerHTML = '<p class="text-muted mb-0 small">Không có dữ liệu</p>';
+        container.innerHTML = '<p class="text-muted mb-0 small">Cannot find data</p>';
         return;
     }
 
@@ -133,19 +129,13 @@ export function showPageInfo(pageInfo, containerId = 'page-info-container') {
 
     container.innerHTML = `
         <p class="text-muted mb-0 small">
-            Hiển thị <strong>${start}</strong> - <strong>${end}</strong> 
-            trong tổng số <strong>${totalElements}</strong>
+            Showing <strong>${start}</strong> - <strong>${end}</strong> 
+            of <strong>${totalElements}</strong>
         </p>
     `;
 }
 
-/**
- * Create pagination state object
- * @param {number} currentPage - Current page number (0-indexed)
- * @param {number} size - Items per page
- * @param {number} totalElements - Total number of items
- * @returns {Object} Pagination state object
- */
+
 export function createPaginationState(currentPage, size, totalElements) {
     const totalPages = Math.ceil(totalElements / size) || 1;
 

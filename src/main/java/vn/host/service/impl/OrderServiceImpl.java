@@ -223,7 +223,16 @@ public class OrderServiceImpl implements OrderService {
 
         Long userId = order.getUser().getUserId();
         OrderStatusMessage message = new OrderStatusMessage(order.getOrderId(), userId, order.getStatus().name());
+        System.out.println("📤 Sending WebSocket message:");
+        System.out.println("   → To userId: " + userId);
+        System.out.println("   → Order ID: " + order.getOrderId());
+        System.out.println("   → Status: " + order.getStatus().name());
+        System.out.println("   → Destination: /user/" + userId + "/queue/orders");
+
         messagingTemplate.convertAndSendToUser(String.valueOf(userId), "/queue/orders", message);
+
+        System.out.println("✅ WebSocket message sent!");
+
         emailService.sendOrderStatusEmail(order, order.getUser(), order.getStatus());
     }
 

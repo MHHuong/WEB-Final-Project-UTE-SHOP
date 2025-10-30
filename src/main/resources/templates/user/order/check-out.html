@@ -10,8 +10,8 @@
             <div class="row">
                 <div class="col-12">
                     <div class="mb-6">
-                        <h1 class="fw-bold mb-0">Thanh Toán</h1>
-                        <p class="mb-0">Vui lòng điền thông tin để hoàn tất đơn hàng</p>
+                        <h1 class="fw-bold mb-0">Check Out</h1>
+                        <p class="mb-0">Please enter your details to complete your purchase</p>
                     </div>
                 </div>
             </div>
@@ -24,25 +24,25 @@
                         <div class="card-header bg-light">
                             <h5 class="mb-0">
                                 <i class="bi bi-geo-alt text-primary me-2"></i>
-                                Địa chỉ giao hàng
+                                Delivery Address
                             </h5>
                         </div>
                         <div class="card-body">
                             <!-- Saved Addresses -->
                             <div id="saved-addresses-section" class="mb-4">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h6 class="mb-0">Địa chỉ đã lưu</h6>
+                                    <h6 class="mb-0">Saved Address</h6>
                                     <button type="button" class="btn btn-sm btn-outline-primary" id="add-new-address-btn">
-                                        <i class="bi bi-plus-circle me-1"></i>Thêm địa chỉ mới
+                                        <i class="bi bi-plus-circle me-1"></i>New Address
                                     </button>
                                 </div>
 
                                 <!-- Loading state -->
                                 <div id="addresses-loading" class="text-center py-3">
                                     <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                        <span class="visually-hidden">Đang tải...</span>
+                                        <span class="visually-hidden">Loading...</span>
                                     </div>
-                                    <p class="text-muted small mt-2 mb-0">Đang tải địa chỉ...</p>
+                                    <p class="text-muted small mt-2 mb-0">Loading Address...</p>
                                 </div>
 
                                 <!-- Saved addresses list -->
@@ -52,8 +52,7 @@
                                 <div id="no-addresses-message" style="display: none;">
                                     <div class="alert alert-info">
                                         <i class="bi bi-info-circle me-2"></i>
-                                        Bạn chưa có địa chỉ nào được lưu. Vui lòng thêm địa chỉ mới.
-                                    </div>
+                                        You don't have any saved addresses. Please add a new address.                                    </div>
                                 </div>
                             </div>
 
@@ -62,7 +61,7 @@
                             <div th:replace="~{fragments/user/profile/address::address-input}"></div>
                             <!-- Note -->
                             <div class="col-12 mt-2">
-                                <label for="order-note" class="form-label">Ghi chú đơn hàng (Tùy chọn)</label>
+                                <label for="order-note" class="form-label">Order Note (Optional)</label>
                                 <textarea class="form-control" id="order-note" rows="2"
                                           placeholder="Ghi chú về đơn hàng, ví dụ: thời gian hay chỉ dẫn địa điểm giao hàng chi tiết hơn"></textarea>
                             </div>
@@ -74,7 +73,7 @@
                         <div class="card-header bg-light">
                             <h5 class="mb-0">
                                 <i class="bi bi-truck text-primary me-2"></i>
-                                Phương thức vận chuyển
+                                Shipping Method
                             </h5>
                         </div>
                         <div class="card-body">
@@ -88,12 +87,12 @@
                                             <div class="d-flex align-items-center">
                                                 <i class="bi bi-box-seam fs-3 text-primary me-3"></i>
                                                 <div>
-                                                    <h6 class="mb-0">Giao hàng tiêu chuẩn</h6>
-                                                    <small class="text-muted">Giao hàng trong 3-5 ngày</small>
+                                                    <h6 class="mb-0">Standard Delivery</h6>
+                                                    <small class="text-muted">Delivery in 3–5 days</small>
                                                 </div>
                                             </div>
                                             <div>
-                                                <span class="badge bg-success">Miễn phí</span>
+                                                <span class="badge bg-success">No charge</span>
                                             </div>
                                         </div>
                                     </label>
@@ -108,8 +107,8 @@
                                             <div class="d-flex align-items-center">
                                                 <i class="bi bi-lightning-charge fs-3 text-warning me-3"></i>
                                                 <div>
-                                                    <h6 class="mb-0">Giao hàng nhanh</h6>
-                                                    <small class="text-muted">Giao hàng trong 1-2 ngày</small>
+                                                    <h6 class="mb-0">Fast Delivery</h6>
+                                                    <small class="text-muted">Delivery in 1–2 days</small>
                                                 </div>
                                             </div>
                                             <div>
@@ -128,8 +127,8 @@
                                             <div class="d-flex align-items-center">
                                                 <i class="bi bi-rocket-takeoff fs-3 text-danger me-3"></i>
                                                 <div>
-                                                    <h6 class="mb-0">Giao hàng hỏa tốc</h6>
-                                                    <small class="text-muted">Giao hàng trong vòng 24h</small>
+                                                    <h6 class="mb-0">Express Deliver</h6>
+                                                    <small class="text-muted">Delivery in 24 hours</small>
                                                 </div>
                                             </div>
                                             <div>
@@ -146,7 +145,7 @@
                         <div class="card-header bg-light">
                             <h5 class="mb-0">
                                 <i class="bi bi-ticket-perforated text-primary me-2"></i>
-                                Mã giảm giá
+                                Discount Voucher
                             </h5>
                         </div>
                         <div class="card-body">
@@ -165,26 +164,28 @@
                             <div id="voucher-selection-section">
                                 <!-- Manual voucher code input -->
                                 <div class="mb-3">
-                                    <label for="voucher-code-input" class="form-label">Nhập mã giảm giá</label>
+                                    <label for="voucher-code-input" class="form-label">Enter discount voucher code</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" id="voucher-code-input"
                                                placeholder="Nhập mã giảm giá">
                                         <button class="btn btn-primary" type="button" id="apply-voucher-btn">
-                                            <i class="bi bi-check-lg me-1"></i>Áp dụng
+                                            <i class="bi bi-check-lg me-1"></i>Apply
                                         </button>
                                     </div>
-                                    <small class="text-muted">Nhập mã giảm giá của hệ thống</small>
+                                    <small class="text-muted">
+                                        Enter your voucher code if you have one to get discounts on your order.
+                                    </small>
                                 </div>
 
                                 <!-- Or divider -->
                                 <div class="text-center mb-3">
-                                    <span class="text-muted small">HOẶC</span>
+                                    <span class="text-muted small">OR</span>
                                 </div>
 
                                 <!-- Available vouchers button -->
                                 <button type="button" class="btn btn-outline-primary w-100" id="view-vouchers-btn">
                                     <i class="bi bi-gift me-2"></i>
-                                    Xem mã giảm giá có thể dùng
+                                    View Available Vouchers
                                 </button>
                             </div>
                         </div>
@@ -195,7 +196,7 @@
                         <div class="card-header bg-light">
                             <h5 class="mb-0">
                                 <i class="bi bi-credit-card text-primary me-2"></i>
-                                Phương thức thanh toán
+                                Payment Method
                             </h5>
                         </div>
                         <div class="card-body">
@@ -208,8 +209,12 @@
                                         <div class="d-flex align-items-center">
                                             <i class="bi bi-cash-coin fs-3 text-success me-3"></i>
                                             <div>
-                                                <h6 class="mb-0">Thanh toán khi nhận hàng (COD)</h6>
-                                                <small class="text-muted">Thanh toán bằng tiền mặt khi nhận hàng</small>
+                                                <h6 class="mb-0">
+                                                    Pay on Delivery (COD)
+                                                </h6>
+                                                <small class="text-muted">
+                                                    Pay with cash upon receiving your order
+                                                </small>
                                             </div>
                                         </div>
                                     </label>
@@ -223,8 +228,12 @@
                                         <div class="d-flex align-items-center">
                                             <i class="bi bi-wallet2 fs-3 text-warning me-3"></i>
                                             <div>
-                                                <h6 class="mb-0">Ví điện tử</h6>
-                                                <small class="text-muted">Thanh toán qua ví điện tử</small>
+                                                <h6 class="mb-0">
+                                                    E-Wallet Payment
+                                                </h6>
+                                                <small class="text-muted">
+                                                    Pay using popular e-wallet services
+                                                </small>
                                             </div>
                                         </div>
                                     </label>
@@ -232,7 +241,9 @@
 
                                 <!-- E-Wallet Options (Hidden by default) -->
                                 <div id="ewallet-options" class="ms-4 mt-3" style="display: none;">
-                                    <p class="text-muted mb-3"><small>Chọn ví điện tử:</small></p>
+                                    <p class="text-muted mb-3"><small>
+                                        Select your preferred e-wallet service:
+                                    </small></p>
 
                                     <!-- MoMo -->
                                     <div class="form-check payment-sub-option mb-2 p-3 border rounded">
@@ -245,7 +256,9 @@
                                                 </div>
                                                 <div>
                                                     <h6 class="mb-0">MoMo</h6>
-                                                    <small class="text-muted">Ví điện tử MoMo</small>
+                                                    <small class="text-muted">
+                                                        Momo E-Wallet Payment Gateway
+                                                    </small>
                                                 </div>
                                             </div>
                                         </label>
@@ -262,7 +275,9 @@
                                                 </div>
                                                 <div>
                                                     <h6 class="mb-0">VNPay</h6>
-                                                    <small class="text-muted">Cổng thanh toán VNPay</small>
+                                                    <small class="text-muted">
+                                                        VNPay E-Wallet Payment Gateway
+                                                    </small>
                                                 </div>
                                             </div>
                                         </label>
@@ -280,7 +295,7 @@
                         <div class="card-header bg-light">
                             <h5 class="mb-0">
                                 <i class="bi bi-cart-check text-primary me-2"></i>
-                                Đơn hàng của bạn
+                                Your Order
                             </h5>
                         </div>
                         <div class="card-body">
@@ -288,7 +303,7 @@
                             <div id="order-products" class="mb-4">
                                 <div class="text-center py-4">
                                     <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Đang tải...</span>
+                                        <span class="visually-hidden">Loading...</span>
                                     </div>
                                 </div>
                             </div>
@@ -298,34 +313,36 @@
                             <!-- Order Summary -->
                             <div class="order-summary">
                                 <div class="d-flex justify-content-between mb-2">
-                                    <span>Tạm tính (<span id="item-count">0</span> sản phẩm)</span>
+                                    <span>
+                                        Subtotal
+                                        (<span id="item-count">0</span> products)</span>
                                     <span id="subtotal" class="fw-bold">0₫</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-2">
-                                    <span>Phí vận chuyển</span>
+                                    <span>Deliver Cost</span>
                                     <span id="shipping-fee" class="text-success">0₫</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-2">
-                                    <span>Giảm giá</span>
+                                    <span>Discount</span>
                                     <span id="discount" class="text-danger">-0₫</span>
                                 </div>
 
                                 <hr>
 
                                 <div class="d-flex justify-content-between mb-4">
-                                    <h5 class="mb-0">Tổng cộng</h5>
+                                    <h5 class="mb-0">Total</h5>
                                     <h5 class="mb-0 text-primary" id="total">0₫</h5>
                                 </div>
 
                                 <!-- Action Buttons -->
                                 <div class="d-grid gap-2">
                                     <button class="btn btn-primary btn-lg" id="place-order-btn" disabled>
-                                        <i class="bi bi-check-circle me-2"></i>Đặt hàng
+                                        <i class="bi bi-check-circle me-2"></i>Place Order
                                     </button>
                                     <a th:href="@{/user/shop-cart}" class="btn btn-outline-secondary">
-                                        <i class="bi bi-arrow-left me-2"></i>Quay lại giỏ hàng
+                                        <i class="bi bi-arrow-left me-2"></i>Continue Shopping
                                     </a>
                                 </div>
                             </div>
