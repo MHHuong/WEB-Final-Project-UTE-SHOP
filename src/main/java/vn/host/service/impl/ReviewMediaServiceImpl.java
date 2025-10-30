@@ -17,4 +17,15 @@ public class ReviewMediaServiceImpl implements ReviewMediaService {
     public List<ReviewMedia> findByReview_ReviewId(Long id) {
         return reviewMediaRepository.findByReview_ReviewId(id);
     }
+
+    @Override
+    public void save(ReviewMedia review) {
+        reviewMediaRepository.save(review);
+    }
+
+    @Override
+    public void deleteByReview_ReviewId(Long id) {
+        reviewMediaRepository.deleteByReview_ReviewId(id);
+    }
+
 }

@@ -8,6 +8,8 @@ import vn.host.entity.ReviewMedia;
 import java.util.List;
 
 @Repository
-public interface ReviewMediaRepository extends JpaRepository<ReviewMedia,Long>, JpaSpecificationExecutor<ReviewMedia> {
+public interface ReviewMediaRepository extends JpaRepository<ReviewMedia, Long>, JpaSpecificationExecutor<ReviewMedia> {
     List<ReviewMedia> findByReview_ReviewId(Long reviewId);
+
+    void deleteByReview_ReviewId(Long reviewId);
 }

@@ -57,8 +57,7 @@
                         <path d="M16 10a4 4 0 0 1-8 0"></path>
                     </svg>
                     <span id="cart-quantity" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
-                                 0
-                                 <span class="visually-hidden">unread messages</span>
+                        <span class="visually-hidden">unread messages</span>
                     </span>
                 </a>
                 <div id="nav-user-authenticated" class="dropdown ms-3 d-none">
@@ -71,23 +70,24 @@
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
                     </a>
-
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
                         <li>
                             <a class="dropdown-item" th:href="@{/user/profile}">
                                 <i class="feather-icon icon-user me-2"></i> Profile
                             </a>
                         </li>
-
-                        <li>
+                        <li id="nav-shop-item">
                             <a id="nav-shop-link" class="dropdown-item" th:href="@{/shop/register}">
                                 <i class="feather-icon icon-grid me-2"></i> My Shop
                             </a>
                         </li>
-
-                        <li>
-                            <hr class="dropdown-divider">
+                        <li id="nav-shipper-item" class="d-none">
+                            <a id="nav-shipper-link" class="dropdown-item" href="#">
+                                <i class="feather-icon icon-truck me-2"></i> Shipper
+                            </a>
                         </li>
+
+                        <li><hr class="dropdown-divider"></li>
                         <li>
                             <a id="nav-logout-button" class="dropdown-item btn btn-link w-100 text-start" href="#" style="cursor: pointer;">
                                 <i class="feather-icon icon-log-out me-2"></i> Logout

@@ -8,6 +8,7 @@ import vn.host.dto.review.ReviewItemRes;
 import vn.host.entity.Review;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReviewService {
     Page<Review> findAll(Specification<Review> spec, Pageable pageable);
@@ -17,5 +18,10 @@ public interface ReviewService {
     Review findById(Long id);
 
     Page<Review> findByProduct_ProductId(Long productId, Pageable pageable);
+
     List<ReviewItemRes> getReviewsByProductIdVM(Long productId, Pageable pageable);
+
+    Optional<Review> findFirstByUser_UserIdAndProduct_ProductIdOrderByCreatedAtDesc(Long userId, Long productId);
+
+    Review save(Review review);
 }
