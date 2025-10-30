@@ -23,8 +23,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws ServletException, IOException {
         String auth = req.getHeader(HttpHeaders.AUTHORIZATION);
+        String token = null;
         if (auth != null && auth.startsWith("Bearer ")) {
-            String token = auth.substring(7);
+            token = auth.substring(7);
+        } else {
+            // thử đọc cookie nếu header không có
+            if (req.getCookies() != null) {
+                for (Cookie c : req.getCookies()) {
+                    if ("AUTH_TOKEN".equals(c.getName())) {
+                        token = c.getValue();
+                        break;
+                    }
+                }
+            }
+            // optional: cũng có thể đọc query param ?token=...
+            if (token == null) {
+                String param = req.getParameter("token");
+                if (param != null && !param.isBlank()) token = param;
+            }
+        }
+
+        if (token != null) {
             try {
                 String email = jwt.getSubject(token);
                 UserDetails user = uds.loadUserByUsername(email);
@@ -35,4 +54,5 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
         chain.doFilter(req, res);
     }
+
 }

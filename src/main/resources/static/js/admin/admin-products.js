@@ -1,3 +1,13 @@
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
+
 document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector("#tblProducts");
     const pagination = document.querySelector("#pagination");
@@ -7,9 +17,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const searchShopInput = document.querySelector("#searchShop");
     const categorySelect = document.querySelector("#categoryFilter");
     const reloadBtn = document.querySelector("#btnReload");
+    const BASE_URL = window.location.origin; // tự động lấy http://localhost:8082
 
     let currentPage = 0;
     const pageSize = 10;
+
+    // ================= URL BUILDER =================
+    function buildUrl(p) {
+        if (!p) return '/assets/images/sample/snack.jpg';
+        if (/^https?:\/\//i.test(p)) return p; // http / https giữ nguyên
+        if (p.startsWith(BASE_URL + contextPath + '/')) return p;
+        if (p.startsWith('/')) return BASE_URL + contextPath + p;
+        return BASE_URL + contextPath + '/' + p.replace(/^\/+/, '');
+    }
 
     // ================= RENDER PRODUCT LIST =================
     function renderProducts(products) {
@@ -20,33 +40,32 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         products.forEach(p => {
+            const imgSrc = buildUrl(p.media?.[0]?.url);
+
             tbody.insertAdjacentHTML("beforeend", `
         <tr>
-          <td><input type="checkbox"></td>
           <td>
-            <img src="${p.media?.[0]?.url || '/assets/images/sample/snack.jpg'}"
+            <img src="${imgSrc}"
                  style="width:100px; height:100px; object-fit:cover; border-radius:6px; display:block;">
           </td>
           <td>${p.name}</td>
           <td>${p.category ? p.category.name : '-'}</td>
           <td>${p.shop ? p.shop.shopName : '-'}</td>
           <td>
-            ${p.status === 1
+            ${[0,1,2].includes(p.status)
                 ? '<span class="badge bg-success">Active</span>'
                 : '<span class="badge bg-danger">Inactive</span>'}
           </td>
-        <td class="text-center">
-          <span class="price-badge">
-            ${formatCurrency(p.price)}
-          </span>
-        </td>          
-        <td class="text-center">${p.stock || 0}</td>
+          <td class="text-center">
+            <span class="price-badge">${formatCurrency(p.price)}</span>
+          </td>          
+          <td class="text-center">${p.stock || 0}</td>
           <td>${formatDate(p.createdAt)}</td>
           <td class="text-center">
               <button class="btn btn-sm btn-outline-warning me-1" 
                       data-id="${p.productId}" data-action="toggle" 
-                      title="${p.status === 1 ? 'Hide product' : 'Show product'}">
-                  <i class="bi ${p.status === 1 ? 'bi-eye-slash-fill' : 'bi-eye-fill'}"></i>
+                      title="${[0,1,2].includes(p.status) ? 'Hide product' : 'Show product'}">
+                  <i class="bi ${[0,1,2].includes(p.status) ? 'bi-eye-slash-fill' : 'bi-eye-fill'}"></i>
               </button>
               <button class="btn btn-sm btn-outline-danger" 
                       data-id="${p.productId}" data-action="delete" 
@@ -76,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ================= LOAD PRODUCTS =================
     function loadProducts(page = 0, url = null) {
         currentPage = page;
-        const apiUrl = url || `/api/admin/products?page=${page}&size=${pageSize}`;
+        const apiUrl = url || `${contextPath}/api/admin/products?page=${page}&size=${pageSize}`;
         fetch(apiUrl)
             .then(res => res.json())
             .then(data => {
@@ -93,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
     searchBtn?.addEventListener("click", () => {
         const keyword = searchInput.value.trim();
         if (keyword)
-            loadProducts(0, `/api/admin/products/search/name?q=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
+            loadProducts(0, `${contextPath}/api/admin/products/search/name?q=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
         else loadProducts();
     });
 
@@ -101,17 +120,9 @@ document.addEventListener("DOMContentLoaded", function () {
     searchShopBtn?.addEventListener("click", () => {
         const shopName = searchShopInput.value.trim();
         if (shopName)
-            loadProducts(0, `/api/admin/products/search/shop?q=${encodeURIComponent(shopName)}&page=0&size=${pageSize}`);
+            loadProducts(0, `${contextPath}/api/admin/products/search/shop?q=${encodeURIComponent(shopName)}&page=0&size=${pageSize}`);
         else loadProducts();
     });
-
-    // // ================= FILTER CATEGORY =================
-    // categorySelect?.addEventListener("change", () => {
-    //     const cateId = categorySelect.value;
-    //     if (cateId)
-    //         loadProducts(0, `/api/admin/products?categoryId=${cateId}&page=0&size=${pageSize}`);
-    //     else loadProducts();
-    // });
 
     // ================= RELOAD =================
     reloadBtn?.addEventListener("click", () => {
@@ -131,23 +142,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (action === "toggle") {
             const icon = btn.querySelector("i");
-            const newStatus = icon.classList.contains("bi-eye-slash-fill") ? 0 : 1;
+            // Nếu đang active (0,1,2) thì chuyển sang 3 (inactive)
+            // Nếu đang inactive (3) thì chuyển sang 2 (active)
+            const newStatus = [0,1,2].some(s => icon.classList.contains("bi-eye-slash-fill")) ? 3 : 2;
 
-            fetch(`/api/admin/products/${id}/status?status=${newStatus}`, { method: "PUT" })
+            fetch(`${contextPath}/api/admin/products/${id}/status?status=${newStatus}`, { method: "PUT" })
                 .then(res => res.text())
                 .then(() => {
-                    alert("✅ Cập nhật trạng thái thành công!");
+                    alert("✅ Status updated successfully!");
                     loadProducts(currentPage);
                 })
                 .catch(err => console.error(err));
         }
 
         if (action === "delete") {
-            if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
-                fetch(`/api/admin/products/${id}`, { method: "DELETE" })
+            if (confirm("Are you sure you want to delete this product?")) {
+                fetch(`${contextPath}/api/admin/products/${id}`, { method: "DELETE" })
                     .then(res => res.text())
                     .then(() => {
-                        alert("✅ Xóa thành công!");
+                        alert("✅ Deleted successfully!");
                         loadProducts(currentPage);
                     })
                     .catch(err => console.error(err));
@@ -164,42 +177,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function formatCurrency(amount) {
         if (amount == null || isNaN(amount)) return "-";
-        // Định dạng theo VND
         return amount.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
     }
 
     // ================= LOAD CATEGORY OPTIONS + SELECT2 =================
     function loadCategories() {
-        fetch("/api/admin/categories?page=0&size=100")
+        fetch(`${contextPath}/api/admin/categories?page=0&size=100`)
             .then(res => res.json())
             .then(data => {
                 const select = document.getElementById("categoryFilter");
                 select.innerHTML = `<option value="">— Filter by category —</option>`;
-
-                // ⚠️ Dữ liệu từ Spring Data có thể nằm trong .content
                 const categories = data.content || data;
                 categories.forEach(c => {
                     select.insertAdjacentHTML("beforeend",
                         `<option value="${c.categoryId}">${c.name}</option>`);
                 });
 
-                // ✅ Kích hoạt Select2 có thanh tìm kiếm
                 $(select).select2({
                     placeholder: "— Filter by category —",
                     allowClear: true,
                     width: '100%'
                 });
 
-                // ✅ GẮN SỰ KIỆN SAU KHI KÍCH HOẠT SELECT2
                 $(select).on("change", function () {
                     const cateId = $(this).val();
                     if (cateId)
-                        loadProducts(0, `/api/admin/products?categoryId=${cateId}&page=0&size=${pageSize}`);
+                        loadProducts(0, `${contextPath}/api/admin/products?categoryId=${cateId}&page=0&size=${pageSize}`);
                     else
                         loadProducts();
                 });
-
-
             })
             .catch(err => console.error("Lỗi tải danh mục:", err));
     }

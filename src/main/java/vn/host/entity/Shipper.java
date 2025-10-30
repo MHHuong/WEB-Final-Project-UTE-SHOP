@@ -44,5 +44,6 @@ public class Shipper {
     private Set<Order> assignedOrders = new HashSet<>();
 
     @ManyToMany(mappedBy = "shippers")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "shop", "user", "shippers"})
     private Set<Order> orders = new LinkedHashSet<>();
 }

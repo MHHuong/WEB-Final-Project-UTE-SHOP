@@ -1,4 +1,4 @@
-import apiClient from '/js/utils/apiClient.js';
+import apiClient from '../../utils/apiClient.js';
 
 const cartService = {
     getCartItemByUserId: async function (itemId) {
@@ -51,6 +51,15 @@ const cartService = {
             return await apiClient.get(`/carts/selected`);
         } catch (error) {
             console.error('Lỗi khi lấy sản phẩm đã chọn trong giỏ hàng:', error);
+            throw error;
+        }
+    },
+
+    addSelectedCartItem: async function (cartData) {
+        try {
+            return await apiClient.post(`/carts`, cartData);
+        } catch (error) {
+            console.error('Lỗi khi thêm sản phẩm đã chọn trong giỏ hàng:', error);
             throw error;
         }
     }

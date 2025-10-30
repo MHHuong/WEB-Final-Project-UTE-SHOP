@@ -8,12 +8,14 @@
     <div class="container">
         <div class="row mb-8">
             <div class="col-md-12 d-flex justify-content-between align-items-center">
-                <h2>Shipping Orders</h2>
-                <div class="d-flex gap-2">
-                    <a class="btn btn-outline-secondary" th:href="@{/shipper/orders/confirmed}">Waiting For Picking
-                        Up</a>
-                    <a class="btn btn-outline-primary" th:href="@{/shipper/orders/shipping}">Shipping Orders</a>
-                    <a class="btn btn-outline-dark" th:href="@{/shipper/history/picked}">Picked Orders</a>
+                <div>
+                    <h2>History: Delivered Orders</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a th:href="@{/shipper}">Shipper</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Delivered Orders History</li>
+                        </ol>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -44,7 +46,7 @@
             </div>
         </div>
     </div>
+    <script type="module" th:src="@{/assets/js/shipper/shipper-history-delivered.js}"></script>
 </main>
-<script th:src="@{/assets/js/shippper/shipper-history-delivered.js}"></script>
 </body>
 </html>

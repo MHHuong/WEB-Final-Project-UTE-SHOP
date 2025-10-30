@@ -3,28 +3,150 @@
 <head th:replace="admin/_layout :: head(~{::title})">
     <title>UTESHOP • App Coupons</title>
 </head>
+
 <body>
 <div th:replace="admin/_layout :: layout(~{::content})">
     <div th:fragment="content">
 
         <style>
-            .page-wrap {max-width: 1200px; margin: 0 auto}
-            .table thead th {font-weight:600;color:#475467;background:#f8fafc}
+            /* ===================== APP COUPONS BEAUTIFY ===================== */
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .page-wrap {
+                max-width: 1200px;
+                margin: 0 auto;
+                animation: fadeIn .4s ease-in-out;
+            }
+
+            h3 {
+                font-weight: 700;
+                color: #111827;
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+            }
+
+            h3::before {
+                content: "\f145"; /* ticket icon */
+                font-family: "Font Awesome 6 Free";
+                font-weight: 900;
+                color: #16a34a;
+            }
+
+            .breadcrumb a {
+                text-decoration: none;
+                color: #16a34a;
+                font-weight: 500;
+            }
+
+            /* Card */
+            .card {
+                border-radius: 16px;
+                border: 1px solid #e5e7eb;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                transition: all .25s ease;
+            }
+
+            .card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+            }
+
+            /* Buttons */
+            .btn-success {
+                background: linear-gradient(90deg, #16a34a, #22c55e);
+                border: none;
+                border-radius: 10px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            }
+
+            .btn-success:hover {
+                background: linear-gradient(90deg, #15803d, #16a34a);
+                box-shadow: 0 0 12px rgba(22,163,74,0.4);
+            }
+
+            .btn-primary {
+                background: linear-gradient(90deg, #16a34a, #22c55e);
+                border: none;
+                border-radius: 10px;
+                font-weight: 600;
+            }
+
+            .btn-outline-secondary {
+                border-radius: 10px;
+                transition: all .2s ease;
+            }
+
+            .btn-outline-secondary:hover {
+                background: #f3f4f6;
+            }
+
+            /* Table */
+            .table thead th {
+                font-weight: 600;
+                color: #475467;
+                background: #f9fafb;
+                border-bottom: 2px solid #e5e7eb;
+            }
+
+            .table tbody tr:hover {
+                background: #f9fdfb;
+                transition: all .15s ease-in-out;
+            }
+
+            .table td {
+                vertical-align: middle;
+            }
+
+            /* Pagination */
+            #pagination {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 6px;
+            }
+
+            #pagination .btn {
+                min-width: 38px;
+                height: 38px;
+                border-radius: 10px;
+                border: 1px solid #e5e7eb;
+                background: #fff;
+                color: #374151;
+                transition: all 0.25s ease;
+            }
+
+            #pagination .btn:hover {
+                background: #f0fdf4;
+                color: #16a34a;
+                border-color: #16a34a;
+                transform: translateY(-1px);
+            }
+
+            #pagination .btn.active {
+                background: linear-gradient(90deg, #16a34a, #22c55e);
+                color: #fff;
+                border-color: #16a34a;
+                box-shadow: 0 2px 8px rgba(22,163,74,0.25);
+            }
         </style>
 
         <div class="page-wrap">
             <!-- Breadcrumb -->
             <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/UTE_SHOP/admin/dashboard">Dashboard</a></li>
                     <li class="breadcrumb-item active" aria-current="page">App Coupons</li>
                 </ol>
             </nav>
 
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <h3 class="m-0">App Coupons</h3>
-                <!-- ✅ CHỈNH LẠI NÚT ADD -->
-                <a href="/admin/coupons/add" class="btn btn-success">
+                <a href="/UTE_SHOP/admin/coupons/add" class="btn btn-success shadow-sm">
                     <i class="bi bi-plus-circle"></i> Add Coupon
                 </a>
             </div>
@@ -35,9 +157,13 @@
                     <div class="row g-2 align-items-center">
                         <div class="col-md-6">
                             <div class="input-group">
-                                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                                <input id="searchCode" type="text" class="form-control" placeholder="Search coupon code...">
-                                <button id="btnSearch" class="btn btn-primary">Search</button>
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="bi bi-search text-muted"></i>
+                                </span>
+                                <input id="searchCode" type="text" class="form-control border-start-0" placeholder="Search coupon code...">
+                                <button id="btnSearch" class="btn btn-primary">
+                                    <i class="bi bi-search"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="col-md-3 text-md-end">
@@ -65,9 +191,10 @@
                                 <th class="text-center">Actions</th>
                             </tr>
                             </thead>
-                            <tbody id="tblCoupons"></tbody>
+                            <tbody id="tblCoupons"><!-- Render by JS --></tbody>
                         </table>
                     </div>
+
                     <!-- Pagination -->
                     <div class="d-flex justify-content-center mt-3">
                         <div id="pagination" class="btn-group"></div>
@@ -78,6 +205,8 @@
 
     </div>
 </div>
-</body>
+
+<!-- JS -->
 <script th:src="@{/js/admin/admin-coupons.js}"></script>
+</body>
 </html>

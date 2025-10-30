@@ -9,12 +9,12 @@
         <div class="row mb-8">
             <div class="col-md-12 d-flex justify-content-between align-items-center">
                 <div>
-                    <h2>Đăng ký Shipper</h2>
-                    <p class="text-muted mb-0">Tài khoản user có thể đăng ký làm shipper (mỗi tài khoản 1 lần).</p>
+                    <h2>Shipper Register</h2>
+                    <p class="text-muted mb-0">User can only register shipper 1 times.</p>
                 </div>
                 <div>
-                    <a class="btn btn-outline-primary" th:href="@{/shipper/orders/confirmed}">Đơn chờ lấy</a>
-                    <a class="btn btn-outline-secondary" th:href="@{/shipper/orders/shipping}">Đơn đang giao</a>
+                    <a class="btn btn-outline-primary" th:href="@{/shipper/orders/confirmed}">Waiting for Picking Up</a>
+                    <a class="btn btn-outline-secondary" th:href="@{/shipper/orders/shipping}">Shipping Orders</a>
                 </div>
             </div>
         </div>
@@ -23,49 +23,46 @@
             <div class="card-body">
                 <div class="row g-4">
                     <div class="col-md-6">
-                        <label class="form-label">Đơn vị vận chuyển</label>
+                        <label class="form-label">Shipping Provider</label>
                         <select id="providerSelect" class="form-select"></select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Số điện thoại</label>
+                        <label class="form-label">Phone Number</label>
                         <input id="phoneInput" class="form-control" placeholder="09xx xxx xxx">
                     </div>
                     <div class="col-md-12">
-                        <label class="form-label">Tên công ty/đội nhóm (tuỳ chọn)</label>
+                        <label class="form-label">Company Name</label>
                         <input id="companyInput" class="form-control" placeholder="UTE Express">
                     </div>
 
                     <!-- Địa chỉ theo chuẩn shop -->
                     <div class="col-md-12">
-                        <label class="form-label mb-2">Địa chỉ hoạt động</label>
+                        <label class="form-label mb-2">Address</label>
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <select id="provinceSelect" class="form-select">
-                                    <option value="">-- Tỉnh/TP --</option>
+                                    <option value="">-- Province --</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
                                 <select id="districtSelect" class="form-select" disabled>
-                                    <option value="">-- Quận/Huyện --</option>
+                                    <option value="">-- District --</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
                                 <select id="wardSelect" class="form-select" disabled>
-                                    <option value="">-- Phường/Xã --</option>
+                                    <option value="">-- Ward --</option>
                                 </select>
                             </div>
                             <div class="col-md-12">
                                 <input id="detailInput" class="form-control" placeholder="Số nhà, đường...">
                             </div>
                         </div>
-                        <div class="form-text mt-2">Sẽ lưu vào <code>Shipper.address</code> dạng “chi tiết, phường,
-                            quận, tỉnh”.
-                        </div>
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-end mt-4">
-                    <button id="registerBtn" class="btn btn-primary">Đăng ký</button>
+                    <button id="registerBtn" class="btn btn-primary">Register</button>
                 </div>
             </div>
         </div>

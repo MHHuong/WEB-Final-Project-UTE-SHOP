@@ -318,7 +318,7 @@ public class ProductController {
     }
 
     @GetMapping("/{productId}/detail")
-    public ResponseEntity<vn.host.dto.product.ProductDetailVM> getOwnerProductDetail(
+    public ResponseEntity<ProductDetailVM> getOwnerProductDetail(
             Authentication auth,
             @PathVariable long productId
     ) {
@@ -335,7 +335,7 @@ public class ProductController {
         Double avg = (rs != null && rs.getAvg() != null) ? rs.getAvg() : 0.0;
         Long total = (rs != null && rs.getTotal() != null) ? rs.getTotal() : 0L;
 
-        var vm = vn.host.dto.product.ProductDetailVM.of(p, media, avg, total);
+        var vm = ProductDetailVM.of(p, media, avg, total);
         return ResponseEntity.ok(vm);
     }
 }

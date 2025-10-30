@@ -3,22 +3,212 @@
 <head th:replace="admin/_layout :: head(~{::title})">
 	<title>UTESHOP • Users</title>
 </head>
+
 <body>
-
-<!-- Gọi layout chung & truyền fragment content -->
+<!-- Layout chính -->
 <div th:replace="admin/_layout :: layout(~{::content})">
-
 	<div th:fragment="content">
+
 		<style>
-			/* style riêng cho trang Users */
-			.page-wrap{max-width:1200px;margin:0 auto}
-			.card{border-radius:14px}
-			.table thead th{font-weight:600;color:#475467;background:#f8fafc}
-			.role-badge{font-size:.78rem}
-			.badge-USER{background:#eef2ff;color:#1d4ed8}
-			.badge-SELLER{background:#ecfdf3;color:#047857}
-			.badge-ADMIN{background:#fff1f2;color:#be123c}
-			.badge-SHIPPER{background:#fef3c7;color:#92400e}
+			/* ======================== USERS PAGE STYLE ======================== */
+			.page-wrap {
+				max-width: 1250px;
+				margin: 0 auto;
+				animation: fadeIn .4s ease-in-out;
+			}
+
+			h3 {
+				font-weight: 700;
+				color: #111827;
+			}
+
+			/* Breadcrumb */
+			.breadcrumb {
+				background: transparent;
+				font-size: 0.9rem;
+			}
+
+			.breadcrumb a {
+				text-decoration: none;
+				color: #16a34a;
+				font-weight: 500;
+			}
+
+			.breadcrumb-item + .breadcrumb-item::before {
+				color: #9ca3af;
+			}
+
+			/* Card */
+			.card {
+				border-radius: 14px;
+				border: 1px solid #e5e7eb;
+				box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+				transition: all .25s ease-in-out;
+			}
+
+			.card:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+			}
+
+			.card-body {
+				background-color: #fff;
+			}
+
+			/* Buttons */
+			.btn-primary {
+				background: linear-gradient(90deg, #16a34a, #22c55e);
+				border: none;
+				transition: all 0.3s ease;
+			}
+
+			.btn-primary:hover {
+				background: linear-gradient(90deg, #15803d, #16a34a);
+				box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+			}
+
+			.btn-outline-secondary:hover {
+				background-color: #f3f4f6;
+			}
+
+			/* Table */
+			.table thead th {
+				font-weight: 600;
+				color: #475467;
+				background: #f9fafb;
+				border-bottom: 2px solid #e5e7eb;
+			}
+
+			.table tbody tr:hover {
+				background: #f9fdfb;
+				transition: all 0.15s ease-in-out;
+			}
+
+			.table td {
+				vertical-align: middle;
+			}
+
+			/* Role Badges */
+			.role-badge {
+				font-size: .78rem;
+				border-radius: 10px;
+				font-weight: 600;
+				padding: 5px 10px;
+			}
+
+			.badge-USER {
+				background: #eef2ff;
+				color: #1d4ed8;
+			}
+
+			.badge-SELLER {
+				background: #ecfdf3;
+				color: #047857;
+			}
+
+			.badge-ADMIN {
+				background: #fff1f2;
+				color: #be123c;
+			}
+
+			.badge-SHIPPER {
+				background: #fef3c7;
+				color: #92400e;
+			}
+
+			/* Filters */
+			.form-select,
+			.form-control {
+				border-radius: 8px;
+				border: 1px solid #d1d5db;
+			}
+
+			.form-select:focus,
+			.form-control:focus {
+				box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.25);
+				border-color: #16a34a;
+			}
+
+			/* Pagination */
+			#pagination .btn {
+				border-radius: 8px;
+				border-color: #d1d5db;
+				background: #fff;
+			}
+
+			#pagination .btn.active {
+				background: #16a34a;
+				color: #fff;
+				border-color: #16a34a;
+			}
+
+			/* Toast */
+			#toast {
+				border-radius: 10px;
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+				animation: fadeSlideUp .4s ease;
+			}
+
+			/* Animations */
+			@keyframes fadeIn {
+				from { opacity: 0; transform: translateY(5px); }
+				to { opacity: 1; transform: translateY(0); }
+			}
+
+			@keyframes fadeSlideUp {
+				from { opacity: 0; transform: translateY(20px); }
+				to { opacity: 1; transform: translateY(0); }
+			}
+			/* ======= Pagination Redesign ======= */
+			#pagination {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 6px;
+			}
+
+			#pagination .btn {
+				min-width: 38px;
+				height: 38px;
+				border-radius: 10px;
+				font-weight: 500;
+				color: #374151;
+				border: 1px solid #e5e7eb;
+				background: #fff;
+				transition: all 0.25s ease;
+				box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+			}
+
+			#pagination .btn:hover {
+				background: #f0fdf4;
+				color: #16a34a;
+				border-color: #16a34a;
+				transform: translateY(-1px);
+				box-shadow: 0 2px 5px rgba(22,163,74,0.15);
+			}
+
+			#pagination .btn.active {
+				background: linear-gradient(90deg, #16a34a, #22c55e);
+				color: #fff !important;
+				border-color: #16a34a;
+				box-shadow: 0 2px 8px rgba(22,163,74,0.25);
+			}
+
+			#pagination .btn:disabled {
+				opacity: 0.6;
+				cursor: not-allowed;
+				box-shadow: none;
+			}
+
+			/* Optional: animate when page changes */
+			#pagination .btn.active {
+				animation: pulseActive 0.3s ease;
+			}
+
+			@keyframes pulseActive {
+				from { transform: scale(0.95); opacity: 0.7; }
+				to { transform: scale(1); opacity: 1; }
+			}
 		</style>
 
 		<div class="page-wrap">
@@ -26,19 +216,20 @@
 			<!-- Breadcrumb -->
 			<nav aria-label="breadcrumb" class="mb-3">
 				<ol class="breadcrumb">
-					<li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+					<li class="breadcrumb-item"><a href="/UTE_SHOP/admin/dashboard">Dashboard</a></li>
 					<li class="breadcrumb-item active" aria-current="page">Users</li>
 				</ol>
 			</nav>
 
 			<div class="d-flex align-items-center justify-content-between mb-3">
-				<h3 class="m-0">User Management</h3>
-				<div class="text-muted">User Management System</div>
+				<div>
+					<h3 class="m-0">User Management</h3>
+					<small class="text-muted">Manage all registered users in your system</small>
+				</div>
+				<a href="/UTE_SHOP/admin/customers/create-customers" class="btn btn-primary shadow-sm">
+					<i class="bi bi-person-plus"></i> Add user
+				</a>
 			</div>
-
-			<a href="/admin/customers/create-customers" class="btn btn-primary mb-3">
-				<i class="bi bi-person-plus"></i> Add user
-			</a>
 
 			<!-- Toolbar -->
 			<div class="card mb-3">
@@ -46,9 +237,13 @@
 					<div class="row g-2 align-items-center">
 						<div class="col-12 col-md-4">
 							<div class="input-group">
-								<span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-								<input id="searchEmail" type="text" class="form-control" placeholder="Search by email...">
-								<button id="btnSearch" class="btn btn-primary">Search</button>
+                <span class="input-group-text bg-white border-end-0">
+                  <i class="bi bi-search text-muted"></i>
+                </span>
+								<input id="searchEmail" type="text" class="form-control border-start-0" placeholder="Search by email...">
+								<button id="btnSearch" class="btn btn-primary">
+									<i class="bi bi-search"></i>
+								</button>
 							</div>
 						</div>
 						<div class="col-6 col-md-3">
@@ -96,11 +291,7 @@
 						</table>
 					</div>
 
-					<!-- Pagination (client-side) -->
-<!--					<div class="d-flex justify-content-between align-items-center mt-2">-->
-<!--						<div id="countInfo" class="text-muted small"></div>-->
-<!--						<nav><ul class="pagination pagination-sm mb-0" id="pager"></ul></nav>-->
-<!--					</div>-->
+					<!-- Pagination -->
 					<div class="d-flex justify-content-center mt-3">
 						<div id="pagination" class="btn-group"></div>
 					</div>
@@ -111,14 +302,17 @@
 		<!-- Delete Modal -->
 		<div class="modal fade" id="confirmDel" tabindex="-1" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
-					<div class="modal-header"><h5 class="modal-title">Xác nhận xoá</h5>
-						<button class="btn-close" data-bs-dismiss="modal"></button>
+				<div class="modal-content border-0 shadow">
+					<div class="modal-header bg-danger text-white">
+						<h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Delete</h5>
+						<button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 					</div>
-					<div class="modal-body">Bạn chắc muốn xoá user <b id="delEmail">...</b> (ID: <span id="delId"></span>)?</div>
+					<div class="modal-body">
+						Bạn chắc muốn xoá user <b id="delEmail">...</b> (ID: <span id="delId"></span>)?
+					</div>
 					<div class="modal-footer">
-						<button class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
-						<button id="btnDoDelete" class="btn btn-danger">Xoá</button>
+						<button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button id="btnDoDelete" class="btn btn-danger">Delete</button>
 					</div>
 				</div>
 			</div>
@@ -128,15 +322,16 @@
 		<div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
 			<div id="toast" class="toast align-items-center text-bg-success border-0" role="alert">
 				<div class="d-flex">
-					<div class="toast-body" id="toastMsg">Done!</div>
+					<div class="toast-body fw-semibold" id="toastMsg">Done!</div>
 					<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
 				</div>
 			</div>
 		</div>
+
 	</div>
+</div>
 
-</div><!-- /layout replace -->
-
-</body>
+<!-- JS -->
 <script th:src="@{/js/admin/admin-users.js}"></script>
+</body>
 </html>

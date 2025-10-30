@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import vn.host.dto.review.RatingSummary;
+import vn.host.dto.review.ReviewItemRes;
 import vn.host.entity.Review;
 
 import java.util.List;
@@ -16,4 +17,5 @@ public interface ReviewService {
     Review findById(Long id);
 
     Page<Review> findByProduct_ProductId(Long productId, Pageable pageable);
+    List<ReviewItemRes> getReviewsByProductIdVM(Long productId, Pageable pageable);
 }

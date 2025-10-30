@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{shipper/common/main}">
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <!-- header -->
+        <div class="row mb-8">
+            <div class="col-md-12">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4">
+                    <div>
+                        <h2 class="mb-1">Edit Shipper Profile</h2>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a th:href="@{/shipper}">Shipper</a></li>
+                                <li class="breadcrumb-item"><a th:href="@{/shipper}">Profile</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /header -->
+
+        <!-- content -->
+        <div class="row">
+            <div class="col-xl-8 col-lg-9 col-md-10">
+                <div class="card bg-white border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4 p-lg-5">
+                        <form id="editForm" class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Company</label>
+                                <input id="companyInput" type="text" class="form-control" placeholder="Company name">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone</label>
+                                <input id="phoneInput" type="text" class="form-control" placeholder="Phone">
+                            </div>
+                            <!-- Address via combobox like shop-information -->
+                            <div class="col-12">
+                                <label class="form-label mb-2">Address</label>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <select id="provinceSelect" class="form-select">
+                                            <option value="">-- Province/City --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select id="districtSelect" class="form-select" disabled>
+                                            <option value="">-- District --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select id="wardSelect" class="form-select" disabled>
+                                            <option value="">-- Ward --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12">
+                                        <input id="detailAddress" class="form-control" placeholder="House no., Street…">
+                                    </div>
+                                    <input id="address" name="address" type="hidden"/>
+                                </div>
+                                <div class="form-text mt-2">
+                                    Will be saved to <code>Shipper.address</code> in format “detail, ward, district,
+                                    province”.
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Shipping Provider</label>
+                                <select id="providerSelect" class="form-select">
+                                    <option value="">-- Choose provider --</option>
+                                </select>
+                            </div>
+                            <div class="col-12 mt-3">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="bi bi-save"></i> Save changes
+                                </button>
+                                <a class="btn btn-outline-secondary ms-2" th:href="@{/shipper/profile}">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /content -->
+    </div>
+    <script th:inline="javascript" th:src="@{/assets/js/location/choose-location.js}"></script>
+    <script th:inline="javascript" th:src="@{/assets/js/location/render-location.js}"></script>
+    <script th:inline="javascript" th:src="@{/assets/js/shipper/shipper-edit.js}"></script>
+</main>
+</body>
+</html>

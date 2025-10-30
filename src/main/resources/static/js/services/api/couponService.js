@@ -1,4 +1,4 @@
-import apiClient from '/js/utils/apiClient.js';
+import apiClient from '../../utils/apiClient.js';
 
 const couponService = {
     getCouponByCode: async function (code) {

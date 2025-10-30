@@ -1,18 +1,24 @@
-import {showErrorToast, showSuccessToast} from "/js/utils/toastUtils.js";
-import addressService from "/js/services/api/addressService.js";
-import orderService from "/js/services/api/orderService.js";
-import {renderPagination, showPageInfo} from "/js/utils/paginationUtils.js";
-import {loadProvinces, loadDistricts, loadWards} from "/js/utils/locationUtils.js";
-import {showOrderStatusModal} from "/js/utils/orderStatusModal.js";
+import {showErrorToast, showSuccessToast} from "../../utils/toastUtils.js";
+import addressService from "../../services/api/addressService.js";
+import cartService from "../../services/api/cartService.js";
+import orderService from "../../services/api/orderService.js";
+import favoriteService from "../../services/api/favoriteService.js";
+import {renderPagination, showPageInfo} from "../../utils/paginationUtils.js";
+import {loadDistricts, loadProvinces, loadWards} from "../../utils/locationUtils.js";
+import {showOrderStatusModal} from "../../utils/orderStatusModal.js";
 
-const USER_ID = 1;
+import {AuthState} from "../../auth.js";
 
+
+// Hàm lấy USER_ID động
+const getUserId = () => AuthState.getUserId() || 0;
+let USER_ID = 0; // Sẽ được set sau khi AuthState load xong
 let isEditingAddress = false;
 let editingAddressId = null;
 let orders = [];
 let currentOrderStatus = 'all'; // Track current filter status
 let currentSearchKeyword = ''; // Track current search keyword
-
+const BASE_URL = window.location.origin
 // Pagination state for addresses
 let addressPagination = {
     currentPage: 0,
@@ -39,14 +45,113 @@ document.querySelectorAll('.nav-link[data-section]').forEach(link => {
         // Load data if needed
         if (section === 'orders') {
             loadOrders();
+        } else if (section === 'love') {
+            loadLovedProducts();
+        } else if (section === 'security') {
+            loadSecuritySection();
         }
     });
 });
 
+function loadProfileSection(UserInfo) {
+    console.log(UserInfo);
+    const fullNameInput = document.getElementById('fullName');
+    const emailInput = document.getElementById('email');
+    const phoneInput = document.getElementById('phone');
+
+    const fullName = document.getElementById('user-fullname');
+    const email = document.getElementById('user-email');
+
+    fullNameInput.value = UserInfo.fullName || '';
+    emailInput.value = UserInfo.email || '';
+    phoneInput.value = UserInfo.phone || '';
+
+    fullName.textContent = UserInfo.fullName || 'Người dùng';
+    email.textContent = UserInfo.email || 'Chưa cập nhật email';
+}
+
+document.getElementById('personal-info-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const fullName = document.getElementById('fullName').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    // Validation
+    let isValid = true;
+
+    // Validate fullName
+    if (!fullName) {
+        isValid = false;
+        document.getElementById('fullName').classList.add('is-invalid');
+    } else if (fullName.length < 2) {
+        isValid = false;
+        document.getElementById('fullName').classList.add('is-invalid');
+    } else {
+        document.getElementById('fullName').classList.remove('is-invalid');
+        document.getElementById('fullName').classList.add('is-valid');
+    }
+
+    // Validate phone
+    const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
+    if (!phone) {
+        isValid = false;
+        document.getElementById('phone').classList.add('is-invalid');
+        showErrorToast('Phone number is required!');
+    } else if (!phoneRegex.test(phone)) {
+        isValid = false;
+        document.getElementById('phone').classList.add('is-invalid');
+        showErrorToast('Phone number should be valid! 10 digits starting with 0 or +84');
+    } else {
+        document.getElementById('phone').classList.remove('is-invalid');
+        document.getElementById('phone').classList.add('is-valid');
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+        isValid = false;
+        document.getElementById('email').classList.add('is-invalid');
+    }
+    else if (!emailRegex.test(email)) {
+        isValid = false;
+        document.getElementById('email').classList.add('is-invalid');
+        showErrorToast("Email should be valid!");
+    } else {
+        document.getElementById('email').classList.remove('is-invalid');
+        document.getElementById('email').classList.add('is-valid');
+    }
+
+    if (!isValid) {
+        return;
+    }
+
+    try {
+        const user = {
+            fullName,
+            phone,
+            email
+        }
+        const result = await AuthState.updateUserInfo(USER_ID, user);
+        if (result.status === "Success") {
+            showSuccessToast('Update information successfully!');
+            const userInfo = AuthState.getUserInfo();
+            loadProfileSection(userInfo);
+            // Remove validation classes after successful update
+            document.getElementById('fullName').classList.remove('is-valid', 'is-invalid');
+            document.getElementById('phone').classList.remove('is-valid', 'is-invalid');
+            document.getElementById('email').classList.remove('is-valid', 'is-invalid');
+        } else {
+            showErrorToast(result.message || 'Cannot update information');
+        }
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        showErrorToast('Cannot update information');
+    }
+});
 
 // Load Addresses with pagination
 async function loadAddresses(page = 0, size = 4) {
     try {
+        console.log(USER_ID);
         let addresses = [];
         const result = await addressService.getAddressesPaginationByUserId(USER_ID, size, page);
         if (result.status === "Success") {
@@ -59,7 +164,7 @@ async function loadAddresses(page = 0, size = 4) {
             };
         } else {
             addresses = []
-            showErrorToast('Không thể tải danh sách địa chỉ');
+            showErrorToast('Cannot load addresses');
         }
         const container = document.getElementById('addresses-list');
         container.innerHTML = '';
@@ -69,7 +174,7 @@ async function loadAddresses(page = 0, size = 4) {
                 <div class="col-12">
                     <div class="text-center py-5">
                         <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-                        <p class="text-muted mt-3">Chưa có địa chỉ nào</p>
+                        <p class="text-muted mt-3">No addresses found. Please add a new address.</p>
                     </div>
                 </div>
             `;
@@ -79,7 +184,7 @@ async function loadAddresses(page = 0, size = 4) {
                             <div class="col-md-6">
                                 <div class="card ${addr.isDefault ? 'border-primary' : ''}">
                                     <div class="card-body">
-                                        ${addr.isDefault ? '<span class="badge bg-primary mb-2">Mặc định</span>' : ''}
+                                        ${addr.isDefault ? '<span class="badge bg-primary mb-2">Default</span>' : ''}
                                         <h6>${addr.receiverName}</h6>
                                         <p class="mb-1 text-muted small">${addr.phone}</p>
                                         <p class="mb-0 text-muted small">${addr.addressDetail}, ${addr.ward}, ${addr.district}, ${addr.province}</p>
@@ -93,8 +198,8 @@ async function loadAddresses(page = 0, size = 4) {
                                             th:data-ward="${addr.ward}"
                                             th:data-address-detail="${addr.addressDetail}"
                                             th:data-is-default="${addr.isDefault}"
-                                            >Sửa</button>
-                                            <button class="remove-address-btn btn btn-sm btn-outline-danger"  th:data-id="${addr.addressId}">Xóa</button>
+                                            >Edit</button>
+                                            <button class="remove-address-btn btn btn-sm btn-outline-danger"  th:data-id="${addr.addressId}">Delete</button>
                                         </div>
                                     </div>
                                 </div>
@@ -111,7 +216,7 @@ async function loadAddresses(page = 0, size = 4) {
         showPageInfo(addressPagination, 'address-page-info');
     } catch (error) {
         console.error('Error loading addresses:', error);
-        showErrorToast('Không thể tải danh sách địa chỉ');
+        showErrorToast('Cannot load addresses');
     }
 }
 
@@ -171,14 +276,14 @@ document.addEventListener("click", async function(e) {
         try {
             const result = await addressService.removeAddress(id, USER_ID);
             if (result.status === "Success") {
-                showSuccessToast('Xóa địa chỉ thành công!');
+                showSuccessToast('Delete address successfully!');
                 await loadAddresses();
             } else {
                 showErrorToast(result.message || 'Xóa địa chỉ thất bại');
             }
         } catch (error) {
             console.error('Error deleting address:', error);
-            showErrorToast('Không thể xóa địa chỉ');
+            showErrorToast('Cannot delete address');
         }
     }
 });
@@ -265,15 +370,15 @@ document.getElementById('save-address-btn').addEventListener('click', async func
         }
 
         if (result.status === "Success") {
-            showSuccessToast(isEditingAddress ? 'Cập nhật địa chỉ thành công!' : 'Thêm địa chỉ thành công!');
+            showSuccessToast(isEditingAddress ? 'Edit address successfully!' : 'Add address successfully!');
             await loadAddresses();
             await resetAddressForm();
         } else {
-            showErrorToast(result.message || (isEditingAddress ? 'Cập nhật địa chỉ thất bại' : 'Thêm địa chỉ thất bại'));
+            showErrorToast(result.message || (isEditingAddress ? 'Cannot edit address' : 'Cannot add address'));
         }
     } catch (error) {
         console.error('Error saving address:', error);
-        showErrorToast('Không thể lưu địa chỉ');
+        showErrorToast(isEditingAddress ? 'Cannot edit address' : 'Cannot add address');
     }
 });
 
@@ -314,11 +419,11 @@ async function loadOrders() {
     try {
         const result = await orderService.getOrderByUserId(USER_ID);
         if (result.status !== "Success") {
-            showErrorToast('Không thể tải danh sách đơn hàng');
+            showErrorToast('Cannot load orders');
         } else orders = result.data;
     } catch (error) {
         console.error('Error loading orders:', error);
-        showErrorToast('Không thể tải danh sách đơn hàng');
+        showErrorToast('Cannot load orders');
     }
 }
 
@@ -340,11 +445,13 @@ function paginateOrders(filteredOrders, page, size) {
 // Search and filter orders
 function searchAndFilterOrders(searchKeyword = '', status = 'all') {
     let filteredOrders = orders;
-    // Filter by status first
     if (status !== 'all') {
         filteredOrders = filteredOrders.filter(order => order.status === status);
     }
-    console.log(filteredOrders);
+
+    if (status === 'RETURNED' || status === 'REQUEST_RETURN' || status === 'RETURNING') {
+        filteredOrders = filteredOrders.filter(order => order.status === status);
+    }
 
     // Then filter by search keyword
     if (searchKeyword.trim() !== '') {
@@ -387,8 +494,8 @@ async function displayOrders(status = 'all', page = 1, size = 5, searchKeyword =
         const orderContent = result.content;
         if (orderContent.length === 0) {
             const message = searchKeyword.trim() !== ''
-                ? `Không tìm thấy đơn hàng nào với từ khóa "${searchKeyword}"`
-                : 'Chưa có đơn hàng nào';
+                ? `Cannot find order with "${searchKeyword}"`
+                : 'No orders found for the selected status.';
             container.innerHTML = `
                         <div class="text-center py-5">
                             <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
@@ -409,7 +516,7 @@ async function displayOrders(status = 'all', page = 1, size = 5, searchKeyword =
                         <div class="card mb-3">
                             <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong>Mã đơn hàng: ${highlightText(order.orderId.toString(), searchKeyword)}</strong>
+                                    <strong>Order ID: ${highlightText(order.orderId.toString(), searchKeyword)}</strong>
                                     <span class="text-muted ms-3">${new Date(order.createdAt).toLocaleDateString('vi-VN')}</span>
                                 </div>
                                 <span class="badge bg-success">${getStatusText(order.status)}</span>
@@ -428,14 +535,14 @@ async function displayOrders(status = 'all', page = 1, size = 5, searchKeyword =
                                 `).join('')}
                                 <hr>
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0">Tổng cộng:</h6>
+                                    <h6 class="mb-0">Total:</h6>
                                     <h5 class="mb-0 text-primary">${formatCurrency(order.totalAmount)}</h5>
                                 </div>
                                 <div class="mt-3">
-                                    <a href="/user/order/detail?orderId=${order.orderId}" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
-                                    ${order.status === 'DELIVERED' ? `<button class="btn-delivered-order btn btn-sm btn-primary" data-order-id='${order.orderId}'>Xác nhận đơn hàng</button>` : ''}
-                                    ${order.status === 'NEW' ? `<button class="btn-remove-order btn btn-sm btn-danger" data-order-id='${order.orderId}'>Hủy đơn</button>` : ''}
-                                     ${order.status === 'RECEIVED' ? `<button class="btn-received-order btn btn-sm btn-danger" data-order-id='${order.orderId}'>Trả đơn hàng</button>` : ''}
+                                    <a href="/UTE_SHOP/user/order/detail?orderId=${order.orderId}" class="btn btn-sm btn-outline-primary">Watch details</a>
+                                    ${order.status === 'DELIVERED' ? `<button class="btn-delivered-order btn btn-sm btn-primary" data-order-id='${order.orderId}'>Confirm received</button>` : ''}
+                                    ${order.status === 'NEW' || order.status === "CONFIRMED" ? `<button class="btn-remove-order btn btn-sm btn-danger" data-order-id='${order.orderId}'>Cancel order</button>` : ''}
+                                    ${order.status === 'RECEIVED' ? `<button class="btn-received-order btn btn-sm btn-danger" data-order-id='${order.orderId}'>Return order</button>` : ''}
                                 </div>
                             </div>
                         </div>
@@ -452,27 +559,31 @@ async function displayOrders(status = 'all', page = 1, size = 5, searchKeyword =
 
 function getStatusText(status) {
     const statusMap = {
-        'NEW': 'Chờ xác nhận',
-        'CONFIRMED': 'Đã xác nhận',
-        'SHIPPING': 'Đang giao',
-        'DELIVERED': 'Đã giao hàng',
-        'RECEIVED': 'Đã nhận hàng',
-        'CANCELLED': 'Đã hủy',
-        'RETURNED': 'Đã trả hàng'
+        'NEW': 'Waiting for confirmation',
+        'CONFIRMED': 'Confirmed',
+        'SHIPPING': 'On Shipping',
+        'DELIVERED': 'Shipping Completed',
+        'RECEIVED': 'Received',
+        'CANCELLED': 'Cancelled',
+        'REQUEST_RETURN': 'Return Requested',
+        'RETURNING': 'Approve Returning',
+        'RETURNED': 'Returned'
     };
     return statusMap[status] || status;
 }
 
 function reverseStatusMap(text) {
     const statusMap = {
-        ['Tất cả']: 'all',
-        ['Chờ xác nhận']: 'NEW',
-        ['Đã xác nhận']: 'CONFIRMED',
-        ['Đang giao']: 'SHIPPING',
-        ['Đã giao hàng']: 'DELIVERED',
-        ['Đã nhận hàng']: 'RECEIVED',
-        ['Đã hủy']: 'CANCELLED',
-        ['Đã trả hàng']: 'RETURNED'
+        ['All Orders']: 'all',
+        ['Pending']: 'NEW',
+        ['Confirmed']: 'CONFIRMED',
+        ['On Shipping']: 'SHIPPING',
+        ['Shipping Completed']: 'DELIVERED',
+        ['Received']: 'RECEIVED',
+        ['Cancelled']: 'CANCELLED',
+        ['Return Requested']: 'REQUEST_RETURN',
+        ['Approve Returning']: 'RETURNING',
+        ['Returned']: 'RETURNED'
     };
     return statusMap[text] || text;
 }
@@ -542,7 +653,7 @@ document.addEventListener('click', async function(e) {
 
         const order = orders.find(o => Number(o.orderId) === Number(orderId));
         if (!order) {
-            showErrorToast('Không tìm thấy thông tin đơn hàng');
+            showErrorToast('Cannot find order information');
             return;
         }
         showOrderStatusModal(orderId, order.status, 'CANCELLED', async () => {
@@ -557,7 +668,7 @@ document.addEventListener('click', async function(e) {
         const orderId = e.target.getAttribute('data-order-id');
         const order = orders.find(o => Number(o.orderId) === Number(orderId));
         if (!order) {
-            showErrorToast('Không tìm thấy thông tin đơn hàng');
+            showErrorToast('Cannot find order information');
             return;
         }
         showOrderStatusModal(orderId, order.status, 'RECEIVED', async () => {
@@ -572,10 +683,10 @@ document.addEventListener('click', async function(e) {
         const orderId = e.target.getAttribute('data-order-id');
         const order = orders.find(o => Number(o.orderId) === Number(orderId));
         if (!order) {
-            showErrorToast('Không tìm thấy thông tin đơn hàng');
+            showErrorToast('Cannot find order information');
             return;
         }
-        showOrderStatusModal(orderId, order.status, 'RETURNED', async () => {
+        showOrderStatusModal(orderId, order.status, 'REQUEST_RETURN', async () => {
             await loadOrders();
             await displayOrders(currentOrderStatus, 1, 5, currentSearchKeyword);
         });
@@ -583,7 +694,14 @@ document.addEventListener('click', async function(e) {
 });
 
 document.addEventListener('DOMContentLoaded', async function() {
-    // Load provinces for address form
+    if (!AuthState.getUserId()) {
+        console.log('Waiting for AuthState to load userId...');
+        await AuthState.fetchUserInfo();
+    }
+
+    USER_ID = AuthState.getUserId() || 0;
+    console.log('USER_ID initialized:', USER_ID);
+
     loadProvinces();
 
     document.getElementById('province').addEventListener('change', (e) => {
@@ -601,4 +719,319 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Initial load of orders
     await loadOrders();
     await displayOrders();
+
+    // Load profile section
+    const userInfo = AuthState.getUserInfo();
+    loadProfileSection(userInfo);
 });
+
+let lovedProducts = [];
+let currentLoveSearchKeyword = '';
+
+async function loadLovedProducts() {
+    try {
+        const result = await favoriteService.getFavoirtiesByUserId(USER_ID)
+        if (result.status === "Success") {
+            lovedProducts = result.data;
+        }
+        else showErrorToast(result.message);
+        displayLovedProducts('');
+    } catch (error) {
+        console.error('Error loading loved products:', error);
+        showErrorToast('Cannot load loved products');
+    }
+}
+
+function paginateLovedProducts(filteredProducts, page, size) {
+    const start = (page - 1) * size;
+    const end = start + size;
+    return {
+        content: filteredProducts.slice(start, end),
+        pageable: {
+            pageNumber: page - 1,
+            pageSize: size
+        },
+        totalPages: Math.ceil(filteredProducts.length / size),
+        totalElements: filteredProducts.length
+    };
+}
+
+function displayLovedProducts(searchKeyword = '', p = 1, size = 3) {
+    const container = document.getElementById('loved-products-list');
+    const countBadge = document.getElementById('love-count');
+
+    let filteredProducts = lovedProducts;
+
+    // Filter by search keyword
+    if (searchKeyword.trim() !== '') {
+        const keyword = searchKeyword.toLowerCase();
+        filteredProducts = filteredProducts.filter(product =>
+            product.name.toLowerCase().includes(keyword)
+        );
+    }
+
+    let result = paginateLovedProducts(filteredProducts, p, size);
+    const lovedProductsPagination = {
+        currentPage: result.pageable.pageNumber,
+        size: result.pageable.pageSize,
+        totalPages: result.totalPages,
+        totalElements: result.totalElements
+    }
+
+    const productContent = result.content;
+    countBadge.textContent = lovedProducts.length.toString();
+    container.innerHTML = '';
+
+    if (productContent.length === 0) {
+        const message = searchKeyword.trim() !== ''
+            ? `No products found with keyword "${searchKeyword}"`
+            : 'No loved products yet';
+        container.innerHTML = `
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="bi bi-heart" style="font-size: 3rem; color: #ccc;"></i>
+                    <p class="text-muted mt-3">${message}</p>
+                    ${searchKeyword.trim() === '' ? '<a href="/user/products" class="btn btn-primary mt-2"><i class="bi bi-shop me-2"></i>Start Shopping</a>' : ''}
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    function buildUrl(p) {
+        if (!p) return '/assets/images/sample/snack.jpg';
+        if (/^https?:\/\//i.test(p)) return p; // http / https giữ nguyên
+        if (p.startsWith(BASE_URL + contextPath + '/')) return p;
+        if (p.startsWith('/')) return BASE_URL + contextPath + p;
+        return BASE_URL + contextPath + '/' + p.replace(/^\/+/, '');
+    }
+
+    productContent.forEach(product => {
+        const discount = product.price ? Math.round((1 - product.price / product.price) * 100) : 0;
+        const productCard = `
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 card-product border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-center position-relative">
+                            ${discount > 0 ? `<span class="badge bg-danger position-absolute top-0 start-0 m-2">${discount}% OFF</span>` : ''}
+                            <button class="btn btn-sm btn-light position-absolute top-0 end-0 m-2 remove-love-btn" data-product-id="${product.productId}">
+                                <i class="bi bi-heart-fill text-danger"></i>
+                            </button>
+                            <a href="/UTE_SHOP/products/${product.productId}">
+                                <img src="${buildUrl(product.imageUrl)}" alt="${product.name}" class="mb-3 img-fluid" style="height: 200px; object-fit: cover;">
+                            </a>
+                        </div>
+                        <div class="text-small mb-1">
+                            <div class="text-warning">
+                                ${Array(5).fill(0).map((_, i) => 
+                                    `<i class="bi bi-star${i < Math.floor(product.averageRating) ? '-fill' : ''}"></i>`
+                                ).join('')}
+                                <span class="text-muted ms-1">${product.averageRating}</span>
+                            </div>
+                        </div>
+                        <h2 class="fs-6">
+                            <a href="/user/product/${product.productId}" class="text-inherit text-decoration-none">${product.name}</a>
+                        </h2>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <span class="text-dark fw-bold">${formatCurrency(product.price)}</span>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-primary btn-sm w-100 add-to-cart-btn" data-product-id="${product.productId}">
+                                <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.innerHTML += productCard;
+    });
+    renderPagination(lovedProductsPagination, (newPage) => {
+        displayLovedProducts(searchKeyword, newPage + 1, lovedProductsPagination.size);
+    }, 'loved-product-pagination');
+    showPageInfo(lovedProductsPagination, 'loved-product-page-info');
+}
+
+const loveSearchInput = document.getElementById('love-search-input');
+const clearLoveSearchBtn = document.getElementById('clear-love-search-btn');
+
+loveSearchInput?.addEventListener('input', function(e) {
+    const keyword = e.target.value;
+
+    if (keyword.trim() !== '') {
+        clearLoveSearchBtn.style.display = 'block';
+    } else {
+        clearLoveSearchBtn.style.display = 'none';
+    }
+
+    currentLoveSearchKeyword = keyword;
+    displayLovedProducts(currentLoveSearchKeyword);
+});
+
+clearLoveSearchBtn?.addEventListener('click', function() {
+    loveSearchInput.value = '';
+    currentLoveSearchKeyword = '';
+    clearLoveSearchBtn.style.display = 'none';
+    displayLovedProducts('');
+});
+
+// Remove from loved products
+document.addEventListener('click', async function (e) {
+    if (e.target.closest('.remove-love-btn')) {
+        const btn = e.target.closest('.remove-love-btn');
+        const productId = btn.getAttribute('data-product-id');
+        const result = await favoriteService.removeFavorite(productId, USER_ID);
+        if (result.status !== "Success") {
+            showErrorToast(result.message || 'Cannot remove from loved products');
+        }
+        else {
+            displayLovedProducts(currentLoveSearchKeyword);
+            showSuccessToast('Removed from loved products!');
+            await loadLovedProducts();
+        }
+    }
+});
+
+document.addEventListener('click', async function (e) {
+    if (e.target.closest('.add-to-cart-btn')) {
+        const btn = e.target.closest('.add-to-cart-btn');
+        const productId = btn.getAttribute('data-product-id');
+        try {
+            const cart = {
+                userId: USER_ID,
+                productId: productId,
+                quantity: 1
+            }
+            const result = await cartService.addSelectedCartItem(cart);
+            if (result.status === "Success") {
+                showSuccessToast('Added to cart successfully!');
+            }
+            else {
+            showErrorToast(result.message || 'Cannot add to cart');}
+        }
+        catch (error) {
+            console.error('Error adding to cart:', error);
+            showErrorToast('Cannot add to cart');
+        }
+    }
+})
+
+function loadSecuritySection() {
+    // Load account information
+    const userInfo = AuthState.getUserInfo();
+    if (userInfo) {
+        document.getElementById('security-email').textContent = userInfo.email || 'N/A';
+
+        // Format created date if available
+        if (userInfo.createdAt) {
+            const date = new Date(userInfo.createdAt);
+            document.getElementById('security-created-date').textContent = date.toLocaleDateString('vi-VN');
+        } else {
+            document.getElementById('security-created-date').textContent = 'N/A';
+        }
+
+        if (userInfo.role) {
+            document.getElementById('security-role').textContent = userInfo.role;
+        }
+        else document.getElementById('security-role').textContent = 'N/A';
+    }
+
+    initPasswordToggles();
+}
+
+function initPasswordToggles() {
+    const toggleButtons = [
+        { btnId: 'toggle-current-password', inputId: 'current-password' },
+        { btnId: 'toggle-new-password', inputId: 'new-password' },
+        { btnId: 'toggle-confirm-password', inputId: 'confirm-password' }
+    ];
+
+    toggleButtons.forEach(({ btnId, inputId }) => {
+        const btn = document.getElementById(btnId);
+        const input = document.getElementById(inputId);
+
+        if (btn && input) {
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+
+            newBtn.addEventListener('click', function() {
+                input.type = input.type === 'password' ? 'text' : 'password';
+                const icon = this.querySelector('i');
+                icon.classList.toggle('bi-eye');
+                icon.classList.toggle('bi-eye-slash');
+            });
+        }
+    });
+}
+
+// Change password form
+document.addEventListener('submit', async function(e) {
+    if (e.target.id === 'change-password-form') {
+        e.preventDefault();
+
+        const currentPassword = document.getElementById('current-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        let isValid = true;
+
+        if (!currentPassword) {
+            isValid = false;
+            document.getElementById('current-password').classList.add('is-invalid');
+        } else {
+            document.getElementById('current-password').classList.remove('is-invalid');
+        }
+
+        if (!newPassword || newPassword.length < 6) {
+            isValid = false;
+            document.getElementById('new-password').classList.add('is-invalid');
+        } else {
+            document.getElementById('new-password').classList.remove('is-invalid');
+        }
+
+        if (newPassword !== confirmPassword) {
+            isValid = false;
+            document.getElementById('confirm-password').classList.add('is-invalid');
+            showErrorToast('Passwords do not match!');
+        } else {
+            document.getElementById('confirm-password').classList.remove('is-invalid');
+        }
+
+        if (!isValid) return;
+
+        try {
+            const password = {
+                currentPassword: currentPassword,
+                newPassword: newPassword
+            }
+
+            const result = await AuthState.updatePassword(USER_ID, password);
+            if (result.status === 'Success') {
+                showSuccessToast('Password changed successfully!');
+                document.getElementById('change-password-form').reset();
+                // Collapse the form
+                const collapseElement = document.getElementById('changePasswordForm');
+                const bsCollapse = bootstrap.Collapse.getInstance(collapseElement);
+                if (bsCollapse) {
+                    bsCollapse.hide();
+                } else {
+                    new bootstrap.Collapse(collapseElement, { toggle: true });
+                }
+            } else {
+                showErrorToast(result.message || 'Failed to change password. Please check your current password.');
+            }
+        } catch (error) {
+            console.log(error);
+            console.error('Error changing password:', error);
+            showErrorToast('An error occurred while changing password: ' + (error.message || 'Please try again later.'));
+        }
+    }
+});
+
+document.getElementById("logout-btn").addEventListener('click', async function(e) {
+    e.preventDefault()
+    AuthState.logout();
+})
+

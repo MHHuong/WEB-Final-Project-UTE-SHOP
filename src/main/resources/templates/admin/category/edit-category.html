@@ -3,31 +3,122 @@
 <head th:replace="admin/_layout :: head(~{::title})">
     <title>Edit Category</title>
 </head>
+
 <body>
 <div th:replace="admin/_layout :: layout(~{::content})">
-    <div th:fragment="content" class="container mt-5" style="max-width: 600px;">
-        <h3 class="text-center mb-4 fw-bold">Edit Category</h3>
+    <div th:fragment="content" class="container mt-4">
 
-        <form id="categoryForm" class="card p-4 shadow-sm border-0">
+        <style>
+            /* ===================== EDIT CATEGORY BEAUTIFY ===================== */
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            h3 {
+                font-weight: 700;
+                color: #111827;
+                text-align: center;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: .5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            h3::before {
+                content: "\f044"; /* icon pencil-edit */
+                font-family: "Font Awesome 6 Free";
+                font-weight: 900;
+                color: #16a34a;
+            }
+
+            form.card {
+                max-width: 620px;
+                margin: 0 auto;
+                border: 1px solid #e5e7eb;
+                border-radius: 16px;
+                box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+                background: #fff;
+                padding: 2rem;
+                animation: fadeInUp 0.4s ease;
+            }
+
+            .form-label {
+                font-weight: 600;
+                color: #374151;
+            }
+
+            .form-control {
+                border-radius: 10px;
+                border: 1px solid #d1d5db;
+                padding: .55rem .75rem;
+                transition: all 0.25s ease;
+            }
+
+            .form-control:focus {
+                border-color: #16a34a;
+                box-shadow: 0 0 0 3px rgba(22,163,74,0.25);
+            }
+
+            .btn-success {
+                background: linear-gradient(90deg, #16a34a, #22c55e);
+                border: none;
+                border-radius: 10px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            }
+
+            .btn-success:hover {
+                background: linear-gradient(90deg, #15803d, #16a34a);
+                box-shadow: 0 0 12px rgba(22,163,74,0.4);
+            }
+
+            .btn-secondary {
+                border-radius: 10px;
+                background: #f3f4f6;
+                color: #374151;
+                border: 1px solid #d1d5db;
+            }
+
+            .btn-secondary:hover {
+                background: #e5e7eb;
+            }
+
+            .text-end {
+                margin-top: 1.5rem;
+            }
+
+            .container.mt-4 {
+                animation: fadeInUp 0.4s ease-in-out;
+            }
+        </style>
+
+        <h3>Edit Category</h3>
+
+        <form id="categoryForm" class="card">
             <div class="mb-3">
-                <label for="categoryName" class="form-label fw-semibold">Category Name</label>
-                <input type="text" id="categoryName" class="form-control" placeholder="Enter category name" required>
+                <label for="categoryName" class="form-label">Category Name</label>
+                <input type="text" id="categoryName" class="form-control" placeholder="Enter category name..." required>
             </div>
 
             <div class="text-end">
-                <button type="submit" class="btn btn-success px-4">Save Changes</button>
-                <a href="/admin/categories" class="btn btn-secondary px-4">Cancel</a>
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="bi bi-save"></i> Save Changes
+                </button>
+                <a href="/UTE_SHOP/admin/categories" class="btn btn-secondary px-4">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
             </div>
         </form>
+
     </div>
 </div>
 
-<!-- Truyền ID từ Thymeleaf sang JS -->
+<!-- JS -->
 <script th:inline="javascript">
     const categoryId = /*[[${id}]]*/ null;
 </script>
-
-<!-- File JS dùng chung -->
 <script th:src="@{/js/admin/admin-categories.js}"></script>
 </body>
 </html>

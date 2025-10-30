@@ -1,15 +1,16 @@
-import orderService from '/js/services/api/orderService.js';
-import { showErrorToast, showSuccessToast } from '/js/utils/toastUtils.js';
+import orderService from '../services/api/orderService.js';
+import {showErrorToast, showSuccessToast} from "../../js/utils/toastUtils.js";
 
-// Map trạng thái tiếng Việt
 const statusMap = {
-    'NEW': { label: 'Chờ xác nhận', class: 'bg-warning' },
-    'CONFIRMED': { label: 'Đã xác nhận', class: 'bg-info' },
-    'SHIPPING': { label: 'Đang giao', class: 'bg-primary' },
-    'DELIVERED': { label: 'Đã giao hàng', class: 'bg-success' },
-    'RECEIVED': { label: 'Đã nhận hàng', class: 'bg-success' },
-    'CANCELLED': { label: 'Đã hủy', class: 'bg-danger' },
-    'RETURNED': { label: 'Đã trả hàng', class: 'bg-secondary' }
+    'NEW': { label: 'Pending', class: 'bg-warning' },
+    'CONFIRMED': { label: 'Confirmed', class: 'bg-info' },
+    'SHIPPING': { label: 'On shipping', class: 'bg-primary' },
+    'DELIVERED': { label: 'Shipping completed', class: 'bg-success' },
+    'RECEIVED': { label: 'Received', class: 'bg-success' },
+    'CANCELLED': { label: 'Cancelled', class: 'bg-danger' },
+    'REQUEST_RETURN': { label: 'Return requested', class: 'bg-warning' },
+    'RETURNING': { label: 'Returning', class: 'bg-info' },
+    'RETURNED': { label: 'Returned', class: 'bg-secondary' }
 };
 
 let currentOrderId = null;
@@ -39,23 +40,37 @@ export function showOrderStatusModal(orderId, oldStatus, newStatus, onSuccess = 
     // Hiển thị/ẩn phần lý do
     const reasonSection = document.getElementById('reason-section');
     const cancelReason = document.getElementById('cancel-reason');
+
     const warningText = document.getElementById('warning-text');
 
-    if (newStatus === 'CANCELLED' || newStatus === 'RETURNED') {
+    const accountSection = document.getElementById('account-section');
+    const bankId = document.getElementById('account-reason');
+
+    if (newStatus === 'CANCELLED' || newStatus === 'REQUEST_RETURN') {
         reasonSection.style.display = 'block';
         cancelReason.value = '';
         cancelReason.classList.remove('is-invalid');
 
+
+        accountSection.style.display = 'block';
+        bankId.value = '';
+        bankId.classList.remove('is-invalid');
+
         if (newStatus === 'CANCELLED') {
-            warningText.textContent = 'Sau khi hủy đơn hàng, bạn sẽ không thể hoàn tác. Vui lòng nhập lý do hủy đơn.';
+            warningText.textContent = 'Please provide a reason for cancelling the order so we can improve our service.';
         } else {
-            warningText.textContent = 'Vui lòng nhập lý do trả hàng để chúng tôi có thể cải thiện dịch vụ.';
+            warningText.textContent = 'Please provide a reason for returning the order so we can improve our service.';
         }
     } else {
         reasonSection.style.display = 'none';
         cancelReason.value = '';
         cancelReason.classList.remove('is-invalid');
-        warningText.textContent = 'Bạn có chắc chắn muốn thay đổi trạng thái đơn hàng này không?';
+
+        accountSection.style.display = 'none';
+        bankId.value = '';
+        bankId.classList.remove('is-invalid');
+
+        warningText.textContent = 'Are you sure you want to change the order status?';
     }
 
     // Hiển thị modal
@@ -67,7 +82,11 @@ export function showOrderStatusModal(orderId, oldStatus, newStatus, onSuccess = 
 async function confirmStatusChange() {
     const reasonSection = document.getElementById('reason-section');
     const cancelReason = document.getElementById('cancel-reason');
+
+    const accountSection = document.getElementById('account-section');
+    const bankId = document.getElementById('account-reason');
     let reason = '';
+    let bankInfo = '';
 
     // Validate lý do nếu cần
     if (reasonSection.style.display !== 'none') {
@@ -79,22 +98,33 @@ async function confirmStatusChange() {
         cancelReason.classList.remove('is-invalid');
     }
 
+    // Validate account id nếu cần
+    if (accountSection.style.display !== 'none') {
+        bankInfo = bankId.value.trim();
+        console.log(bankId);
+        if (!bankInfo) {
+            bankId.classList.add('is-invalid');
+            return;
+        }
+        bankId.classList.remove('is-invalid');
+    }
+
     // Disable nút xác nhận
     const confirmBtn = document.getElementById('confirm-status-change-btn');
     const originalBtnText = confirmBtn.innerHTML;
     confirmBtn.disabled = true;
-    confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang xử lý...';
-
+    confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Processing...';
     try {
 
         const result = await orderService.updateStatusOrderWithReason(
             currentOrderId,
             currentNewStatus,
-            reason
+            reason,
+            bankInfo
         );
 
         if (result.status === "Success") {
-            showSuccessToast('Cập nhật trạng thái đơn hàng thành công!');
+            showSuccessToast('Order status updated successfully.');
 
             // Đóng modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('orderStatusConfirmModal'));
@@ -105,11 +135,11 @@ async function confirmStatusChange() {
                 onSuccessCallback();
             }
         } else {
-            showErrorToast(result.message || 'Cập nhật trạng thái thất bại');
+            showErrorToast(result.message || 'Error updating order status. Please try again.');
         }
     } catch (error) {
         console.error('Error updating order status:', error);
-        showErrorToast('Không thể cập nhật trạng thái đơn hàng');
+        showErrorToast('Error updating order status. Please try again.');
     } finally {
         // Khôi phục nút xác nhận
         confirmBtn.disabled = false;
@@ -134,6 +164,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    const bankId = document.getElementById('account-reason');
+    if (bankId) {
+        bankId.addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.classList.remove('is-invalid');
+            }
+        });
+    }
 
     // Reset modal khi đóng
     const modal = document.getElementById('orderStatusConfirmModal');
@@ -144,6 +182,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 cancelReason.value = '';
                 cancelReason.classList.remove('is-invalid');
             }
+            const bankId = document.getElementById('account-reason');
+            if (bankId) {
+                bankId.value = '';
+                bankId.classList.remove('is-invalid');
+            }
         });
     }
 });
@@ -151,4 +194,3 @@ document.addEventListener('DOMContentLoaded', function() {
 export default {
     showOrderStatusModal
 };
-

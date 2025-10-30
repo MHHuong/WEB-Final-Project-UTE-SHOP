@@ -1,208 +1,361 @@
 <!doctype html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="admin/_layout :: head(~{::title})">
     <title>UTESHOP • Admin Dashboard</title>
 </head>
+
 <body>
 
-<!-- Gọi layout chung & truyền fragment content -->
 <div th:replace="admin/_layout :: layout(~{::content})">
-
     <div th:fragment="content">
         <style>
-            .banner{
-                background:#f8fafc url('/assets/images/slider/slider-image-1.jpg') center/cover no-repeat;
-                border-radius:1rem; min-height:140px;
+            /* 🌿 FADE-IN EFFECT */
+            body {
+                opacity: 0;
+                animation: fadeIn 1s ease forwards;
+                background-color: #f9fafb;
             }
-            .rounded-12{ border-radius:12px; }
-            .card-stat h2{ font-size:32px; margin:0; }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            /* 🌿 BANNER ANIMATION */
+            .p-4.rounded-4.text-white {
+                background: linear-gradient(135deg,#16a34a,#22c55e,#4ade80);
+                background-size: 300% 300%;
+                animation: gradientFlow 6s ease infinite;
+            }
+            @keyframes gradientFlow {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+
+            /* 🌿 CARD STYLE + HOVER GLOW */
+            .card {
+                border-radius: 14px;
+                border: none;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+                transition: all 0.3s ease;
+                opacity: 0;
+                transform: translateY(20px);
+                animation: slideUp 0.6s ease forwards;
+            }
+            .card:nth-child(1){animation-delay:.1s}
+            .card:nth-child(2){animation-delay:.2s}
+            .card:nth-child(3){animation-delay:.3s}
+            .card:nth-child(4){animation-delay:.4s}
+            .card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 8px 20px rgba(34,197,94,0.2);
+            }
+
+            /* 🌿 SLIDE-UP ANIMATION */
+            @keyframes slideUp {
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            /* 🌿 CANVAS ANIMATION */
+            canvas {
+                animation: zoomIn 0.7s ease-out;
+            }
+            @keyframes zoomIn {
+                from { transform: scale(0.9); opacity: 0; }
+                to { transform: scale(1); opacity: 1; }
+            }
+
+            /* 🌿 CHART HOVER EFFECT */
+            canvas:hover {
+                filter: brightness(1.05);
+                transform: scale(1.02);
+                transition: all 0.3s ease-in-out;
+            }
+
+            /* 🌿 TITLE GLOW */
+            .fw-bold.mb-1 span.text-warning {
+                text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            }
+
+            /* 🌿 TABLE STYLING */
+            .list-group-item {
+                border: none;
+                border-bottom: 1px solid #f0f0f0;
+                transition: all 0.2s ease;
+            }
+            .list-group-item:hover {
+                background-color: #f9fdf9;
+                transform: scale(1.01);
+            }
+            .list-group-item:last-child {
+                border-bottom: none;
+            }
+
+            /* 🌿 TITLES */
+            h2.fw-bold {
+                font-weight: 800 !important;
+                letter-spacing: -0.5px;
+            }
+            h6.fw-bold {
+                color: #16a34a;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            h6.fw-bold::before {
+                content: "📊";
+                font-size: 16px;
+            }
+
+            /* 🌿 CUSTOM SCROLLBAR */
+            ::-webkit-scrollbar {
+                width: 8px;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: linear-gradient(135deg,#22c55e,#15803d);
+                border-radius: 10px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(135deg,#16a34a,#14532d);
+            }
+
+            /* 🌿 BUTTON HOVER */
+            button, .btn {
+                border-radius: 10px;
+                transition: all 0.25s ease;
+            }
+            button:hover, .btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 4px 10px rgba(22,163,74,0.2);
+            }
+
+            /* 🌿 CARD HEADER STYLE */
+            .card-header {
+                background-color: #fefefe;
+                border-bottom: 1px solid #f3f4f6;
+                letter-spacing: 0.3px;
+                color: #15803d;
+            }
+
+            .shadow-sm { box-shadow: 0 3px 8px rgba(0,0,0,0.05) !important; }
+            .rounded-4 { border-radius: 1rem !important; }
+
+            /* 🌿 CHART FLOAT EFFECT */
+            .bg-white.p-3.rounded-4.shadow-sm:hover {
+                transform: translateY(-4px);
+                transition: all 0.3s ease-in-out;
+            }
+
+            * {
+                transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+            }
+
+            /* 🌿 SECTION FADE */
+            .row.g-3 { animation: floatIn 1s ease forwards; }
+            @keyframes floatIn {
+                from { opacity: 0; transform: translateY(15px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            /* 🌿 PULSE GLOW ADMIN TEXT */
+            @keyframes pulseGlow {
+                0% { text-shadow: 0 0 0 rgba(22,163,74,0.5); }
+                50% { text-shadow: 0 0 10px rgba(34,197,94,0.8); }
+                100% { text-shadow: 0 0 0 rgba(22,163,74,0.5); }
+            }
+            h2.fw-bold span.text-warning {
+                animation: pulseGlow 3s infinite;
+            }
         </style>
 
-        <!-- Banner -->
-        <div class="banner d-flex align-items-center p-4 mb-4">
-            <div>
-                <h3 class="mb-1">Welcome back! <span class="text-primary">UTESHOP</span></h3>
-                <p class="text-muted mb-3">Simple &amp; clean admin for developer and designer.</p>
-                <a href="/admin/products/new" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Create Product
-                </a>
-            </div>
-        </div>
+        <div class="page-wrap py-3" style="max-width:1200px; margin:0 auto;">
 
-        <!-- Stats -->
-        <div class="row g-3 mb-3">
-            <div class="col-12 col-md-4">
-                <div class="card shadow-sm rounded-12 card-stat">
-                    <div class="card-body d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="text-muted">Earnings</div>
-                            <h2 id="stat-earnings">$93,438.78</h2>
-                            <small class="text-muted">Monthly revenue</small>
-                        </div>
-                        <span class="badge rounded-circle p-3 bg-light"><i class="bi bi-currency-dollar"></i></span>
+            <!-- 🌿 Banner -->
+            <div class="p-4 mb-4 rounded-4 text-white shadow-sm"
+                 style="background: linear-gradient(135deg,#16a34a,#22c55e,#4ade80); position:relative; overflow:hidden;">
+                <div style="position:absolute; top:-40px; right:-40px; width:160px; height:160px; background:rgba(255,255,255,0.15); border-radius:50%;"></div>
+                <div style="position:absolute; bottom:-30px; left:-30px; width:100px; height:100px; background:rgba(255,255,255,0.1); border-radius:50%;"></div>
+                <h2 class="fw-bold mb-1">🌱 Welcome back, <span class="text-warning">Admin!</span></h2>
+                <p class="mb-0 opacity-90">Overview of UTE SHOP — manage users, products, coupons, and shipping providers.</p>
+            </div>
+
+            <!-- 🧮 Stats -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="card text-center p-3 shadow-sm border-0" style="border-top:4px solid #16a34a;">
+                        <div class="text-muted">Users</div>
+                        <h2 id="countUsers" class="fw-bold text-success">0</h2>
+                        <small>Total Users</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center p-3 shadow-sm border-0" style="border-top:4px solid #22c55e;">
+                        <div class="text-muted">Products</div>
+                        <h2 id="countProducts" class="fw-bold text-success">0</h2>
+                        <small>Active Listings</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center p-3 shadow-sm border-0" style="border-top:4px solid #4ade80;">
+                        <div class="text-muted">Categories</div>
+                        <h2 id="countCategories" class="fw-bold text-success">0</h2>
+                        <small>Product Groups</small>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center p-3 shadow-sm border-0" style="border-top:4px solid #86efac;">
+                        <div class="text-muted">Shippers</div>
+                        <h2 id="countShippers" class="fw-bold text-success">0</h2>
+                        <small>Active</small>
                     </div>
                 </div>
             </div>
 
-            <div class="col-12 col-md-4">
-                <div class="card shadow-sm rounded-12 card-stat">
-                    <div class="card-body d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="text-muted">Orders</div>
-                            <h2 id="stat-orders">42,339</h2>
-                            <small class="text-muted"><span class="text-success">35+</span> new sales</small>
-                        </div>
-                        <span class="badge rounded-circle p-3 bg-light"><i class="bi bi-bag"></i></span>
+            <!-- 📊 Charts -->
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <div class="bg-white p-3 rounded-4 shadow-sm border-0">
+                        <h6 class="fw-bold mb-3 text-success">📈 System Overview</h6>
+                        <canvas id="overviewChart" height="140"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="bg-white p-3 rounded-4 shadow-sm border-0">
+                        <h6 class="fw-bold mb-3 text-success">🥧 Product Distribution by Category</h6>
+                        <canvas id="categoryChart" height="200"></canvas>
                     </div>
                 </div>
             </div>
 
-            <div class="col-12 col-md-4">
-                <div class="card shadow-sm rounded-12 card-stat">
-                    <div class="card-body d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="text-muted">Customers</div>
-                            <h2 id="stat-customers">39,354</h2>
-                            <small class="text-muted"><span class="text-primary">30+</span> new in 2 days</small>
-                        </div>
-                        <span class="badge rounded-circle p-3 bg-light"><i class="bi bi-people"></i></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts + Sales -->
-        <div class="row g-3">
-            <div class="col-12 col-xl-8">
-                <div class="card shadow-sm rounded-12">
-                    <div class="card-header bg-white d-flex align-items-center justify-content-between">
-                        <div>
-                            <strong>Revenue</strong>
-                            <small class="text-muted ms-2">(+63%) than last year</small>
-                        </div>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">2019</button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">2025</a></li>
-                                <li><a class="dropdown-item" href="#">2024</a></li>
-                                <li><a class="dropdown-item" href="#">2023</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="ratio ratio-21x9 bg-light rounded-12 d-flex align-items-center justify-content-center">
-                            <span class="text-muted">Revenue Chart Placeholder (canvas id="revChart")</span>
-                        </div>
-                        <canvas id="revChart" class="d-none"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-xl-4">
-                <div class="card shadow-sm rounded-12">
-                    <div class="card-header bg-white"><strong>Total Sales</strong></div>
-                    <div class="card-body">
-                        <div class="ratio ratio-1x1 bg-light rounded-12 d-flex align-items-center justify-content-center mb-3">
-                            <span class="text-muted">Donut Chart Placeholder (canvas id="salesChart")</span>
-                        </div>
-                        <canvas id="salesChart" class="d-none"></canvas>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Online <span class="badge bg-primary rounded-pill">6,200</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                In-store <span class="badge bg-warning rounded-pill text-dark">2,400</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Returns <span class="badge bg-danger rounded-pill">400</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Orders & Top Products -->
-        <div class="row g-3 mt-1">
-            <div class="col-12 col-xl-8">
-                <div class="card shadow-sm rounded-12">
-                    <div class="card-header bg-white d-flex align-items-center justify-content-between">
-                        <strong>Recent Orders</strong>
-                        <a href="/admin/orders" class="btn btn-sm btn-outline-secondary">View all</a>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table align-middle mb-0">
-                            <thead class="table-light">
-                            <tr>
-                                <th>#</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th><th></th>
-                            </tr>
-                            </thead>
-                            <tbody id="tbl-recent-orders">
-                            <tr>
-                                <td>ORD-9201</td>
-                                <td>Nguyễn Văn A</td>
-                                <td>2025-10-10</td>
-                                <td>$120.00</td>
-                                <td><span class="badge bg-success">Delivered</span></td>
-                                <td><a class="btn btn-sm btn-light" href="/admin/orders/9201">Details</a></td>
-                            </tr>
-                            <tr>
-                                <td>ORD-9200</td>
-                                <td>Trần Thị B</td>
-                                <td>2025-10-10</td>
-                                <td>$89.00</td>
-                                <td><span class="badge bg-warning text-dark">Shipping</span></td>
-                                <td><a class="btn btn-sm btn-light" href="/admin/orders/9200">Details</a></td>
-                            </tr>
-                            <tr>
-                                <td>ORD-9199</td>
-                                <td>Lê Văn C</td>
-                                <td>2025-10-09</td>
-                                <td>$65.50</td>
-                                <td><span class="badge bg-secondary">Confirmed</span></td>
-                                <td><a class="btn btn-sm btn-light" href="/admin/orders/9199">Details</a></td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-xl-4">
-                <div class="card shadow-sm rounded-12">
-                    <div class="card-header bg-white"><strong>Top Products</strong></div>
-                    <ul class="list-group list-group-flush" id="list-top-products">
-                        <li class="list-group-item d-flex align-items-center">
-                            <img src="/assets/images/products/p1.jpg" class="rounded me-3" width="40" height="40" alt="">
-                            <div class="flex-fill">
-                                <div class="fw-semibold">Organic Tomato</div>
-                                <small class="text-muted">1.2k sold</small>
-                            </div>
-                            <span class="fw-semibold">$3.20</span>
+            <!-- 🗂 Info Table -->
+            <div class="card mt-4 shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white fw-bold text-success border-0">⚡ Quick Info</div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Active Coupons</span><b id="countCoupons" class="text-success">0</b>
                         </li>
-                        <li class="list-group-item d-flex align-items-center">
-                            <img src="/assets/images/products/p2.jpg" class="rounded me-3" width="40" height="40" alt="">
-                            <div class="flex-fill">
-                                <div class="fw-semibold">Fresh Pineapple</div>
-                                <small class="text-muted">980 sold</small>
-                            </div>
-                            <span class="fw-semibold">$6.90</span>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Promotions</span><b id="countPromotions" class="text-success">0</b>
                         </li>
-                        <li class="list-group-item d-flex align-items-center">
-                            <img src="/assets/images/products/p3.jpg" class="rounded me-3" width="40" height="40" alt="">
-                            <div class="flex-fill">
-                                <div class="fw-semibold">Green Broccoli</div>
-                                <small class="text-muted">860 sold</small>
-                            </div>
-                            <span class="fw-semibold">$4.10</span>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Shipping Partners</span><b id="countProviders" class="text-success">0</b>
                         </li>
                     </ul>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-    </div><!-- /content fragment -->
-</div><!-- /layout replace -->
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        const apiBase = "http://localhost:8082/UTE_SHOP/api/admin";
+
+        const getTotal = data => {
+            if (!data) return 0;
+            if (Array.isArray(data)) return data.length;
+            if (data.totalElements !== undefined) return data.totalElements;
+            if (data.content) return data.content.length;
+            return 0;
+        };
+
+        try {
+            const [
+                usersRes, productsRes, categoriesRes, couponsRes,
+                promotionsRes, providersRes, shippersRes
+            ] = await Promise.all([
+                fetch(`${apiBase}/users`),
+                fetch(`${apiBase}/products`),
+                fetch(`${apiBase}/categories`),
+                fetch(`${apiBase}/coupons/app?page=0&size=10`),
+                fetch(`${apiBase}/promotions?page=0&size=10`),
+                fetch(`${apiBase}/shipping-providers`),
+                fetch(`${apiBase}/shippers`)
+            ]);
+
+            const [users, products, categories, coupons, promotions, providers, shippers] =
+                await Promise.all([
+                    usersRes.json(),
+                    productsRes.json(),
+                    categoriesRes.json(),
+                    couponsRes.json(),
+                    promotionsRes.json(),
+                    providersRes.json(),
+                    shippersRes.json()
+                ]);
+
+            // 🟩 Update Counts
+            document.getElementById("countUsers").textContent = getTotal(users);
+            document.getElementById("countProducts").textContent = getTotal(products);
+            document.getElementById("countCategories").textContent = getTotal(categories);
+            document.getElementById("countCoupons").textContent = getTotal(coupons);
+            document.getElementById("countPromotions").textContent = getTotal(promotions);
+            document.getElementById("countProviders").textContent = getTotal(providers);
+            document.getElementById("countShippers").textContent = getTotal(shippers);
+
+            // 🌿 Bar Chart
+            const ctxBar = document.getElementById("overviewChart").getContext("2d");
+            new Chart(ctxBar, {
+                type: "bar",
+                data: {
+                    labels: ["Users", "Products", "Categories", "Coupons", "Promotions", "Providers", "Shippers"],
+                    datasets: [{
+                        label: "Total Count",
+                        data: [
+                            getTotal(users), getTotal(products), getTotal(categories),
+                            getTotal(coupons), getTotal(promotions), getTotal(providers), getTotal(shippers)
+                        ],
+                        backgroundColor: [
+                            "#16a34a", "#22c55e", "#4ade80", "#86efac",
+                            "#65a30d", "#059669", "#15803d"
+                        ],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: false }
+                    },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+
+            // 🌿 Doughnut Chart
+            const list = categories?.content || [];
+            const labels = list.map(c => c.name);
+            const counts = list.map(c => c.products ? c.products.length : 0);
+            const ctxPie = document.getElementById("categoryChart").getContext("2d");
+
+            new Chart(ctxPie, {
+                type: "doughnut",
+                data: {
+                    labels,
+                    datasets: [{
+                        label: "Products by Category",
+                        data: counts,
+                        backgroundColor: [
+                            "#16a34a","#22c55e","#4ade80","#65a30d",
+                            "#84cc16","#a3e635","#86efac","#15803d",
+                            "#166534","#14532d"
+                        ]
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: { position: "right" }
+                    }
+                }
+            });
+
+        } catch (err) {
+            console.error("❌ Error loading dashboard:", err);
+        }
+    });
+</script>
 
 </body>
 </html>

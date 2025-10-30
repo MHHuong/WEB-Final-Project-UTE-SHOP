@@ -12,9 +12,17 @@
             <div class="navbar-vertical-content flex-grow-1" data-simplebar="">
                 <ul class="navbar-nav flex-column" id="sideNavbar">
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{/shipper/orders/confirmed}">
+                        <a class="nav-link" th:href="@{/shipper}">
                             <div class="d-flex align-items-center">
                                 <span class="nav-link-icon"><i class="bi bi-person-gear"></i></span>
+                                <span class="nav-link-text">Profile</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/shipper/orders/confirmed}">
+                            <div class="d-flex align-items-center">
+                                <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
                                 <span class="nav-link-text">Confirmed Orders</span>
                             </div>
                         </a>
@@ -28,10 +36,26 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link " th:href="@{/shipper/orders/return/pickup}">
+                            <div class="d-flex align-items-center">
+                                <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
+                                <span class="nav-link-text">Return Pickup</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " th:href="@{/shipper/orders/return/deliver}">
+                            <div class="d-flex align-items-center">
+                                <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
+                                <span class="nav-link-text">Return Deliver</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" th:href="@{/shipper/history/picked}">
                             <div class="d-flex align-items-center">
-                                <span class="nav-link-icon"><i class="bi bi-bag"></i></span>
-                                <span class="nav-link-text">Picked History Orders</span>
+                                <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
+                                <span class="nav-link-text">Picked Orders History</span>
                             </div>
                         </a>
                     </li>
@@ -39,8 +63,24 @@
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/shipper/history/delivered}">
                             <div class="d-flex align-items-center">
-                                <span class="nav-link-icon"><i class="bi bi-cash"></i></span>
-                                <span class="nav-link-text"> Delivered History Orders</span>
+                                <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
+                                <span class="nav-link-text"> Delivered Orders History</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/shipper/history/return/pickup}">
+                            <div class="d-flex align-items-center">
+                                <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
+                                <span class="nav-link-text"> Picked Return Orders History</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/shipper/history/return/deliver}">
+                            <div class="d-flex align-items-center">
+                                <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
+                                <span class="nav-link-text"> Delivered Return Orders History</span>
                             </div>
                         </a>
                     </li>
@@ -60,15 +100,23 @@
             <div class="navbar-vertical-content flex-grow-1" data-simplebar="">
                 <ul class="navbar-nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{/shipper/order-confirmed}">
+                        <a class="nav-link" th:href="@{/shipper}">
                             <div class="d-flex align-items-center">
                                 <span class="nav-link-icon"><i class="bi bi-person-gear"></i></span>
+                                <span class="nav-link-text">Profile</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/shipper/orders/confirmed}">
+                            <div class="d-flex align-items-center">
+                                <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
                                 <span class="nav-link-text">Confirmed Orders</span>
                             </div>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link " th:href="@{/shipper/order-shipping}">
+                        <a class="nav-link " th:href="@{/shipper/orders/shipping}">
                             <div class="d-flex align-items-center">
                                 <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
                                 <span class="nav-link-text">Shipping Orders</span>
@@ -76,19 +124,51 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{/shipper/history-picked}">
+                        <a class="nav-link " th:href="@{/shipper/orders/return/pickup}">
                             <div class="d-flex align-items-center">
-                                <span class="nav-link-icon"><i class="bi bi-bag"></i></span>
-                                <span class="nav-link-text">Picked History Orders</span>
+                                <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
+                                <span class="nav-link-text">Return Pickup</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " th:href="@{/shipper/orders/return/deliver}">
+                            <div class="d-flex align-items-center">
+                                <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
+                                <span class="nav-link-text">Return Deliver</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/shipper/history/picked}">
+                            <div class="d-flex align-items-center">
+                                <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
+                                <span class="nav-link-text">Picked Orders History</span>
                             </div>
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" th:href="@{/shipper/history-delivered}">
+                        <a class="nav-link" th:href="@{/shipper/history/delivered}">
                             <div class="d-flex align-items-center">
-                                <span class="nav-link-icon"><i class="bi bi-cash"></i></span>
-                                <span class="nav-link-text"> Delivered History Orders</span>
+                                <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
+                                <span class="nav-link-text"> Delivered Orders History</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/shipper/history/return/pickup}">
+                            <div class="d-flex align-items-center">
+                                <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
+                                <span class="nav-link-text"> Picked Return Orders History</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/shipper/history/return/deliver}">
+                            <div class="d-flex align-items-center">
+                                <span class="nav-link-icon"><i class="bi bi-cart"></i></span>
+                                <span class="nav-link-text"> Delivered Return Orders History</span>
                             </div>
                         </a>
                     </li>

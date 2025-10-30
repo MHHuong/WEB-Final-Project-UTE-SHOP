@@ -14,9 +14,18 @@ import vn.host.util.sharedenum.ShipperAction;
 public class OrderShipperLogServiceImpl implements OrderShipperLogService {
     private final OrderShipperLogRepository orderShipperLogRepository;
 
-
     @Override
     public Page<OrderShipperLog> findByShipper_ShipperIdAndAction(Long shipperId, ShipperAction action, Pageable pageable) {
         return orderShipperLogRepository.findByShipper_ShipperIdAndAction(shipperId, action, pageable);
+    }
+
+    @Override
+    public boolean existsAction(long orderId, ShipperAction action) {
+        return orderShipperLogRepository.existsByOrder_OrderIdAndAction(orderId, action);
+    }
+
+    @Override
+    public long countAction(long orderId, ShipperAction action) {
+        return orderShipperLogRepository.countByOrder_OrderIdAndAction(orderId, action);
     }
 }

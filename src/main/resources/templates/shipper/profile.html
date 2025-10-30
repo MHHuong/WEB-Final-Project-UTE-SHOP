@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{shipper/common/main}">
+<body>
+<main layout:fragment="content">
+    <div class="container">
+        <!-- header -->
+        <div class="row mb-8">
+            <div class="col-md-12">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4">
+                    <div>
+                        <h2 class="mb-1">Shipper Profile</h2>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a th:href="@{/shipper}">Shipper</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Profile</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="d-grid d-md-block">
+                        <a class="btn btn-primary" th:href="@{/shipper/profile/edit}">
+                            <i class="bi bi-pencil-square"></i> Edit profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /header -->
+
+        <!-- content -->
+        <div class="row">
+            <div class="col-xl-8 col-lg-9 col-md-10">
+                <div class="card bg-white border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4 p-lg-5">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <h4 class="mb-0" id="fullName">—</h4>
+                                <span class="text-muted" id="email">—</span>
+                                <hr>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted mb-0">Company</label>
+                                <div class="fw-semibold" id="companyName">—</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted mb-0">Phone</label>
+                                <div class="fw-semibold" id="phone">—</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted mb-0">Shipping Provider</label>
+                                <div class="fw-semibold" id="providerName">—</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted mb-0">Provider ID</label>
+                                <div class="fw-semibold" id="providerId">—</div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-muted mb-0">Address</label>
+                                <div class="fw-semibold" id="address">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /content -->
+    </div>
+    <script th:src="@{/assets/js/shipper/shipper-profile.js}" defer></script>
+</main>
+</body>
+</html>

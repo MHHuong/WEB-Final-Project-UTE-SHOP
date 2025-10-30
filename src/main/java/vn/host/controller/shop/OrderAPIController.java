@@ -1,10 +1,12 @@
 package vn.host.controller.shop;
 
 import jakarta.persistence.criteria.Predicate;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
@@ -15,12 +17,11 @@ import vn.host.dto.order.OrderItemVM;
 import vn.host.dto.order.OrderRowVM;
 import vn.host.dto.order.UpdateStatusReq;
 import vn.host.entity.*;
-import vn.host.service.OrderService;
-import vn.host.service.ProductService;
-import vn.host.service.ShopService;
-import vn.host.service.UserService;
+import vn.host.model.websocket.OrderStatusMessage;
+import vn.host.service.*;
 import vn.host.util.sharedenum.DiscountType;
 import vn.host.util.sharedenum.OrderStatus;
+import vn.host.util.sharedenum.ShipperAction;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -37,6 +38,8 @@ public class OrderAPIController {
     private final ShopService shopService;
     private final OrderService orderService;
     private final ProductService productService;
+    private final OrderShipperLogService orderShipperLogService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     private User authedUser(Authentication auth) {
         if (auth == null) throw new SecurityException("Unauthenticated");
@@ -75,7 +78,6 @@ public class OrderAPIController {
                 List<Predicate> or = new ArrayList<>();
                 or.add(cb.like(cb.lower(userJoin.get("fullName")), kw));
                 or.add(cb.like(cb.lower(userJoin.get("email")), kw));
-                // nếu có code/phone/address trong entity, có thể nối thêm ở đây
                 ps.add(cb.or(or.toArray(new Predicate[0])));
             }
             return cb.and(ps.toArray(new Predicate[0]));
@@ -222,8 +224,24 @@ public class OrderAPIController {
                 if (decreased == 0) {
                     p.setStatus(1);
                 }
-
                 productService.save(p);
+            }
+            List<Long> receivers = new ArrayList<>();
+            List<Shipper> shippers = o.getShippingProvider().getShippers().stream().toList();
+            for (Shipper shipper : shippers) {
+                receivers.add(shipper.getUser().getUserId());
+            }
+            receivers.add(o.getUser().getUserId());
+            for (Long receiverId : receivers) {
+                OrderStatusMessage payload = new OrderStatusMessage(null, receiverId.toString().matches("\\d+") ? receiverId : null, next.toString());
+                messagingTemplate.convertAndSendToUser(receiverId.toString(), "/queue/orders", payload);
+            }
+        } else {
+            List<Long> receivers = new ArrayList<>();
+            receivers.add(o.getUser().getUserId());
+            for (Long receiverId : receivers) {
+                OrderStatusMessage payload = new OrderStatusMessage(null, receiverId.toString().matches("\\d+") ? receiverId : null, next.toString());
+                messagingTemplate.convertAndSendToUser(receiverId.toString(), "/queue/orders", payload);
             }
         }
         o.setStatus(next);
@@ -243,5 +261,98 @@ public class OrderAPIController {
 
     private static BigDecimal nz(BigDecimal v) {
         return v == null ? BigDecimal.ZERO : v;
+    }
+
+    @PostMapping("/{orderId}/return/approve")
+    @Transactional
+    public ResponseEntity<Void> approveReturn(Authentication auth, @PathVariable Long orderId) {
+        User u = authedUser(auth);
+        Shop s = myShopOr403(u);
+
+        Order o = orderService.findById(orderId);
+        if (o.getShop() == null || !o.getShop().getShopId().equals(s.getShopId())) {
+            return ResponseEntity.notFound().build();
+        }
+        if (o.getStatus() != OrderStatus.REQUEST_RETURN) {
+            return ResponseEntity.badRequest().build();
+        }
+        o.setStatus(OrderStatus.RETURNING);
+        orderService.save(o);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Shop TỪ CHỐI yêu cầu trả hàng:
+     * REQUEST_RETURN -> DELIVERED
+     */
+    @PostMapping("/{orderId}/return/reject")
+    @Transactional
+    public ResponseEntity<Void> rejectReturn(Authentication auth, @PathVariable Long orderId) {
+        User u = authedUser(auth);
+        Shop s = myShopOr403(u);
+
+        Order o = orderService.findById(orderId);
+        if (o.getShop() == null || !o.getShop().getShopId().equals(s.getShopId())) {
+            return ResponseEntity.notFound().build();
+        }
+        if (o.getStatus() != OrderStatus.REQUEST_RETURN) {
+            return ResponseEntity.badRequest().build();
+        }
+        o.setStatus(OrderStatus.DELIVERED);
+        orderService.save(o);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Shop XÁC NHẬN ĐÃ NHẬN HÀNG TRẢ:
+     * chỉ cho phép khi đang RETURNING và đã có log RETURN_DELIVER
+     * RETURNING -> RETURNED
+     */
+    @PostMapping("/{orderId}/return/confirm-received")
+    @Transactional
+    public ResponseEntity<Void> confirmReceivedReturn(Authentication auth, @PathVariable Long orderId) {
+        User u = authedUser(auth);
+        Shop s = myShopOr403(u);
+
+        Order o = orderService.findById(orderId);
+        if (o.getShop() == null || !o.getShop().getShopId().equals(s.getShopId())) {
+            return ResponseEntity.notFound().build();
+        }
+        if (o.getStatus() != OrderStatus.RETURNING) {
+            return ResponseEntity.badRequest().build();
+        }
+        boolean deliveredBack = orderShipperLogService.existsAction(orderId, ShipperAction.RETURN_DELIVER);
+        if (!deliveredBack) {
+            // chưa có shipper trả hàng về shop -> không cho confirm
+            return ResponseEntity.status(409).build(); // 409 Conflict
+        }
+        o.setStatus(OrderStatus.RETURNED);
+        orderService.save(o);
+        List<Long> receivers = new ArrayList<>();
+        receivers.add(o.getShipper().getUser().getUserId());
+        receivers.add(o.getUser().getUserId());
+        for (Long receiverId : receivers) {
+            OrderStatusMessage payload = new OrderStatusMessage(null, receiverId.toString().matches("\\d+") ? receiverId : null, o.getStatus().toString());
+            messagingTemplate.convertAndSendToUser(receiverId.toString(), "/queue/orders", payload);
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * (Optional, để UI hiển thị nút “CONFIRM RECEIVED…” đúng lúc)
+     * Kiểm tra có thể confirm chưa (dựa trên RETURN_DELIVER)
+     */
+    @GetMapping("/{orderId}/return/confirmable")
+    public ResponseEntity<Boolean> confirmable(Authentication auth, @PathVariable Long orderId) {
+        User u = authedUser(auth);
+        Shop s = myShopOr403(u);
+
+        Order o = orderService.findById(orderId);
+        if (o.getShop() == null || !o.getShop().getShopId().equals(s.getShopId())) {
+            return ResponseEntity.notFound().build();
+        }
+        boolean ok = (o.getStatus() == OrderStatus.RETURNING)
+                && orderShipperLogService.existsAction(orderId, ShipperAction.RETURN_DELIVER);
+        return ResponseEntity.ok(ok);
     }
 }

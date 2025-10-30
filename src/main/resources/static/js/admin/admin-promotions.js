@@ -1,3 +1,14 @@
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
+
+// ================== ADMIN PROMOTION JS ==================
 document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector("#tblPromotions tbody") || document.querySelector("#tblPromotions");
     const pagination = document.querySelector("#pagination");
@@ -34,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <td>${p.applyCategory ? p.applyCategory.name : "<span class='text-secondary'>Tất cả</span>"}</td>
                     <td><span class="status-badge ${statusClass}">${status}</span></td>
                     <td class="text-center">
-                        <a href="/admin/promotions/edit?id=${p.promotionId}" 
+                        <a href="${contextPath}/admin/promotions/edit?id=${p.promotionId}" 
                            class="btn btn-sm btn-outline-primary me-1" title="Sửa">
                            <i class="bi bi-pencil-square"></i>
                         </a>
@@ -76,7 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ============ LOAD PROMOTIONS ============
     function loadPromotions(page = 0, url = null) {
         currentPage = page;
-        const apiUrl = url || `/api/admin/promotions?page=${page}&size=${pageSize}`;
+        const apiUrl = url || `${contextPath}/api/admin/promotions?page=${page}&size=${pageSize}`;
         fetch(apiUrl)
             .then(res => res.json())
             .then(data => {
@@ -88,14 +99,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ============ PAGE: LIST ============
-    if (path === "/admin/promotions") {
+    if (path.endsWith("/admin/promotions")) {
         loadPromotions();
 
         // --- Search ---
         searchBtn?.addEventListener("click", () => {
             const keyword = searchInput.value.trim();
             if (keyword)
-                loadPromotions(0, `/api/admin/promotions?keyword=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
+                loadPromotions(0, `${contextPath}/api/admin/promotions?keyword=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
             else loadPromotions();
         });
 
@@ -115,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (confirm(`Bạn có chắc muốn xóa khuyến mãi "${title}" (ID: ${id})?`)) {
                 try {
-                    const res = await fetch(`/api/admin/promotions/${id}`, { method: "DELETE" });
+                    const res = await fetch(`${contextPath}/api/admin/promotions/${id}`, { method: "DELETE" });
                     const msg = await res.text();
 
                     if (!res.ok) alert("❌ " + (msg || "Không thể xóa!"));
@@ -133,7 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ============ PAGE: ADD ============
     const form = document.getElementById("promotionForm");
-    const isEditPage = path === "/admin/promotions/edit"; // ✅ tách logic
+    const isEditPage = path === `${contextPath}/admin/promotions/edit`;
 
     if (form && !isEditPage) {
         const title = document.getElementById("title");
@@ -144,18 +155,16 @@ document.addEventListener("DOMContentLoaded", function () {
         const applyCategoryId = document.getElementById("applyCategoryId");
 
         // ===== LOAD DANH MỤC =====
-        fetch("/api/admin/categories?page=0&size=100")
+        fetch(`${contextPath}/api/admin/categories?page=0&size=100`)
             .then(res => res.json())
             .then(data => {
                 const select = applyCategoryId;
                 const categories = data.content || data;
-
                 select.innerHTML = "";
                 const defaultOption = document.createElement("option");
                 defaultOption.value = "";
                 defaultOption.textContent = "— Apply to all categories —";
                 select.appendChild(defaultOption);
-
                 categories.forEach(c => {
                     const opt = document.createElement("option");
                     opt.value = c.categoryId;
@@ -184,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             if (new Date(data.startDate).toDateString() === new Date().toDateString()) {
                 const confirmNow = confirm("⚠️ Khuyến mãi bắt đầu ngay hôm nay. Sẽ không chỉnh sửa được! Bạn có chắc chắn muốn tạo?");
-                if (!confirmNow) return; // nếu bấm Cancel thì dừng lại, không gọi API
+                if (!confirmNow) return;
             }
 
             if (new Date(data.startDate) > new Date(data.endDate)) {
@@ -193,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             try {
-                const res = await fetch("/api/admin/promotions", {
+                const res = await fetch(`${contextPath}/api/admin/promotions`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)
@@ -202,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!res.ok) alert("❌ " + (msg || "Thêm thất bại!"));
                 else {
                     alert("✅ " + (msg || "Thêm khuyến mãi thành công!"));
-                    window.location.href = "/admin/promotions";
+                    window.location.href = `${contextPath}/admin/promotions`;
                 }
             } catch (err) {
                 console.error(err);
@@ -215,7 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // ============ PAGE: EDIT ============
 document.addEventListener("DOMContentLoaded", function () {
     const path = window.location.pathname;
-    if (path !== "/admin/promotions/edit") return;
+    if (!path.endsWith("/admin/promotions/edit")) return;
 
     const form = document.getElementById("promotionForm");
     if (!form) return;
@@ -223,7 +232,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const promotionId = new URLSearchParams(window.location.search).get("id");
     if (!promotionId) {
         alert("⚠️ Không tìm thấy ID khuyến mãi!");
-        window.location.href = "/admin/promotions";
+        window.location.href = `${contextPath}/admin/promotions`;
         return;
     }
 
@@ -235,24 +244,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const applyCategoryId = document.getElementById("applyCategoryId");
 
     // ===== LOAD DANH MỤC =====
-    fetch("/api/admin/categories?page=0&size=100")
+    fetch(`${contextPath}/api/admin/categories?page=0&size=100`)
         .then(res => res.json())
         .then(data => {
             const categories = data.content || data;
             applyCategoryId.innerHTML = "";
-
             const defaultOpt = document.createElement("option");
             defaultOpt.value = "";
             defaultOpt.textContent = "— Apply to all categories —";
             applyCategoryId.appendChild(defaultOpt);
-
             categories.forEach(c => {
                 const opt = document.createElement("option");
                 opt.value = c.categoryId;
                 opt.textContent = c.name;
                 applyCategoryId.appendChild(opt);
             });
-
             loadPromotion();
         })
         .catch(err => {
@@ -262,7 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ===== LOAD PROMOTION =====
     function loadPromotion() {
-        fetch(`/api/admin/promotions/${promotionId}`)
+        fetch(`${contextPath}/api/admin/promotions/${promotionId}`)
             .then(res => {
                 if (!res.ok) throw new Error("Không tìm thấy chương trình khuyến mãi");
                 return res.json();
@@ -278,7 +284,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(err => {
                 alert("⚠️ Lỗi tải dữ liệu khuyến mãi!");
                 console.error(err);
-                window.location.href = "/admin/promotions";
+                window.location.href = `${contextPath}/admin/promotions`;
             });
     }
 
@@ -305,17 +311,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         try {
-            const res = await fetch(`/api/admin/promotions/${promotionId}`, {
+            const res = await fetch(`${contextPath}/api/admin/promotions/${promotionId}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
-
             const msg = await res.text();
             if (!res.ok) alert("❌ " + (msg || "Cập nhật thất bại!"));
             else {
                 alert("✅ " + (msg || "Cập nhật khuyến mãi thành công!"));
-                window.location.href = "/admin/promotions";
+                window.location.href = `${contextPath}/admin/promotions`;
             }
         } catch (err) {
             console.error(err);

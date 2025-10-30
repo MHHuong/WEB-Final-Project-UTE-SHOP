@@ -1,3 +1,13 @@
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
+
 document.addEventListener("DOMContentLoaded", function () {
     const tbody = document.querySelector("#tblCategories");
     const pagination = document.querySelector("#pagination"); // ✅ thêm dòng này
@@ -22,11 +32,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             tbody.insertAdjacentHTML("beforeend", `
         <tr>
-          <td><input type="checkbox"></td>
           <td>${c.name}</td>
           <td class="text-center">${productCount}</td>
           <td class="text-center">
-            <a href="/admin/categories/edit/${c.categoryId}" 
+            <a href="${contextPath}/admin/categories/edit/${c.categoryId}" 
                class="btn btn-sm btn-outline-primary me-1" 
                title="Sửa">
                <i class="bi bi-pencil-square"></i>
@@ -43,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ============ RENDER PAGINATION ============ ✅ thêm phần này
+    // ============ RENDER PAGINATION ============
     function renderPagination(totalPages, currentPage) {
         pagination.innerHTML = "";
         if (totalPages <= 1) return;
@@ -60,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ============ LOAD CATEGORIES ============
     function loadCategories(page = 0, url = null) {
         currentPage = page;
-        const apiUrl = url || `/api/admin/categories?page=${page}&size=${pageSize}`;
+        const apiUrl = url || `${contextPath}/api/admin/categories?page=${page}&size=${pageSize}`;
         fetch(apiUrl)
             .then(res => res.json())
             .then(data => {
@@ -72,14 +81,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ============ PAGE: LIST ============
-    if (path === "/admin/categories") {
+    if (path.endsWith("/admin/categories")) {
         loadCategories();
 
         // --- Search ---
         searchBtn?.addEventListener("click", () => {
             const keyword = searchInput.value.trim();
             if (keyword)
-                loadCategories(0, `/api/admin/categories/search?q=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
+                loadCategories(0, `${contextPath}/api/admin/categories/search?q=${encodeURIComponent(keyword)}&page=0&size=${pageSize}`);
             else loadCategories();
         });
 
@@ -96,14 +105,14 @@ document.addEventListener("DOMContentLoaded", function () {
             const id = btn.dataset.id;
             const action = btn.dataset.action;
 
-            if (action === "delete" && confirm("Bạn có chắc chắn muốn xóa danh mục này?")) {
-                fetch(`/api/admin/categories/${id}`, { method: "DELETE" })
+            if (action === "delete" && confirm("Are you sure you want to delete this category?")) {
+                fetch(`${contextPath}/api/admin/categories/${id}`, { method: "DELETE" })
                     .then(async res => {
                         const msg = await res.text();
                         if (!res.ok) {
-                            alert("❌ " + (msg || "Không thể xóa danh mục này vì có sản phẩm liên kết!"));
+                            alert("❌ " + (msg || "This category cannot be deleted because it contains affiliated products!"));
                         } else {
-                            alert("✅ " + (msg || "Xóa thành công!"));
+                            alert("✅ " + (msg || "Deleted successfully!"));
                             loadCategories(currentPage);
                         }
                     })
@@ -128,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // --- Nếu là trang EDIT ---
     if (id) {
-        fetch(`/api/admin/categories/${id}`)
+        fetch(`${contextPath}/api/admin/categories/${id}`)
             .then(res => {
                 if (!res.ok) throw new Error("Không tìm thấy danh mục!");
                 return res.json();
@@ -139,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(err => {
                 alert("⚠️ Lỗi tải dữ liệu danh mục!");
                 console.error(err);
-                window.location.href = "/admin/categories";
+                window.location.href = `${contextPath}/admin/categories`;
             });
     }
 
@@ -149,12 +158,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const data = { name: nameInput.value.trim() };
         if (!data.name) {
-            alert("Vui lòng nhập tên danh mục!");
+            alert("Please enter a category name!");
             return;
         }
 
         const method = id ? "PUT" : "POST";
-        const url = id ? `/api/admin/categories/${id}` : `/api/admin/categories`;
+        const url = id ? `${contextPath}/api/admin/categories/${id}` : `${contextPath}/api/admin/categories`;
 
         const res = await fetch(url, {
             method,
@@ -163,11 +172,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (res.ok) {
-            alert("✅ Lưu danh mục thành công!");
-            window.location.href = "/admin/categories";
+            alert("✅ Category saved successfully!");
+            window.location.href = `${contextPath}/admin/categories`;
         } else {
             const msg = await res.text();
-            alert("❌ Lỗi: " + (msg || "Không thể lưu danh mục!"));
+            alert("❌ Error: " + (msg || "Unable to save category!"));
         }
     });
 });

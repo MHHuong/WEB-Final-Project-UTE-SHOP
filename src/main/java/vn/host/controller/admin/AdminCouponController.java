@@ -49,7 +49,7 @@ public class AdminCouponController {
         public ResponseEntity<String> delete(@PathVariable Long id) {
             try {
                 couponService.delete(id);
-                return ResponseEntity.ok("Xóa coupon thành công!");
+                return ResponseEntity.ok("Coupon deleted successfully!");
             } catch (RuntimeException e) {
                 return ResponseEntity.badRequest().body(e.getMessage());
             } catch (Exception e) {

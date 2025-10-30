@@ -1,12 +1,11 @@
 package vn.host.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.host.dto.CategoryNodeDTO;
+import vn.host.dto.common.CategoryNodeDTO;
 import vn.host.entity.Category;
 import vn.host.repository.CategoryRepository;
 import vn.host.service.CategoryService;
@@ -52,9 +51,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void delete(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục!"));
+                .orElseThrow(() -> new RuntimeException("Category not found!"));
         if (!category.getProducts().isEmpty()) {
-            throw new RuntimeException("Không thể xóa danh mục này vì đang chứa sản phẩm!");
+            throw new RuntimeException("This category cannot be deleted because it contains products!");
         }
         categoryRepository.delete(category);
     }

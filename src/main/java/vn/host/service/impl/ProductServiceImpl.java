@@ -9,10 +9,13 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import vn.host.dto.ProductDTO;
+import vn.host.dto.common.ProductDTO;
 import vn.host.dto.common.PageResult;
+import vn.host.dto.product.ProductDetailVM;
 import vn.host.dto.product.ProductListItemVM;
+import vn.host.dto.review.RatingSummary;
 import vn.host.entity.Product;
+import vn.host.entity.ProductMedia;
 import vn.host.model.response.ProductResponse;
 import vn.host.repository.ProductMediaRepository;
 import vn.host.repository.ProductRepository;
@@ -20,6 +23,7 @@ import vn.host.repository.ShopRepository;
 import vn.host.repository.UserRepository;
 import vn.host.service.CategoryService;
 import vn.host.service.ProductService;
+import vn.host.service.ReviewService;
 import vn.host.spec.ProductSpecs;
 
 import java.math.BigDecimal;
@@ -37,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
     private final UserRepository users;
     private final ShopRepository shops;
     private final ProductMediaRepository mediaRepo;
-
+    private final ReviewService reviewService;
 //    @Autowired
 //    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService) {
 //        this.productRepository = productRepository;
@@ -107,10 +111,8 @@ public class ProductServiceImpl implements ProductService {
                     .orElse(0.0);
             reviewCount = product.getReviews().size();
         }
-
         dto.setAverageRating(avgRating);
         dto.setReviewCount(reviewCount);
-
         return dto;
     }
 
@@ -155,27 +157,22 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<Product> findAllForAdmin(String keyword, Long categoryId, Long shopId, Integer status, Pageable pageable) {
         Specification<Product> spec = Specification.allOf();
-
         if (keyword != null && !keyword.isBlank()) {
             spec = spec.and((root, query, cb) ->
                     cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase() + "%"));
         }
-
         if (categoryId != null) {
             spec = spec.and((root, query, cb) ->
                     cb.equal(root.get("category").get("categoryId"), categoryId));
         }
-
         if (shopId != null) {
             spec = spec.and((root, query, cb) ->
                     cb.equal(root.get("shop").get("shopId"), shopId));
         }
-
         if (status != null) {
             spec = spec.and((root, query, cb) ->
                     cb.equal(root.get("status"), status));
         }
-
         return productRepository.findAll(spec, pageable);
     }
 
@@ -221,31 +218,23 @@ public class ProductServiceImpl implements ProductService {
         var shop = shops.findFirstByOwner_UserId(user.getUserId())
                 .orElseThrow(() -> new IllegalStateException("Bạn chưa đăng ký shop."));
         Long shopId = shop.getShopId();
-
         Pageable pageable = PageRequest.of(page, size, sortOrDefault(sort));
-
         List<Specification<Product>> list = new ArrayList<>();
         list.add(ProductSpecs.belongsToShop(shopId));
-
         if (status == null) {
             list.add(ProductSpecs.notDeleted());
         } else {
             list.add(ProductSpecs.statusIs(status));
         }
-
         if (StringUtils.hasText(q)) list.add(ProductSpecs.nameContains(q));
         if (categoryId != null) list.add(ProductSpecs.categoryIs(categoryId));
         if (minPrice != null) list.add(ProductSpecs.priceGte(minPrice));
         if (maxPrice != null) list.add(ProductSpecs.priceLte(maxPrice));
-
         Specification<Product> spec = Specification.allOf(list);
-
         Page<Product> pg = productRepository.findAll(spec, pageable);
-
         var content = pg.getContent().stream()
                 .map(p -> ProductListItemVM.of(p, resolveThumb(p.getProductId())))
                 .toList();
-
         return PageResult.<ProductListItemVM>builder()
                 .content(content)
                 .page(pg.getNumber())
@@ -265,7 +254,6 @@ public class ProductServiceImpl implements ProductService {
     private String resolveThumb(Long productId) {
         var list = mediaRepo.findByProduct_ProductId(productId);
         if (list == null || list.isEmpty()) return null;
-
         return list.stream()
                 .filter(m -> m.getType() == vn.host.util.sharedenum.MediaType.image)
                 .sorted(java.util.Comparator.comparing(vn.host.entity.ProductMedia::getMediaId))
@@ -281,14 +269,11 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new SecurityException("User not found"));
         var shop = shops.findFirstByOwner_UserId(user.getUserId())
                 .orElseThrow(() -> new IllegalStateException("Bạn chưa đăng ký shop."));
-
         Product p = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException("Product not found"));
-
         if (p.getShop() == null || !p.getShop().getShopId().equals(shop.getShopId())) {
             throw new SecurityException("Bạn không có quyền thao tác sản phẩm này.");
         }
-
         // Soft delete
         p.setStatus(3);
         productRepository.save(p);
@@ -304,14 +289,11 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new SecurityException("User not found"));
         var shop = shops.findFirstByOwner_UserId(user.getUserId())
                 .orElseThrow(() -> new IllegalStateException("Bạn chưa đăng ký shop."));
-
         Product p = productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException("Product not found"));
-
         if (p.getShop() == null || !p.getShop().getShopId().equals(shop.getShopId())) {
             throw new SecurityException("Bạn không có quyền thao tác sản phẩm này.");
         }
-
         p.setStatus(toStatus);
         productRepository.save(p);
     }
@@ -321,25 +303,38 @@ public class ProductServiceImpl implements ProductService {
     public void bulkUpdateStatus(String userEmail, List<Long> productIds, int status) {
         if (status < 0 || status > 3) throw new IllegalArgumentException("Status phải là 0/1/2/3");
         if (productIds == null || productIds.isEmpty()) return;
-
         var user = users.findByEmail(userEmail)
                 .orElseThrow(() -> new SecurityException("User not found"));
         var shop = shops.findFirstByOwner_UserId(user.getUserId())
                 .orElseThrow(() -> new IllegalStateException("Bạn chưa đăng ký shop."));
         Long shopId = shop.getShopId();
-
         var list = productRepository.findAllById(productIds);
         if (list.isEmpty()) return;
-
         list.stream()
                 .filter(p -> p.getShop() != null && shopId.equals(p.getShop().getShopId()))
                 .forEach(p -> p.setStatus(status));
-
         productRepository.saveAll(list);
     }
 
     @Override
     public List<ProductResponse> findAllProductOrder() {
         return productRepository.findAllProductsOrder();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProductDetailVM getProductDetailVM(Long productId) {
+        Product product = productRepository.findByIdWithDetails(productId);
+        if (product == null) {
+            throw new NoSuchElementException("Product not found with id: " + productId); // Hoặc EntityNotFoundException
+        }
+        RatingSummary summary = reviewService.getRatingSummaryByProductId(productId);
+        List<ProductMedia> mediaEntities = new ArrayList<>(product.getMedia());
+        return ProductDetailVM.of(
+                product,
+                mediaEntities,
+                summary.getAvg(),
+                summary.getTotal()
+        );
     }
 }

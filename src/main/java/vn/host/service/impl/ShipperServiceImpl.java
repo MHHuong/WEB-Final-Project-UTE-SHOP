@@ -3,14 +3,18 @@ package vn.host.service.impl;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Subquery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import vn.host.dto.shipper.ShipperRequest;
 import vn.host.entity.*;
+import vn.host.model.websocket.OrderStatusMessage;
 import vn.host.repository.*;
 import vn.host.service.ShipperService;
 import vn.host.util.sharedenum.OrderStatus;
@@ -31,6 +35,7 @@ public class ShipperServiceImpl implements ShipperService {
     private final ShippingProviderRepository shippingProviderRepository;
     private final OrderRepository orderRepository;
     private final OrderShipperLogRepository orderShipperLogRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     public Page<Shipper> getAll(String keyword, int page, int size) {
@@ -48,47 +53,45 @@ public class ShipperServiceImpl implements ShipperService {
     }
 
     @Override
-    public Shipper save(Shipper shipper) {
-        // Validate input
-        if (shipper.getUser() == null || shipper.getUser().getUserId() == null)
-            throw new RuntimeException("User information is required!");
-        if (shipper.getShippingProvider() == null || shipper.getShippingProvider().getShippingProviderId() == null)
-            throw new RuntimeException("Shipping provider information is required!");
+    public Shipper save(ShipperRequest req) {
+        if (req.getUser().getUserId() == null)
+            throw new RuntimeException("User ID is required!");
+        if (req.getShippingProvider().getShippingProviderId() == null)
+            throw new RuntimeException("Shipping Provider ID is required!");
 
-        Long userId = shipper.getUser().getUserId();
-        Long providerId = shipper.getShippingProvider().getShippingProviderId();
+        User user = userRepository.findById(req.getUser().getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + req.getUser().getUserId()));
+        ShippingProvider provider = shippingProviderRepository.findById(req.getShippingProvider().getShippingProviderId())
+                .orElseThrow(() -> new RuntimeException("Shipping provider not found with ID: " + req.getShippingProvider().getShippingProviderId()));
 
-        // Validate user & provider
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
-        ShippingProvider provider = shippingProviderRepository.findById(providerId)
-                .orElseThrow(() -> new RuntimeException("Shipping provider not found with ID: " + providerId));
-
-        // Validate user role
         if (user.getRole() != UserRole.SHIPPER)
             throw new RuntimeException("User must have role SHIPPER to be assigned as a shipper!");
 
-        // Check duplicate shipper
-        if (shipperRepository.existsByUser_UserId(userId))
+        if (shipperRepository.existsByUser_UserId(req.getUser().getUserId()))
             throw new RuntimeException("This user is already assigned as a shipper!");
 
-        shipper.setUser(user);
-        shipper.setShippingProvider(provider);
+        Shipper shipper = Shipper.builder()
+                .user(user)
+                .companyName(req.getCompanyName())
+                .phone(req.getPhone())
+                .shippingProvider(provider)
+                .build();
 
         return shipperRepository.save(shipper);
     }
 
     @Override
-    public Shipper update(Long id, Shipper shipper) {
+    public Shipper update(Long id, ShipperRequest req) {
         Shipper existing = findById(id);
 
-        // Không cho phép thay đổi user
-        existing.setCompanyName(shipper.getCompanyName());
-        existing.setPhone(shipper.getPhone());
+        // Không cho phép đổi user (giữ nguyên shipper cũ)
+        existing.setCompanyName(req.getCompanyName());
+        existing.setPhone(req.getPhone());
 
-        if (shipper.getShippingProvider() != null && shipper.getShippingProvider().getShippingProviderId() != null) {
+        // Nếu người dùng có chọn lại provider
+        if (req.getShippingProvider() != null && req.getShippingProvider().getShippingProviderId() != null) {
             ShippingProvider provider = shippingProviderRepository.findById(
-                    shipper.getShippingProvider().getShippingProviderId()
+                    req.getShippingProvider().getShippingProviderId()
             ).orElseThrow(() -> new RuntimeException("Shipping provider not found!"));
             existing.setShippingProvider(provider);
         }
@@ -200,8 +203,6 @@ public class ShipperServiceImpl implements ShipperService {
                 if (org.springframework.util.StringUtils.hasText(district)) {
                     ps.add(cb.equal(recvAddr.get("district"), district));
                 }
-                // Mặc định: chỉ thấy đơn SHIPPING của chính mình
-                //ps.add(cb.equal(root.get("shipper"), me));
             }
 
             return cb.and(ps.toArray(new Predicate[0]));
@@ -237,7 +238,7 @@ public class ShipperServiceImpl implements ShipperService {
     public Order deliver(Long orderId, Shipper me) {
         Order o = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("Order not found"));
         if (o.getStatus() != OrderStatus.SHIPPING) throw new IllegalStateException("Order not in SHIPPING state");
-        if (o.getShipper() == null || !o.getShipper().getShipperId().equals(me.getShipperId())) {
+        if (o.getShipper() == null) {
             throw new SecurityException("You are not assigned to this order");
         }
 
@@ -261,6 +262,181 @@ public class ShipperServiceImpl implements ShipperService {
         orderShipperLogRepository.save(OrderShipperLog.builder()
                 .order(saved).shipper(me).action(ShipperAction.DELIVER).build());
 
+        return saved;
+    }
+
+    @Override
+    public Shipper edit(Shipper s) {
+        Long userId = (s.getUser() != null ? s.getUser().getUserId() : null);
+        if (userId == null) {
+            throw new IllegalArgumentException("Shipper.user is required");
+        }
+
+        Optional<Shipper> existingByUser = shipperRepository.findByUser_UserId(userId);
+
+        if (s.getShipperId() == null) {
+            if (existingByUser.isPresent()) {
+                throw new RuntimeException("This user is already assigned as a shipper!");
+            }
+        } else {
+            if (existingByUser.isPresent() && !existingByUser.get().getShipperId().equals(s.getShipperId())) {
+                throw new RuntimeException("This user is already assigned as a shipper!");
+            }
+        }
+
+        return shipperRepository.save(s);
+    }
+
+    @Override
+    public Page<Order> listReturnPickup(Shipper me, Pageable pageable) {
+        Area a = resolveAreaFromAddress(me.getAddress());
+        String province = a.province(), district = a.district();
+
+        Specification<Order> spec = (root, cq, cb) -> {
+            List<Predicate> ps = new ArrayList<>();
+
+            ps.add(cb.equal(root.get("status"), OrderStatus.RETURNING));
+
+            Subquery<Long> sub = cq.subquery(Long.class);
+            var logRoot = sub.from(OrderShipperLog.class);
+            sub.select(cb.count(logRoot.get("id")));
+            sub.where(
+                    cb.equal(logRoot.get("order"), root),
+                    cb.equal(logRoot.get("action"), ShipperAction.RETURN_PICKUP)
+            );
+            ps.add(cb.equal(sub, 0L));
+
+            Join<Order, Address> recvAddr = root.join("address", JoinType.INNER);
+            if (StringUtils.hasText(province)) {
+                ps.add(cb.equal(recvAddr.get("province"), province));
+            }
+            if (StringUtils.hasText(district)) {
+                ps.add(cb.equal(recvAddr.get("district"), district));
+            }
+            return cb.and(ps.toArray(new Predicate[0]));
+        };
+
+        return orderRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public Page<Order> listReturnDeliver(Shipper me, Pageable pageable) {
+        Area a = resolveAreaFromAddress(me.getAddress());
+        String province = a.province(), district = a.district();
+
+        Specification<Order> spec = (root, cq, cb) -> {
+            List<Predicate> ps = new ArrayList<>();
+            ps.add(cb.equal(root.get("status"), OrderStatus.RETURNING));
+
+            Subquery<Long> subPickup = cq.subquery(Long.class);
+            var logPickup = subPickup.from(OrderShipperLog.class);
+            subPickup.select(cb.count(logPickup.get("id")));
+            subPickup.where(
+                    cb.equal(logPickup.get("order"), root),
+                    cb.equal(logPickup.get("action"), ShipperAction.RETURN_PICKUP)
+            );
+            ps.add(cb.greaterThan(subPickup, 0L));
+
+            Subquery<Long> subDeliver = cq.subquery(Long.class);
+            var logDeliver = subDeliver.from(OrderShipperLog.class);
+            subDeliver.select(cb.count(logDeliver.get("id")));
+            subDeliver.where(
+                    cb.equal(logDeliver.get("order"), root),
+                    cb.equal(logDeliver.get("action"), ShipperAction.RETURN_DELIVER)
+            );
+            ps.add(cb.equal(subDeliver, 0L));
+
+            Join<Order, Shop> shop = root.join("shop", JoinType.INNER);
+            String likeTail = tailLike(district, province);
+            if (likeTail != null) {
+                ps.add(cb.like(shop.get("address"), likeTail));
+            }
+
+            return cb.and(ps.toArray(new Predicate[0]));
+        };
+
+        return orderRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public Order returnPickup(Long orderId, Shipper me) {
+        Order o = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        if (o.getStatus() != OrderStatus.RETURNING)
+            throw new IllegalStateException("Order not in RETURNING state");
+
+        boolean existed = orderShipperLogRepository.existsByOrder_OrderIdAndAction(orderId, ShipperAction.RETURN_PICKUP);
+        if (existed) throw new IllegalStateException("Already picked up returned goods");
+
+        Area a = resolveAreaFromAddress(me.getAddress());
+        String province = a.province(), district = a.district();
+
+        Address recv = o.getAddress();
+        if (recv != null && StringUtils.hasText(province) && StringUtils.hasText(district)) {
+            if (!province.equals(recv.getProvince()) || !district.equals(recv.getDistrict())) {
+                throw new SecurityException("Order outside your pickup area (receiver)");
+            }
+        }
+
+        o.setShipper(me);
+        Order saved = orderRepository.save(o);
+
+        orderShipperLogRepository.save(OrderShipperLog.builder()
+                .order(saved)
+                .shipper(me)
+                .action(ShipperAction.RETURN_PICKUP)
+                .build());
+        List<Long> receivers = new ArrayList<>();
+        List<Shipper> shippers = o.getShippingProvider().getShippers().stream().toList();
+        for (Shipper shipper : shippers) {
+            receivers.add(shipper.getUser().getUserId());
+        }
+        receivers.add(o.getShop().getOwner().getUserId());
+        receivers.add(o.getUser().getUserId());
+        for (Long receiverId : receivers) {
+            OrderStatusMessage payload = new OrderStatusMessage(null, receiverId.toString().matches("\\d+") ? receiverId : null, o.getStatus().toString());
+            messagingTemplate.convertAndSendToUser(receiverId.toString(), "/queue/orders", payload);
+        }
+        return saved;
+    }
+
+    @Override
+    public Order returnDeliver(Long orderId, Shipper me) {
+        Order o = orderRepository.findById(orderId).orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        if (o.getStatus() != OrderStatus.RETURNING)
+            throw new IllegalStateException("Order not in RETURNING state");
+
+        boolean hasPickup = orderShipperLogRepository.existsByOrder_OrderIdAndAction(orderId, ShipperAction.RETURN_PICKUP);
+        if (!hasPickup) throw new IllegalStateException("This return hasn't been picked up yet");
+        boolean hasDeliver = orderShipperLogRepository.existsByOrder_OrderIdAndAction(orderId, ShipperAction.RETURN_DELIVER);
+        if (hasDeliver) throw new IllegalStateException("Already delivered return");
+
+        Area shipperArea = resolveAreaFromAddress(me.getAddress());
+        String shopAddrStr = (o.getShop() != null) ? o.getShop().getAddress() : null;
+        Area shopArea = resolveAreaFromAddress(shopAddrStr);
+        if (StringUtils.hasText(shipperArea.province()) && StringUtils.hasText(shipperArea.district())) {
+            if (!shipperArea.province().equals(shopArea.province()) || !shipperArea.district().equals(shopArea.district())) {
+                throw new SecurityException("Order outside your pickup area (shop)");
+            }
+        }
+        o.setShipper(me);
+        Order saved = orderRepository.save(o);
+
+        orderShipperLogRepository.save(OrderShipperLog.builder()
+                .order(saved)
+                .shipper(me)
+                .action(ShipperAction.RETURN_DELIVER)
+                .build());
+        List<Long> receivers = new ArrayList<>();
+        List<Shipper> shippers = o.getShippingProvider().getShippers().stream().toList();
+        for (Shipper shipper : shippers) {
+            receivers.add(shipper.getUser().getUserId());
+        }
+        receivers.add(o.getShop().getOwner().getUserId());
+        receivers.add(o.getUser().getUserId());
+        for (Long receiverId : receivers) {
+            OrderStatusMessage payload = new OrderStatusMessage(null, receiverId.toString().matches("\\d+") ? receiverId : null, o.getStatus().toString());
+            messagingTemplate.convertAndSendToUser(receiverId.toString(), "/queue/orders", payload);
+        }
         return saved;
     }
 }

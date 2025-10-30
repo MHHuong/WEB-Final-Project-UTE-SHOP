@@ -50,10 +50,11 @@ public class Product {
     @CreationTimestamp
     private Instant createdAt;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties("product")
     private Set<ProductMedia> media = new HashSet<>();
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private Set<Review> reviews = new HashSet<>();
 }

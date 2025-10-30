@@ -10,7 +10,7 @@ import vn.host.entity.User;
 import vn.host.model.request.CartRequest;
 import vn.host.model.response.CartResponse;
 import vn.host.model.response.PageResponse;
-import vn.host.repository.CartItemRespository;
+import vn.host.repository.CartItemRepository;
 import vn.host.repository.ProductRepository;
 import vn.host.repository.UserRepository;
 import vn.host.service.CartItemService;
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class CartItemServiceImpl implements CartItemService {
 
     @Autowired
-    CartItemRespository cartItemRepository;
+    CartItemRepository cartItemRepository;
 
     @Autowired
     UserRepository userRepository;

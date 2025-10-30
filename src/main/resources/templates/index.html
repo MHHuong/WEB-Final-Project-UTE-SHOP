@@ -8,7 +8,8 @@
 
 <body>
 
-<div th:replace="~{fragments/layout :: navbar}"></div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div th:replace="~{fragments/user/shopCart::shop-cart}"></div>
 <div th:replace="~{fragments/layout :: modals}"></div>
 
 <main>
@@ -57,7 +58,7 @@
                                'position: relative;'">
 
                         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-                            <a href="#!" class="btn btn-success btn-lg">
+                            <a href="shop-grid" class="btn btn-success btn-lg">
                                 Shop Now <i class="bi bi-arrow-right"></i>
                             </a>
                         </div>
@@ -76,6 +77,7 @@
 
             </div>
         </div>
+        <div th:replace="~{fragments/toast::toast-container}"></div>
     </section>
     <section class="my-lg-14 my-8">
     </section>
@@ -84,11 +86,12 @@
 <footer th:replace="~{fragments/layout :: footer}" class="footer"></footer>
 
 <div th:replace="~{fragments/layout :: scripts}"></div>
-
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function () {
+        const contextPath = /*[[@{/}]]*/ '/';
         if (window.jQuery && window.jQuery.fn.slick) {
-
             $('.deals-slider').slick({
                 infinite: true,
                 slidesToShow: 3,
@@ -100,27 +103,129 @@
                 autoplay: true,
                 autoplaySpeed: 10000,
                 responsive: [
-                    {
-                        breakpoint: 1200,
-                        settings: {
-                            slidesToShow: 2,
-                            slidesToScroll: 2
-                        }
-                    },
-                    {
-                        breakpoint: 768,
-                        settings: {
-                            slidesToShow: 1,
-                            slidesToScroll: 1
-                        }
-                    }
+                    { breakpoint: 1200, settings: { slidesToShow: 2, slidesToScroll: 2 } },
+                    { breakpoint: 768, settings: { slidesToShow: 1, slidesToScroll: 1 } }
                 ]
             });
         } else {
             console.error("jQuery hoặc Slick Slider chưa được nạp. Slider 'deals-slider' sẽ không hoạt động.");
         }
+        const TOKEN_KEY = 'authToken';
+        const urlParams = new URLSearchParams(window.location.search);
+        const isLogout = urlParams.get('logout');
+
+        if (isLogout === 'true') {
+            console.log('Phát hiện logout=true, đang dọn dẹp Local Storage...');
+            localStorage.removeItem(TOKEN_KEY);
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userFullName');
+            localStorage.removeItem('userRole');
+            window.history.replaceState({}, document.title, "/");
+        }
+        const token = localStorage.getItem(TOKEN_KEY);
+
+        if (token) {
+            const apiUrl = contextPath + 'api/auth/me';
+
+            fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Token không hợp lệ');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('nav-cart-anonymous').classList.add('d-none');
+                    document.getElementById('nav-user-anonymous').classList.add('d-none');
+                    document.getElementById('nav-cart-authenticated').classList.remove('d-none');
+                    document.getElementById('nav-user-authenticated').classList.remove('d-none');
+                    const shopLink = document.getElementById('nav-shop-link');
+                    if (shopLink) {
+                        if (data.shop) {
+                            shopLink.href = contextPath + 'shop';
+                        } else {
+                            shopLink.href = contextPath + 'shop/register';
+                        }
+                    }
+
+                    const logoutButton = document.getElementById('nav-logout-button');
+                    if (logoutButton) {
+                        logoutButton.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            localStorage.removeItem(TOKEN_KEY);
+                            localStorage.removeItem('userId');
+                            localStorage.removeItem('userEmail');
+                            localStorage.removeItem('userFullName');
+                            localStorage.removeItem('userRole');
+                            window.location.href = contextPath;
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi khi gọi API /me hoặc token không hợp lệ:', error);
+                    localStorage.removeItem(TOKEN_KEY);
+                });
+        } else {
+            console.log('Không tìm thấy token, người dùng chưa đăng nhập.');
+        }
     });
 </script>
+<script type="module">
+    import cartBadgeUtils from "./js/utils/cartBadgeUtils.js";
+    import {showInfoToast} from "./js/utils/toastUtils.js";
 
+    document.addEventListener("DOMContentLoaded", function () {
+        const user_id = localStorage.getItem('userId');
+        console.log(user_id);
+        if (user_id) {
+            cartBadgeUtils.initCartBadge(user_id);
+            connect(user_id);
+        }
+    });
+
+
+    let stompClient = null;
+    function connect(user_id) {
+        let token = localStorage.getItem("authToken");
+        if (!token) {
+            return;
+        }
+        const socket = new SockJS("http://localhost:8082/UTE_SHOP/ws?token=" + token);
+        stompClient = Stomp.over(socket);
+        stompClient.connect(
+            {},
+            function(frame) {
+                stompClient.subscribe('/user/queue/orders', function(message) {
+                    try {
+                        const body = JSON.parse(message.body);
+                        console.log('Received message:', body);
+                        if (body.orderId !== null && Number(body.userId) === Number(user_id)) {
+                            showInfoToast("You have received an update for your order: #" + body.orderId + " - Status: " + body.status);
+                        }
+                        else if (Number(body.userId) === Number(user_id)) {
+                            showInfoToast("You have a new message: " + body.status);
+                        }
+                    } catch (e) {
+                        console.log('Parse error:', e);
+                        alert('📦 Message received (raw):\n' + message.body);
+                    }
+                });
+                if (Notification.permission === "default") {
+                    Notification.requestPermission();
+                }
+            },
+            function(error) {
+                log('STOMP error: ' + JSON.stringify(error), 'err');
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+            });
+    }
+</script>
 </body>
 </html>

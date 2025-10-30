@@ -8,23 +8,159 @@
 <div th:replace="admin/_layout :: layout(~{::content})">
     <div th:fragment="content">
 
-        <div class="page-wrap">
+        <style>
+            /* ===================== ADD SHIPPER BEAUTIFY ===================== */
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
 
+            .page-wrap {
+                max-width: 750px;
+                margin: 0 auto;
+                animation: fadeInUp 0.4s ease-in-out;
+            }
+
+            h3 {
+                font-weight: 700;
+                color: #111827;
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+            }
+
+            h3::before {
+                content: "\f4ff"; /* 👷‍♂️ worker icon */
+                font-family: "Font Awesome 6 Free";
+                font-weight: 900;
+                color: #16a34a;
+            }
+
+            .breadcrumb a {
+                text-decoration: none;
+                color: #16a34a;
+                font-weight: 500;
+            }
+
+            .breadcrumb-item + .breadcrumb-item::before {
+                color: #9ca3af;
+            }
+
+            .card {
+                border-radius: 16px;
+                border: 1px solid #e5e7eb;
+                box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+                background: #fff;
+                animation: fadeInUp 0.5s ease;
+            }
+
+            .form-label {
+                font-weight: 600;
+                color: #374151;
+            }
+
+            .form-control, .select2-selection {
+                border-radius: 10px !important;
+                border: 1px solid #d1d5db;
+                transition: all 0.25s ease;
+            }
+
+            .form-control:focus, .select2-container--default .select2-selection--single:focus {
+                border-color: #16a34a !important;
+                box-shadow: 0 0 0 3px rgba(22,163,74,0.25);
+            }
+
+            /* Buttons */
+            .btn-primary {
+                background: linear-gradient(90deg, #16a34a, #22c55e);
+                border: none;
+                border-radius: 10px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            }
+
+            .btn-primary:hover {
+                background: linear-gradient(90deg, #15803d, #16a34a);
+                box-shadow: 0 0 12px rgba(22,163,74,0.4);
+            }
+
+            .btn-secondary {
+                border-radius: 10px;
+                border: 1px solid #d1d5db;
+                color: #374151;
+            }
+
+            .btn-secondary:hover {
+                background: #f3f4f6;
+            }
+
+            /* Select2 custom */
+            .select2-container--default .select2-selection--single {
+                height: 40px;
+                display: flex;
+                align-items: center;
+                padding: 4px 8px;
+            }
+
+            .select2-container--default .select2-selection__rendered {
+                line-height: 30px;
+                color: #374151;
+            }
+
+            .select2-container--default .select2-selection__arrow {
+                height: 38px;
+                right: 8px;
+            }
+            /* ===================== FIX SELECT2 ALIGNMENT ===================== */
+            .select2-container .select2-selection--single {
+                height: 38px !important;
+                border: 1px solid #ced4da !important;
+                border-radius: 8px !important;
+                display: flex !important;
+                align-items: center !important;
+                padding: 4px 8px !important;
+                font-size: 0.95rem !important;
+                font-family: inherit !important;
+            }
+
+            .select2-container--default .select2-selection__rendered {
+                line-height: normal !important;
+                color: #212529 !important;
+            }
+
+            .select2-container--default .select2-selection__arrow {
+                height: 38px !important;
+                right: 8px !important;
+            }
+
+            .select2-container--default .select2-selection__placeholder {
+                color: #6c757d !important;
+                font-style: italic !important;
+            }
+
+            .select2-dropdown {
+                border-radius: 8px !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            }
+        </style>
+
+        <div class="page-wrap">
             <!-- Breadcrumb -->
             <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="/admin/shippers">Shippers</a></li>
+                    <li class="breadcrumb-item"><a href="/UTE_SHOP/admin/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/UTE_SHOP/admin/shippers">Shippers</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Add Shipper</li>
                 </ol>
             </nav>
 
             <h3 class="mb-4">Add New Shipper</h3>
 
+            <!-- Form -->
             <form id="shipperForm" class="card p-4 shadow-sm">
                 <!-- User -->
                 <div class="mb-3">
-                    <label for="userId" class="form-label">Select User</label>
+                    <label for="userId" class="form-label">Select User <span class="text-danger">*</span></label>
                     <select id="userId" class="form-select" required>
                         <option value="">-- Select Shipper User --</option>
                     </select>
@@ -52,39 +188,36 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="d-flex justify-content-between">
-                    <a href="/admin/shippers" class="btn btn-secondary">← Back</a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Add Shipper
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="/UTE_SHOP/admin/shippers" class="btn btn-secondary px-4">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-save"></i> Save Shipper
                     </button>
                 </div>
             </form>
         </div>
+
+        <!-- Toast -->
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
+            <div id="toast" class="toast align-items-center text-bg-success border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body fw-semibold" id="toastMsg">Shipper added successfully!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
-<!-- ✅ Thư viện Select2 -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- ✅ Select2 libraries -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<!-- JS chính -->
+<!-- JS -->
 <script th:src="@{/js/admin/admin-shippers.js}"></script>
 </body>
-<style>
-    .page-wrap { max-width: 700px; margin: 0 auto; }
-    .card { border-radius: 14px; }
-    .form-label { font-weight: 500; }
-
-    /* Tùy chỉnh giao diện Select2 */
-    .select2-container--default .select2-selection--single {
-        height: 38px;
-        border: 1px solid #ced4da;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-    }
-    .select2-container--default .select2-selection__arrow {
-        height: 36px;
-    }
-</style>
 </html>

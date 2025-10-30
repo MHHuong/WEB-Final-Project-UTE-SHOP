@@ -54,6 +54,11 @@ public class AuthServiceImpl implements AuthService {
         AuthenticationManager am = amProvider.getObject();
         Authentication a = am.authenticate(new UsernamePasswordAuthenticationToken(req.email(), req.password()));
         User u = users.findByEmail(req.email()).orElseThrow();
+
+        if (u.getStatus() != null && u.getStatus() == 0) {
+            throw new RuntimeException("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên!");
+        }
+
         Map<String, Object> claims = Map.of(
                 "role", u.getRole().name(),
                 "name", u.getFullName(),
