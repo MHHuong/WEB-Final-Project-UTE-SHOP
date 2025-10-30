@@ -348,7 +348,7 @@ public class ProductServiceImpl implements ProductService {
     public Page<Product> search(String q, Pageable pageable) {
         String kw = (q == null) ? "" : q.trim();
         return productRepository.search(kw, pageable);
-
+    }
     @Override
     @Transactional(readOnly = true)
     public Page<ProductDTO> findActiveProductsAsDTO(int page, int size) {
