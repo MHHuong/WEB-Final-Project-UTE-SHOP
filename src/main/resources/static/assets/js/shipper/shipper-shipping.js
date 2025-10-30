@@ -38,7 +38,7 @@
         const url = `${BASE}/api/shipper/orders/shipping?page=${page}&size=${size}&sort=${encodeURIComponent(sort)}`;
         const res = await fetch(url, {headers: {'Authorization': `Bearer ${token}`}});
         if (!res.ok) {
-            alert('Tải danh sách thất bại');
+            alert('Load failed');
             return;
         }
         const data = await res.json();
@@ -101,7 +101,7 @@
     }
 
     async function deliver(orderId) {
-        if (!confirm('Xác nhận đã giao thành công?')) return;
+        if (!confirm('Confirm delivered?')) return;
         const res = await fetch(`${BASE}/api/shipper/orders/${orderId}/deliver`, {
             method: 'POST', headers: {'Authorization': `Bearer ${token}`}
         });

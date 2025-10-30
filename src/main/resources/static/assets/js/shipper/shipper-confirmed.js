@@ -87,15 +87,15 @@
                 tr.querySelector('.btn-view').addEventListener('click', () => {
                     if (!detailDl || !bsModal) return;
                     detailDl.innerHTML = `
-          <dt class="col-sm-4">Mã đơn</dt><dd class="col-sm-8">#${fmt(it.orderId)}</dd>
-          <dt class="col-sm-4">Sản phẩm</dt><dd class="col-sm-8">${fmt(it.productName)}</dd>
-          <dt class="col-sm-4">Trạng thái</dt><dd class="col-sm-8">${fmt(it.status)}</dd>
-          <dt class="col-sm-4">Nhà vận chuyển</dt><dd class="col-sm-8">${fmt(it.shippingProvider)}</dd>
-          <dt class="col-sm-4">Cửa hàng</dt><dd class="col-sm-8">${fmt(it.shopName)}</dd>
-          <dt class="col-sm-4">Người nhận</dt><dd class="col-sm-8">${fmt(it.receiverName)} — ${fmt(it.receiverPhone)}</dd>
-          <dt class="col-sm-4">Địa chỉ nhận</dt><dd class="col-sm-8">${fmt(it.receiverAddress)}</dd>
+          <dt class="col-sm-4">Order Id</dt><dd class="col-sm-8">#${fmt(it.orderId)}</dd>
+          <dt class="col-sm-4">Product</dt><dd class="col-sm-8">${fmt(it.productName)}</dd>
+          <dt class="col-sm-4">Status</dt><dd class="col-sm-8">${fmt(it.status)}</dd>
+          <dt class="col-sm-4">Shipping Provider</dt><dd class="col-sm-8">${fmt(it.shippingProvider)}</dd>
+          <dt class="col-sm-4">Shop</dt><dd class="col-sm-8">${fmt(it.shopName)}</dd>
+          <dt class="col-sm-4">Receiver</dt><dd class="col-sm-8">${fmt(it.receiverName)} — ${fmt(it.receiverPhone)}</dd>
+          <dt class="col-sm-4">Address</dt><dd class="col-sm-8">${fmt(it.receiverAddress)}</dd>
           <dt class="col-sm-4">COD</dt><dd class="col-sm-8">${money(it.amountForCOD)}</dd>
-          <dt class="col-sm-4">Ngày tạo</dt><dd class="col-sm-8">${fmtDate(it.createdAt)}</dd>
+          <dt class="col-sm-4">Created at</dt><dd class="col-sm-8">${fmtDate(it.createdAt)}</dd>
         `;
                     pickupBtn?.setAttribute('data-id', it.orderId);
                     bsModal.show();
