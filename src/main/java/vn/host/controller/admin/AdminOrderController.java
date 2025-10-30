@@ -5,12 +5,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.host.dto.order.OrderReturnResponse;
 import vn.host.entity.Order;
+import vn.host.entity.Shipper;
+import vn.host.model.websocket.OrderStatusMessage;
 import vn.host.service.OrderService;
 import vn.host.util.sharedenum.OrderStatus;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/orders")
@@ -19,6 +25,7 @@ import vn.host.util.sharedenum.OrderStatus;
 public class AdminOrderController {
 
     private final OrderService orderService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     // ✅ 1. Lấy tất cả đơn có trạng thái liên quan trả hàng
     @GetMapping("/returns")
@@ -34,6 +41,14 @@ public class AdminOrderController {
     @PutMapping("/{orderId}/approve-return")
     public ResponseEntity<?> approveReturn(@PathVariable Long orderId) {
         orderService.updateStatusFast(orderId, OrderStatus.RETURNING.name(), null);
+        Order updated = orderService.findById(orderId);
+        List<Long> receivers = new ArrayList<>();
+        receivers.add(updated.getShop().getOwner().getUserId());
+        receivers.add(updated.getUser().getUserId());
+        for (Long receiverId : receivers) {
+            OrderStatusMessage payload = new OrderStatusMessage(null, receiverId.toString().matches("\\d+") ? receiverId : null, updated.getStatus().toString());
+            messagingTemplate.convertAndSendToUser(receiverId.toString(), "/queue/orders", payload);
+        }
         return ResponseEntity.ok("Đã duyệt yêu cầu trả hàng!");
     }
 
@@ -41,6 +56,13 @@ public class AdminOrderController {
     @PutMapping("/{orderId}/reject-return")
     public ResponseEntity<?> rejectReturn(@PathVariable Long orderId) {
         orderService.updateStatusFast(orderId, OrderStatus.CANCELLED.name(), "Yêu cầu trả hàng bị từ chối");
+        Order updated = orderService.findById(orderId);
+        List<Long> receivers = new ArrayList<>();
+        receivers.add(updated.getUser().getUserId());
+        for (Long receiverId : receivers) {
+            OrderStatusMessage payload = new OrderStatusMessage(null, receiverId.toString().matches("\\d+") ? receiverId : null, updated.getStatus().toString());
+            messagingTemplate.convertAndSendToUser(receiverId.toString(), "/queue/orders", payload);
+        }
         return ResponseEntity.ok("Đã từ chối yêu cầu trả hàng!");
     }
 

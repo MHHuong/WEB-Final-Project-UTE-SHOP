@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.StringUtils;
@@ -16,6 +17,7 @@ import vn.host.dto.order.OrderItemVM;
 import vn.host.dto.order.OrderRowVM;
 import vn.host.dto.order.UpdateStatusReq;
 import vn.host.entity.*;
+import vn.host.model.websocket.OrderStatusMessage;
 import vn.host.service.*;
 import vn.host.util.sharedenum.DiscountType;
 import vn.host.util.sharedenum.OrderStatus;
@@ -37,6 +39,7 @@ public class OrderAPIController {
     private final OrderService orderService;
     private final ProductService productService;
     private final OrderShipperLogService orderShipperLogService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     private User authedUser(Authentication auth) {
         if (auth == null) throw new SecurityException("Unauthenticated");
@@ -222,8 +225,24 @@ public class OrderAPIController {
                 if (decreased == 0) {
                     p.setStatus(1);
                 }
-
                 productService.save(p);
+            }
+            List<Long> receivers = new ArrayList<>();
+            List<Shipper> shippers = o.getShippingProvider().getShippers().stream().toList();
+            for (Shipper shipper : shippers) {
+                receivers.add(shipper.getUser().getUserId());
+            }
+            receivers.add(o.getUser().getUserId());
+            for (Long receiverId : receivers) {
+                OrderStatusMessage payload = new OrderStatusMessage(null, receiverId.toString().matches("\\d+") ? receiverId : null, next.toString());
+                messagingTemplate.convertAndSendToUser(receiverId.toString(), "/queue/orders", payload);
+            }
+        } else {
+            List<Long> receivers = new ArrayList<>();
+            receivers.add(o.getUser().getUserId());
+            for (Long receiverId : receivers) {
+                OrderStatusMessage payload = new OrderStatusMessage(null, receiverId.toString().matches("\\d+") ? receiverId : null, next.toString());
+                messagingTemplate.convertAndSendToUser(receiverId.toString(), "/queue/orders", payload);
             }
         }
         o.setStatus(next);
@@ -310,6 +329,13 @@ public class OrderAPIController {
         }
         o.setStatus(OrderStatus.RETURNED);
         orderService.save(o);
+        List<Long> receivers = new ArrayList<>();
+        receivers.add(o.getShipper().getUser().getUserId());
+        receivers.add(o.getUser().getUserId());
+        for (Long receiverId : receivers) {
+            OrderStatusMessage payload = new OrderStatusMessage(null, receiverId.toString().matches("\\d+") ? receiverId : null, o.getStatus().toString());
+            messagingTemplate.convertAndSendToUser(receiverId.toString(), "/queue/orders", payload);
+        }
         return ResponseEntity.ok().build();
     }
 

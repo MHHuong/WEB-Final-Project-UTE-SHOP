@@ -3,18 +3,23 @@ package vn.host.controller.shipper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import vn.host.dto.common.PageResult;
 import vn.host.dto.shipper.RegisterShipperReq;
 import vn.host.dto.shipper.ShipperOrderRowVM;
 import vn.host.entity.*;
+import vn.host.model.websocket.OrderStatusMessage;
 import vn.host.service.OrderShipperLogService;
 import vn.host.service.ShipperService;
 import vn.host.service.ShippingProviderService;
 import vn.host.service.UserService;
 import vn.host.util.sharedenum.OrderStatus;
 import vn.host.util.sharedenum.ShipperAction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/shipper")
@@ -23,8 +28,9 @@ public class ShipperController {
 
     private final UserService users;
     private final ShippingProviderService providers;
-    private final ShipperService shipperSvc; // dùng impl vì có extra methods
+    private final ShipperService shipperSvc;
     private final OrderShipperLogService logs;
+    private final SimpMessagingTemplate messagingTemplate;
 
     private User authed(Authentication auth) {
         if (auth == null) throw new SecurityException("Unauthenticated");
@@ -112,6 +118,17 @@ public class ShipperController {
         User u = authed(auth);
         Shipper me = shipperSvc.findByUserId(u.getUserId()).orElseThrow(() -> new SecurityException("Not a shipper"));
         Order updated = shipperSvc.pickup(orderId, me);
+        List<Long> receivers = new ArrayList<>();
+        List<Shipper> shippers = updated.getShippingProvider().getShippers().stream().toList();
+        for (Shipper shipper : shippers) {
+            receivers.add(shipper.getUser().getUserId());
+        }
+        receivers.add(updated.getShop().getOwner().getUserId());
+        receivers.add(updated.getUser().getUserId());
+        for (Long receiverId : receivers) {
+            OrderStatusMessage payload = new OrderStatusMessage(null, receiverId.toString().matches("\\d+") ? receiverId : null, updated.getStatus().toString());
+            messagingTemplate.convertAndSendToUser(receiverId.toString(), "/queue/orders", payload);
+        }
         return ResponseEntity.ok(ShipperOrderRowVM.of(updated));
     }
 
@@ -121,6 +138,17 @@ public class ShipperController {
         User u = authed(auth);
         Shipper me = shipperSvc.findByUserId(u.getUserId()).orElseThrow(() -> new SecurityException("Not a shipper"));
         Order updated = shipperSvc.deliver(orderId, me);
+        List<Long> receivers = new ArrayList<>();
+        List<Shipper> shippers = updated.getShippingProvider().getShippers().stream().toList();
+        for (Shipper shipper : shippers) {
+            receivers.add(shipper.getUser().getUserId());
+        }
+        receivers.add(updated.getShop().getOwner().getUserId());
+        receivers.add(updated.getUser().getUserId());
+        for (Long receiverId : receivers) {
+            OrderStatusMessage payload = new OrderStatusMessage(null, receiverId.toString().matches("\\d+") ? receiverId : null, updated.getStatus().toString());
+            messagingTemplate.convertAndSendToUser(receiverId.toString(), "/queue/orders", payload);
+        }
         return ResponseEntity.ok(ShipperOrderRowVM.of(updated));
     }
 
