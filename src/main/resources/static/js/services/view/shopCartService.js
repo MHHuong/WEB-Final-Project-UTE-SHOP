@@ -23,8 +23,12 @@ const contextPath = (() => {
 
 // Format currency
 function formatCurrency(amount) {
-    if (isNaN(amount)) return "0₫";
-    return amount.toLocaleString('vi-VN') + '₫';
+    try {
+        if (isNaN(amount)) return "0₫";
+        return amount.toLocaleString('vi-VN') + '₫';
+    } catch(Error) {
+        return amount + '₫';
+    }
 }
 
 // Group cart items by shop
@@ -502,6 +506,7 @@ window.handleNavigation = async () => {
                 : shopVouchers[item.productResponse.shopId]?.value || 0
         }))
     const result = await cartService.saveSelectedCartItem(selectedCartItems);
+    localStorage.setItem('selectedCartItem', JSON.stringify(selectedCartItems));
     if (result.status === 'Success') {
         window.location.href = `/UTE_SHOP/user/checkout`;
     }
@@ -515,6 +520,7 @@ async function renderVouchers(shopId) {
     let vouchers = [];
     try {
         const result = await couponService.getAllShopCoupons(shopId);
+        console.log(result)
         if (result.status === 'Success' && result.data) {
             vouchers = result.data;
         } else showErrorToast(result.message);

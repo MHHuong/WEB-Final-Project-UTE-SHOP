@@ -206,11 +206,14 @@ async function loadSelectedProducts() {
     if (result.status === 'Success') {
         selectedProducts = result.data;
         if (!selectedProducts) {
-            showWarningToast('Please choose product from cart!');
-            setTimeout(() => {
-                window.location.href = '/UTE_SHOP/user/shop-cart';
-            }, 2000);
-            return;
+            selectedProducts = JSON.parse(localStorage.getItem('selectedCartItem'));
+            if (!selectedProducts) {
+                showWarningToast('Please choose product from cart!');
+                setTimeout(() => {
+                    window.location.href = '/UTE_SHOP/user/shop-cart';
+                }, 2000);
+                return;
+            }
         }
 
         try {
@@ -436,9 +439,11 @@ async function handleNavigation() {
             discountAmount: item.discountValue || 0
         })),
         orderTime: new Date().toLocaleString('vi-VN'),
-        orderCode: 'ORD' + Date.now()
     };
-    await orderService.setDisplayTempOrder(displayOrderData);
+    localStorage.removeItem('selectedCartItems');
+    localStorage.setItem('selectedProducts', JSON.stringify(displayOrderData));
+    const result = await orderService.setDisplayTempOrder(displayOrderData);
+    localStorage.setItem('orderData', JSON.stringify(result.data));
     setTimeout(() => {
         if (paymentMethod === 'E_WALLET' && ewalletType) {
             window.location.href = `/UTE_SHOP/user/order/${displayOrderData.orderCode}?status=pending`;
@@ -464,7 +469,7 @@ async function calcShippingFee() {
 }
 
 async function displayShippingFeeFist() {
-    // await calcShippingFee()
+    await calcShippingFee()
     document.getElementById("shipping-fee").innerText = formatCurrency(shippingFee);
     const subtotalText = document.getElementById("subtotal").innerText.replace(/₫/g, '').replace(/\./g, '');
     const subtotal = parseInt(subtotalText) || 0;
@@ -474,8 +479,7 @@ async function displayShippingFeeFist() {
 
 async function addShippingServiceFee() {
     let shippingMethod = document.querySelector('input[name="shipping-method"]:checked').value;
-    // await calcShippingFee()
-    shippingFee = 0;
+    await calcShippingFee()
     switch (shippingMethod) {
         case 'STANDARD':
             shippingFee += 0;
