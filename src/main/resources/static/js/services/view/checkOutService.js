@@ -464,7 +464,7 @@ async function calcShippingFee() {
 }
 
 async function displayShippingFeeFist() {
-    // await calcShippingFee()
+    await calcShippingFee()
     document.getElementById("shipping-fee").innerText = formatCurrency(shippingFee);
     const subtotalText = document.getElementById("subtotal").innerText.replace(/₫/g, '').replace(/\./g, '');
     const subtotal = parseInt(subtotalText) || 0;
@@ -474,8 +474,7 @@ async function displayShippingFeeFist() {
 
 async function addShippingServiceFee() {
     let shippingMethod = document.querySelector('input[name="shipping-method"]:checked').value;
-    // await calcShippingFee()
-    shippingFee = 0;
+    await calcShippingFee()
     switch (shippingMethod) {
         case 'STANDARD':
             shippingFee += 0;
