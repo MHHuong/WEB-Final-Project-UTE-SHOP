@@ -212,6 +212,16 @@ function updateOrderTimeline(currentStatus) {
     });
 }
 
+const contextPath = (() => {
+    try {
+        const part = window.location.pathname.split('/')[1];
+        if (!part || part.toLowerCase() === 'api') return '';
+        return '/' + part;
+    } catch (e) {
+        return '';
+    }
+})();
+
 function buildUrl(p) {
     if (!p) return '/assets/images/sample/snack.jpg';
     if (/^https?:\/\//i.test(p)) return p; // http / https giữ nguyên
@@ -319,11 +329,11 @@ function displayActionButtons(order) {
     const container = document.getElementById('order-actions');
 
     let buttonsHTML = `
-        <a href="/user/profile" class="btn btn-outline-primary btn-lg px-5">
+        <a href="/UTE_SHOP/user/profile" class="btn btn-outline-primary btn-lg px-5">
             <i class="bi bi-list-ul me-2"></i>
             Watch Order History
         </a>
-        <a href="/user" class="btn btn-outline-secondary btn-lg px-5">
+        <a href="/UTE_SHOP" class="btn btn-outline-secondary btn-lg px-5">
             <i class="bi bi-house me-2"></i>
              Continue Shopping
         </a>

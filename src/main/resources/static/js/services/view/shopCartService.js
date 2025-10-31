@@ -506,6 +506,7 @@ window.handleNavigation = async () => {
                 : shopVouchers[item.productResponse.shopId]?.value || 0
         }))
     const result = await cartService.saveSelectedCartItem(selectedCartItems);
+    localStorage.setItem('selectedCartItem', JSON.stringify(selectedCartItems));
     if (result.status === 'Success') {
         window.location.href = `/UTE_SHOP/user/checkout`;
     }

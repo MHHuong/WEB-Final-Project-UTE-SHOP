@@ -2,6 +2,7 @@ import favoriteService from "./services/api/favoriteService.js";
 import { showErrorToast, showSuccessToast } from "./utils/toastUtils.js";
 import { AuthState } from "./auth.js";
 import cartService from "./services/api/cartService.js";
+import cartBadgeUtils from "./utils/cartBadgeUtils.js";
 
 let USER_ID = localStorage.getItem('userId') || 0;
 
@@ -46,9 +47,9 @@ export function initProductCardListeners() {
     document.addEventListener('click', async function (event) {
         if (event.target.closest('.btn-add-cart')) {
             event.preventDefault();
+            event.stopPropagation();
             const button = event.target.closest('.btn-add-cart');
             const id = button.getAttribute('data-id');
-            console.log(id);
             try {
                 // Get USER_ID
                 USER_ID = localStorage.getItem('userId') || 0;
@@ -78,6 +79,7 @@ export function initProductCardListeners() {
 
                 const result = await cartService.addSelectedCartItem(cart);
                 if (result.status === "Success") {
+                    await cartBadgeUtils.refreshCartBadge(USER_ID);
                     showSuccessToast('Added to cart!');
                 } else {
                     showErrorToast('Failed to add to cart: ' + result.message);

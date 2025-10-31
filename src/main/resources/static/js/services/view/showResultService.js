@@ -55,6 +55,7 @@ async function loadOrderData() {
     }
     const result = await orderService.getDisplayTempOrder();
     if (result.status === "Success") {
+        if (!result.data) result.data = JSON.parse(localStorage.getItem('orderData'));
         try {
             document.getElementById('order-code').textContent = result.orderCode || 'N/A';
             displayOrderData(result.data);
@@ -314,14 +315,25 @@ function startCountdown() {
 }
 
 
-async function handlePaymentClick() {
+async function handlePaymentClick(e) {
+    console.log(paymentData);
+    e.stopPropagation();
+    e.preventDefault();
     let url = null;
-    const result = await paymentService.createPayment(paymentData, paymentMethod);
-    if (paymentMethod === "MOMO")
-        url = result.data.payUrl;
-    else url = result.data;
-    showInfoToast('Đang chuyển đến trang thanh toán...');
     localStorage.removeItem('paymentDeadline');
+    const result = await paymentService.createPayment(paymentData, paymentMethod);
+    console.log(result);
+    if (paymentMethod === "MOMO")
+        if (result.data.payUrl == null) {
+            showErrorToast('Tạo đơn thanh toán thất bại. Vui lòng thử lại.');
+            setTimeout(() => {
+                window.location.href = "/UTE_SHOP/user/order" + '/' + paymentData.orderId + '?status=failed';
+            }, 2000);
+            return;
+        } else url = result.data.payUrl;
+    else url = result.data;
+    console.log(url);
+    showInfoToast('Đang chuyển đến trang thanh toán...');
     setTimeout(() => {
         window.location.href = url;
     }, 2000);
@@ -330,9 +342,10 @@ async function handlePaymentClick() {
 // Handle retry payment
 function handleRetryPayment() {
     remainingSeconds = 900;
+    console.log("hehe");
     setPaymentState(PAYMENT_STATE.PENDING);
     showWarningToast('Vui lòng hoàn tất thanh toán trong 15 phút');
-    const newUrl = window.location.pathname + '/' + paymentData.orderId + '?status=pending';
+    const newUrl = "/UTE_SHOP/user/order" + '/' + paymentData.orderId + '?status=pending';
     window.history.pushState({}, '', newUrl);
 }
 
